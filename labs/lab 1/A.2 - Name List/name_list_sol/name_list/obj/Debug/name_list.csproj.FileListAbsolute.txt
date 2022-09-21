@@ -1,0 +1,16 @@
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\labs\lab 1\A.1 - Hello World\name_list_sol\name_list\obj\Debug\name_list.csproj.AssemblyReference.cache
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\labs\lab 1\A.1 - Hello World\name_list_sol\name_list\obj\Debug\name_list.csproj.SuggestedBindingRedirects.cache
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\labs\lab 1\A.1 - Hello World\name_list_sol\name_list\obj\Debug\name_list.Properties.Resources.resources
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\labs\lab 1\A.1 - Hello World\name_list_sol\name_list\obj\Debug\name_list.csproj.GenerateResource.cache
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\labs\lab 1\A.1 - Hello World\name_list_sol\name_list\obj\Debug\name_list.csproj.CoreCompileInputs.cache
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\labs\lab 1\A.2 - Name List\name_list_sol\name_list\bin\Debug\name_list.exe.config
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\labs\lab 1\A.2 - Name List\name_list_sol\name_list\bin\Debug\name_list.exe
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\labs\lab 1\A.2 - Name List\name_list_sol\name_list\bin\Debug\name_list.pdb
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\labs\lab 1\A.2 - Name List\name_list_sol\name_list\obj\Debug\name_list.csproj.AssemblyReference.cache
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\labs\lab 1\A.2 - Name List\name_list_sol\name_list\obj\Debug\name_list.csproj.SuggestedBindingRedirects.cache
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\labs\lab 1\A.2 - Name List\name_list_sol\name_list\obj\Debug\name_list.Properties.Resources.resources
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\labs\lab 1\A.2 - Name List\name_list_sol\name_list\obj\Debug\name_list.csproj.GenerateResource.cache
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\labs\lab 1\A.2 - Name List\name_list_sol\name_list\obj\Debug\name_list.csproj.CoreCompileInputs.cache
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\labs\lab 1\A.2 - Name List\name_list_sol\name_list\obj\Debug\name_list.exe
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\labs\lab 1\A.2 - Name List\name_list_sol\name_list\obj\Debug\name_list.pdb
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\labs\lab 1\A.2 - Name List\name_list_sol\name_list\obj\Debug\name_list.Form1.resources

@@ -1,0 +1,11 @@
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\labs\lab 1\A.1 - Hello World\hello_world_2_sol\hello_world_2\bin\Debug\hello_world_2.exe.config
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\labs\lab 1\A.1 - Hello World\hello_world_2_sol\hello_world_2\bin\Debug\hello_world_2.exe
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\labs\lab 1\A.1 - Hello World\hello_world_2_sol\hello_world_2\bin\Debug\hello_world_2.pdb
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\labs\lab 1\A.1 - Hello World\hello_world_2_sol\hello_world_2\obj\Debug\hello_world_2.csproj.AssemblyReference.cache
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\labs\lab 1\A.1 - Hello World\hello_world_2_sol\hello_world_2\obj\Debug\hello_world_2.csproj.SuggestedBindingRedirects.cache
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\labs\lab 1\A.1 - Hello World\hello_world_2_sol\hello_world_2\obj\Debug\hello_world_2.Form1.resources
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\labs\lab 1\A.1 - Hello World\hello_world_2_sol\hello_world_2\obj\Debug\hello_world_2.Properties.Resources.resources
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\labs\lab 1\A.1 - Hello World\hello_world_2_sol\hello_world_2\obj\Debug\hello_world_2.csproj.GenerateResource.cache
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\labs\lab 1\A.1 - Hello World\hello_world_2_sol\hello_world_2\obj\Debug\hello_world_2.csproj.CoreCompileInputs.cache
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\labs\lab 1\A.1 - Hello World\hello_world_2_sol\hello_world_2\obj\Debug\hello_world_2.exe
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\labs\lab 1\A.1 - Hello World\hello_world_2_sol\hello_world_2\obj\Debug\hello_world_2.pdb
