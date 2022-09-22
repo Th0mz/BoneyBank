@@ -48,7 +48,7 @@ namespace ChatClient
             }
 
             var reply = client.Register(
-             new ChatServerRegisterRequest { Nick = name, Url = "http://localhost:" + port });
+             new ChatServerRegisterRequest { Nick = name, Url = $"http://localhost:{port}" });
 
             if (reply == null || !reply.Ok)
             {

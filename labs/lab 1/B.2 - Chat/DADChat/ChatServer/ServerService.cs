@@ -9,6 +9,10 @@ using static System.Net.Mime.MediaTypeNames;
 public class ServerService : ChatServerService.ChatServerServiceBase
 {
     private Dictionary<string, string> clientMap = new Dictionary<string, string>();
+    
+    // messaging channell 
+    private GrpcChannel channel;
+    private ChatClientService.ChatClientServiceClient client;
 
     public ServerService()
     {
@@ -52,16 +56,23 @@ public class ServerService : ChatServerService.ChatServerServiceBase
                 continue;
             }
 
-            string port = clientMap[name];
+            string address = clientMap[name];
 
-            GrpcChannel channel = GrpcChannel.ForAddress($"http://localhost:{port}");
-            ChatClientService.ChatClientServiceClient client = new ChatClientService.ChatClientServiceClient(channel);
-            
+            Console.WriteLine($"creating channel with {address}");
+            channel = GrpcChannel.ForAddress(address);
+
+            Console.WriteLine($"client is being created");
+            client = new ChatClientService.ChatClientServiceClient(channel);
+
+            Console.WriteLine($"sent broadcast message");
             var reply = client.Broadcast(
                 new ChatClientBroadcastRequest { Nick = request.Nick, Message = request.Message });
 
+            Console.WriteLine($"recieved confirmation {reply.Ok}");
+
+
         }
-        
+
         Console.WriteLine($"sent message to all {clientMap.Count - 1} online users");
         return new ChatServerBroadcastReply { Ok = true };
     }
