@@ -4,10 +4,12 @@ using System.Threading.Tasks;
 using System;
 using ChatClient;
 using System.Windows.Forms;
+using static System.Net.Mime.MediaTypeNames;
 
 public class ClientService : ChatClientService.ChatClientServiceBase
 {
-    public ClientService() { }
+    Form1 form;
+    public ClientService(Form1 form1) { form = form1; }
 
     // broadcast
     public override Task<ChatClientBroadcastReply> Broadcast(
@@ -19,7 +21,7 @@ public class ClientService : ChatClientService.ChatClientServiceBase
     public ChatClientBroadcastReply do_broadcast(ChatClientBroadcastRequest request)
     {
         // update message list 
-        
+        form.add_message(request.Message);
         return new ChatClientBroadcastReply { Ok = true };
     }
 }

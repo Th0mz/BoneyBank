@@ -11,9 +11,11 @@ using Grpc.Net.Client;
 using Grpc.Core;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Runtime.InteropServices;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ChatClient
 {
+
     public partial class Form1 : Form
     {
         // client info
@@ -24,7 +26,7 @@ namespace ChatClient
         private GrpcChannel channel;
         private ChatServerService.ChatServerServiceClient client;
 
-        Server server;
+        Server server = new Server { };
 
         public Form1()
         {
@@ -64,11 +66,10 @@ namespace ChatClient
             button3.Enabled = true;
 
             // open message recieving port 
-            server = new Server
-            {
-                Services = { ChatClientService.BindService(new ClientService()) },
-                Ports = { new ServerPort("localhost", Int32.Parse(port), ServerCredentials.Insecure) }
-            };
+
+            server.Services.Add(ChatClientService.BindService(new ClientService(this)));
+            server.Ports.Add(new ServerPort("localhost", Int32.Parse(port), ServerCredentials.Insecure));
+            
             server.Start();
         }
 
@@ -90,6 +91,11 @@ namespace ChatClient
 
                 textBox3.Text = "";
             }
+        }
+
+        public void add_message (string message)
+        {
+            listBox1.Items.Add(message);
         }
     }
 }

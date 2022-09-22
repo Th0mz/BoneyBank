@@ -16,6 +16,7 @@ public class ServerService : ChatServerService.ChatServerServiceBase
 
     public ServerService()
     {
+        AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
     }
 
     // register 
@@ -58,17 +59,12 @@ public class ServerService : ChatServerService.ChatServerServiceBase
 
             string address = clientMap[name];
 
-            Console.WriteLine($"creating channel with {address}");
             channel = GrpcChannel.ForAddress(address);
-
-            Console.WriteLine($"client is being created");
             client = new ChatClientService.ChatClientServiceClient(channel);
 
-            Console.WriteLine($"sent broadcast message");
             var reply = client.Broadcast(
                 new ChatClientBroadcastRequest { Nick = request.Nick, Message = request.Message });
 
-            Console.WriteLine($"recieved confirmation {reply.Ok}");
 
 
         }
