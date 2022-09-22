@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\tomas\\OneDrive\\Ambiente de Trabalho\\Uni\\4Ano\\P1\\PADI\\labs\\lab 1\\B.2 - Chat\\DADChat\\ChatServer\\ChatServer.csproj": {}
+    "C:\\Users\\tomas\\OneDrive\\Ambiente de Trabalho\\Uni\\4Ano\\P1\\PADI\\projeto\\labs\\lab 1\\B.2 - Chat\\DADChat\\ChatServer\\ChatServer.csproj": {}
   },
   "projects": {
-    "C:\\Users\\tomas\\OneDrive\\Ambiente de Trabalho\\Uni\\4Ano\\P1\\PADI\\labs\\lab 1\\B.2 - Chat\\DADChat\\ChatServer\\ChatServer.csproj": {
+    "C:\\Users\\tomas\\OneDrive\\Ambiente de Trabalho\\Uni\\4Ano\\P1\\PADI\\projeto\\labs\\lab 1\\B.2 - Chat\\DADChat\\ChatServer\\ChatServer.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\tomas\\OneDrive\\Ambiente de Trabalho\\Uni\\4Ano\\P1\\PADI\\labs\\lab 1\\B.2 - Chat\\DADChat\\ChatServer\\ChatServer.csproj",
+        "projectUniqueName": "C:\\Users\\tomas\\OneDrive\\Ambiente de Trabalho\\Uni\\4Ano\\P1\\PADI\\projeto\\labs\\lab 1\\B.2 - Chat\\DADChat\\ChatServer\\ChatServer.csproj",
         "projectName": "ChatServer",
-        "projectPath": "C:\\Users\\tomas\\OneDrive\\Ambiente de Trabalho\\Uni\\4Ano\\P1\\PADI\\labs\\lab 1\\B.2 - Chat\\DADChat\\ChatServer\\ChatServer.csproj",
+        "projectPath": "C:\\Users\\tomas\\OneDrive\\Ambiente de Trabalho\\Uni\\4Ano\\P1\\PADI\\projeto\\labs\\lab 1\\B.2 - Chat\\DADChat\\ChatServer\\ChatServer.csproj",
         "packagesPath": "C:\\Users\\tomas\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\tomas\\OneDrive\\Ambiente de Trabalho\\Uni\\4Ano\\P1\\PADI\\labs\\lab 1\\B.2 - Chat\\DADChat\\ChatServer\\obj\\",
+        "outputPath": "C:\\Users\\tomas\\OneDrive\\Ambiente de Trabalho\\Uni\\4Ano\\P1\\PADI\\projeto\\labs\\lab 1\\B.2 - Chat\\DADChat\\ChatServer\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\tomas\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -47,6 +47,10 @@
             "Grpc.Core": {
               "target": "Package",
               "version": "[2.32.0, )"
+            },
+            "Grpc.Net.Client": {
+              "target": "Package",
+              "version": "[2.48.0, )"
             },
             "Grpc.Tools": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",

@@ -1,0 +1,14 @@
+﻿syntax = "proto3";
+
+service ChatClientService {
+	rpc Broadcast (ChatClientBroadcastRequest) returns (ChatClientBroadcastReply);
+}
+
+// broadcast
+message ChatClientBroadcastRequest {
+  string nick = 1;
+  string message = 2;	
+}
+message ChatClientBroadcastReply {
+	bool ok = 1;
+}

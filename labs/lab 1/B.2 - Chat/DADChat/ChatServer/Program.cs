@@ -6,28 +6,7 @@ using System.Threading.Tasks;
 namespace chatServer {
     // ChatServerService is the namespace defined in the protobuf
     // ChatServerServiceBase is the generated base implementation of the service
-    public class ServerService : ChatServerService.ChatServerServiceBase {
-        private Dictionary<string, string> clientMap = new Dictionary<string, string>();
 
-        public ServerService() {
-        }
-
-        public override Task<ChatClientRegisterReply> Register(
-            ChatClientRegisterRequest request, ServerCallContext context) {
-            return Task.FromResult(Reg(request));
-        }
-
-        public ChatClientRegisterReply Reg(ChatClientRegisterRequest request) {
-            lock (this) {
-                clientMap.Add(request.Nick, request.Url);
-            }
-            Console.WriteLine($"Registered client {request.Nick} with URL {request.Url}");
-            return new ChatClientRegisterReply
-            {
-                Ok = true
-            };
-        }
-    }
     class Program {
         const int Port = 1001;
         static void Main(string[] args) {

@@ -1,0 +1,24 @@
+﻿syntax = "proto3";
+
+service ChatServerService {
+  rpc Register (ChatServerRegisterRequest) returns (ChatServerRegisterReply);
+  rpc Broadcast (ChatServerBroadcastRequest) returns (ChatServerBroadcastReply);
+}
+
+// register
+message ChatServerRegisterRequest {
+  string nick = 1;
+  string url = 2;	
+}
+message ChatServerRegisterReply {
+	bool ok = 1;
+}
+
+// broadcast
+message ChatServerBroadcastRequest {
+  string nick = 1;
+  string message = 2;	
+}
+message ChatServerBroadcastReply {
+	bool ok = 1;
+}

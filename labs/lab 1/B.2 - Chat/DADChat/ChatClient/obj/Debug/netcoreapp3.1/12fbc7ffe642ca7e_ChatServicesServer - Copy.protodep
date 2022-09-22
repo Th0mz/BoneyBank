@@ -1,0 +1,2 @@
+obj\Debug\netcoreapp3.1\Protos/ChatServicesServer - CopyGrpc.cs \
+obj\Debug\netcoreapp3.1\Protos/ChatServicesServerCopy.cs: Protos/ChatServicesServer - Copy.proto
