@@ -7,12 +7,9 @@
 
 using grpc = global::Grpc.Core;
 
-/// <summary>
-/// The greeting service definition.
-/// </summary>
-public static partial class Greeter
+public static partial class CompareAndSwapService
 {
-  static readonly string __ServiceName = "Greeter";
+  static readonly string __ServiceName = "CompareAndSwapService";
 
   [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
   static void __Helper_SerializeMessage(global::Google.Protobuf.IMessage message, grpc::SerializationContext context)
@@ -48,17 +45,17 @@ public static partial class Greeter
   }
 
   [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-  static readonly grpc::Marshaller<global::HelloRequest> __Marshaller_HelloRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::HelloRequest.Parser));
+  static readonly grpc::Marshaller<global::CompareAndSwapRequest> __Marshaller_CompareAndSwapRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::CompareAndSwapRequest.Parser));
   [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-  static readonly grpc::Marshaller<global::HelloReply> __Marshaller_HelloReply = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::HelloReply.Parser));
+  static readonly grpc::Marshaller<global::CompareAndSwapReply> __Marshaller_CompareAndSwapReply = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::CompareAndSwapReply.Parser));
 
   [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-  static readonly grpc::Method<global::HelloRequest, global::HelloReply> __Method_SayHello = new grpc::Method<global::HelloRequest, global::HelloReply>(
+  static readonly grpc::Method<global::CompareAndSwapRequest, global::CompareAndSwapReply> __Method_CompareAndSwap = new grpc::Method<global::CompareAndSwapRequest, global::CompareAndSwapReply>(
       grpc::MethodType.Unary,
       __ServiceName,
-      "SayHello",
-      __Marshaller_HelloRequest,
-      __Marshaller_HelloReply);
+      "CompareAndSwap",
+      __Marshaller_CompareAndSwapRequest,
+      __Marshaller_CompareAndSwapReply);
 
   /// <summary>Service descriptor</summary>
   public static global::Google.Protobuf.Reflection.ServiceDescriptor Descriptor
@@ -66,86 +63,58 @@ public static partial class Greeter
     get { return global::CompareAndSwapReflection.Descriptor.Services[0]; }
   }
 
-  /// <summary>Client for Greeter</summary>
-  public partial class GreeterClient : grpc::ClientBase<GreeterClient>
+  /// <summary>Client for CompareAndSwapService</summary>
+  public partial class CompareAndSwapServiceClient : grpc::ClientBase<CompareAndSwapServiceClient>
   {
-    /// <summary>Creates a new client for Greeter</summary>
+    /// <summary>Creates a new client for CompareAndSwapService</summary>
     /// <param name="channel">The channel to use to make remote calls.</param>
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    public GreeterClient(grpc::ChannelBase channel) : base(channel)
+    public CompareAndSwapServiceClient(grpc::ChannelBase channel) : base(channel)
     {
     }
-    /// <summary>Creates a new client for Greeter that uses a custom <c>CallInvoker</c>.</summary>
+    /// <summary>Creates a new client for CompareAndSwapService that uses a custom <c>CallInvoker</c>.</summary>
     /// <param name="callInvoker">The callInvoker to use to make remote calls.</param>
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    public GreeterClient(grpc::CallInvoker callInvoker) : base(callInvoker)
+    public CompareAndSwapServiceClient(grpc::CallInvoker callInvoker) : base(callInvoker)
     {
     }
     /// <summary>Protected parameterless constructor to allow creation of test doubles.</summary>
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    protected GreeterClient() : base()
+    protected CompareAndSwapServiceClient() : base()
     {
     }
     /// <summary>Protected constructor to allow creation of configured clients.</summary>
     /// <param name="configuration">The client configuration.</param>
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    protected GreeterClient(ClientBaseConfiguration configuration) : base(configuration)
+    protected CompareAndSwapServiceClient(ClientBaseConfiguration configuration) : base(configuration)
     {
     }
 
-    /// <summary>
-    /// Sends a greeting
-    /// </summary>
-    /// <param name="request">The request to send to the server.</param>
-    /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
-    /// <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
-    /// <param name="cancellationToken">An optional token for canceling the call.</param>
-    /// <returns>The response received from the server.</returns>
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    public virtual global::HelloReply SayHello(global::HelloRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+    public virtual global::CompareAndSwapReply CompareAndSwap(global::CompareAndSwapRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
     {
-      return SayHello(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      return CompareAndSwap(request, new grpc::CallOptions(headers, deadline, cancellationToken));
     }
-    /// <summary>
-    /// Sends a greeting
-    /// </summary>
-    /// <param name="request">The request to send to the server.</param>
-    /// <param name="options">The options for the call.</param>
-    /// <returns>The response received from the server.</returns>
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    public virtual global::HelloReply SayHello(global::HelloRequest request, grpc::CallOptions options)
+    public virtual global::CompareAndSwapReply CompareAndSwap(global::CompareAndSwapRequest request, grpc::CallOptions options)
     {
-      return CallInvoker.BlockingUnaryCall(__Method_SayHello, null, options, request);
+      return CallInvoker.BlockingUnaryCall(__Method_CompareAndSwap, null, options, request);
     }
-    /// <summary>
-    /// Sends a greeting
-    /// </summary>
-    /// <param name="request">The request to send to the server.</param>
-    /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
-    /// <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
-    /// <param name="cancellationToken">An optional token for canceling the call.</param>
-    /// <returns>The call object.</returns>
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    public virtual grpc::AsyncUnaryCall<global::HelloReply> SayHelloAsync(global::HelloRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+    public virtual grpc::AsyncUnaryCall<global::CompareAndSwapReply> CompareAndSwapAsync(global::CompareAndSwapRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
     {
-      return SayHelloAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      return CompareAndSwapAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
     }
-    /// <summary>
-    /// Sends a greeting
-    /// </summary>
-    /// <param name="request">The request to send to the server.</param>
-    /// <param name="options">The options for the call.</param>
-    /// <returns>The call object.</returns>
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    public virtual grpc::AsyncUnaryCall<global::HelloReply> SayHelloAsync(global::HelloRequest request, grpc::CallOptions options)
+    public virtual grpc::AsyncUnaryCall<global::CompareAndSwapReply> CompareAndSwapAsync(global::CompareAndSwapRequest request, grpc::CallOptions options)
     {
-      return CallInvoker.AsyncUnaryCall(__Method_SayHello, null, options, request);
+      return CallInvoker.AsyncUnaryCall(__Method_CompareAndSwap, null, options, request);
     }
     /// <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    protected override GreeterClient NewInstance(ClientBaseConfiguration configuration)
+    protected override CompareAndSwapServiceClient NewInstance(ClientBaseConfiguration configuration)
     {
-      return new GreeterClient(configuration);
+      return new CompareAndSwapServiceClient(configuration);
     }
   }
 

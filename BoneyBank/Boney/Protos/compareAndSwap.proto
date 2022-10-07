@@ -5,10 +5,10 @@ service CompareAndSwapService {
 }
 
 message CompareAndSwapRequest {
-	int slot = 1;
-	int leader = 2;
+	int32 slot = 1;
+	int32 leader = 2;
 }
 
 message CompareAndSwapReply {
-	int leader = 1;
+	int32 leader = 1;
 }

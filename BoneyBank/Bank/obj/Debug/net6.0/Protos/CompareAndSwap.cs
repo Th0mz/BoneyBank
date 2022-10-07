@@ -22,34 +22,32 @@ public static partial class CompareAndSwapReflection {
   static CompareAndSwapReflection() {
     byte[] descriptorData = global::System.Convert.FromBase64String(
         string.Concat(
-          "ChtQcm90b3MvY29tcGFyZUFuZFN3YXAucHJvdG8iHAoMSGVsbG9SZXF1ZXN0",
-          "EgwKBG5hbWUYASABKAkiHQoKSGVsbG9SZXBseRIPCgdtZXNzYWdlGAEgASgJ",
-          "MjEKB0dyZWV0ZXISJgoIU2F5SGVsbG8SDS5IZWxsb1JlcXVlc3QaCy5IZWxs",
-          "b1JlcGx5YgZwcm90bzM="));
+          "ChtQcm90b3MvY29tcGFyZUFuZFN3YXAucHJvdG8iNQoVQ29tcGFyZUFuZFN3",
+          "YXBSZXF1ZXN0EgwKBHNsb3QYASABKAUSDgoGbGVhZGVyGAIgASgFIiUKE0Nv",
+          "bXBhcmVBbmRTd2FwUmVwbHkSDgoGbGVhZGVyGAEgASgFMlcKFUNvbXBhcmVB",
+          "bmRTd2FwU2VydmljZRI+Cg5Db21wYXJlQW5kU3dhcBIWLkNvbXBhcmVBbmRT",
+          "d2FwUmVxdWVzdBoULkNvbXBhcmVBbmRTd2FwUmVwbHliBnByb3RvMw=="));
     descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
         new pbr::FileDescriptor[] { },
         new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-          new pbr::GeneratedClrTypeInfo(typeof(global::HelloRequest), global::HelloRequest.Parser, new[]{ "Name" }, null, null, null, null),
-          new pbr::GeneratedClrTypeInfo(typeof(global::HelloReply), global::HelloReply.Parser, new[]{ "Message" }, null, null, null, null)
+          new pbr::GeneratedClrTypeInfo(typeof(global::CompareAndSwapRequest), global::CompareAndSwapRequest.Parser, new[]{ "Slot", "Leader" }, null, null, null, null),
+          new pbr::GeneratedClrTypeInfo(typeof(global::CompareAndSwapReply), global::CompareAndSwapReply.Parser, new[]{ "Leader" }, null, null, null, null)
         }));
   }
   #endregion
 
 }
 #region Messages
-/// <summary>
-/// The request message containing the user's name.
-/// </summary>
-public sealed partial class HelloRequest : pb::IMessage<HelloRequest>
+public sealed partial class CompareAndSwapRequest : pb::IMessage<CompareAndSwapRequest>
 #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     , pb::IBufferMessage
 #endif
 {
-  private static readonly pb::MessageParser<HelloRequest> _parser = new pb::MessageParser<HelloRequest>(() => new HelloRequest());
+  private static readonly pb::MessageParser<CompareAndSwapRequest> _parser = new pb::MessageParser<CompareAndSwapRequest>(() => new CompareAndSwapRequest());
   private pb::UnknownFieldSet _unknownFields;
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public static pb::MessageParser<HelloRequest> Parser { get { return _parser; } }
+  public static pb::MessageParser<CompareAndSwapRequest> Parser { get { return _parser; } }
 
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -65,7 +63,7 @@ public sealed partial class HelloRequest : pb::IMessage<HelloRequest>
 
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public HelloRequest() {
+  public CompareAndSwapRequest() {
     OnConstruction();
   }
 
@@ -73,45 +71,59 @@ public sealed partial class HelloRequest : pb::IMessage<HelloRequest>
 
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public HelloRequest(HelloRequest other) : this() {
-    name_ = other.name_;
+  public CompareAndSwapRequest(CompareAndSwapRequest other) : this() {
+    slot_ = other.slot_;
+    leader_ = other.leader_;
     _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
   }
 
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public HelloRequest Clone() {
-    return new HelloRequest(this);
+  public CompareAndSwapRequest Clone() {
+    return new CompareAndSwapRequest(this);
   }
 
-  /// <summary>Field number for the "name" field.</summary>
-  public const int NameFieldNumber = 1;
-  private string name_ = "";
+  /// <summary>Field number for the "slot" field.</summary>
+  public const int SlotFieldNumber = 1;
+  private int slot_;
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public string Name {
-    get { return name_; }
+  public int Slot {
+    get { return slot_; }
     set {
-      name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      slot_ = value;
+    }
+  }
+
+  /// <summary>Field number for the "leader" field.</summary>
+  public const int LeaderFieldNumber = 2;
+  private int leader_;
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public int Leader {
+    get { return leader_; }
+    set {
+      leader_ = value;
     }
   }
 
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public override bool Equals(object other) {
-    return Equals(other as HelloRequest);
+    return Equals(other as CompareAndSwapRequest);
   }
 
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public bool Equals(HelloRequest other) {
+  public bool Equals(CompareAndSwapRequest other) {
     if (ReferenceEquals(other, null)) {
       return false;
     }
     if (ReferenceEquals(other, this)) {
       return true;
     }
-    if (Name != other.Name) return false;
+    if (Slot != other.Slot) return false;
+    if (Leader != other.Leader) return false;
     return Equals(_unknownFields, other._unknownFields);
   }
 
@@ -119,7 +131,8 @@ public sealed partial class HelloRequest : pb::IMessage<HelloRequest>
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public override int GetHashCode() {
     int hash = 1;
-    if (Name.Length != 0) hash ^= Name.GetHashCode();
+    if (Slot != 0) hash ^= Slot.GetHashCode();
+    if (Leader != 0) hash ^= Leader.GetHashCode();
     if (_unknownFields != null) {
       hash ^= _unknownFields.GetHashCode();
     }
@@ -138,9 +151,13 @@ public sealed partial class HelloRequest : pb::IMessage<HelloRequest>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     output.WriteRawMessage(this);
   #else
-    if (Name.Length != 0) {
-      output.WriteRawTag(10);
-      output.WriteString(Name);
+    if (Slot != 0) {
+      output.WriteRawTag(8);
+      output.WriteInt32(Slot);
+    }
+    if (Leader != 0) {
+      output.WriteRawTag(16);
+      output.WriteInt32(Leader);
     }
     if (_unknownFields != null) {
       _unknownFields.WriteTo(output);
@@ -152,9 +169,13 @@ public sealed partial class HelloRequest : pb::IMessage<HelloRequest>
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-    if (Name.Length != 0) {
-      output.WriteRawTag(10);
-      output.WriteString(Name);
+    if (Slot != 0) {
+      output.WriteRawTag(8);
+      output.WriteInt32(Slot);
+    }
+    if (Leader != 0) {
+      output.WriteRawTag(16);
+      output.WriteInt32(Leader);
     }
     if (_unknownFields != null) {
       _unknownFields.WriteTo(ref output);
@@ -166,8 +187,11 @@ public sealed partial class HelloRequest : pb::IMessage<HelloRequest>
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public int CalculateSize() {
     int size = 0;
-    if (Name.Length != 0) {
-      size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
+    if (Slot != 0) {
+      size += 1 + pb::CodedOutputStream.ComputeInt32Size(Slot);
+    }
+    if (Leader != 0) {
+      size += 1 + pb::CodedOutputStream.ComputeInt32Size(Leader);
     }
     if (_unknownFields != null) {
       size += _unknownFields.CalculateSize();
@@ -177,12 +201,15 @@ public sealed partial class HelloRequest : pb::IMessage<HelloRequest>
 
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public void MergeFrom(HelloRequest other) {
+  public void MergeFrom(CompareAndSwapRequest other) {
     if (other == null) {
       return;
     }
-    if (other.Name.Length != 0) {
-      Name = other.Name;
+    if (other.Slot != 0) {
+      Slot = other.Slot;
+    }
+    if (other.Leader != 0) {
+      Leader = other.Leader;
     }
     _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
   }
@@ -199,8 +226,12 @@ public sealed partial class HelloRequest : pb::IMessage<HelloRequest>
         default:
           _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
           break;
-        case 10: {
-          Name = input.ReadString();
+        case 8: {
+          Slot = input.ReadInt32();
+          break;
+        }
+        case 16: {
+          Leader = input.ReadInt32();
           break;
         }
       }
@@ -218,8 +249,12 @@ public sealed partial class HelloRequest : pb::IMessage<HelloRequest>
         default:
           _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
           break;
-        case 10: {
-          Name = input.ReadString();
+        case 8: {
+          Slot = input.ReadInt32();
+          break;
+        }
+        case 16: {
+          Leader = input.ReadInt32();
           break;
         }
       }
@@ -229,19 +264,16 @@ public sealed partial class HelloRequest : pb::IMessage<HelloRequest>
 
 }
 
-/// <summary>
-/// The response message containing the greetings.
-/// </summary>
-public sealed partial class HelloReply : pb::IMessage<HelloReply>
+public sealed partial class CompareAndSwapReply : pb::IMessage<CompareAndSwapReply>
 #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     , pb::IBufferMessage
 #endif
 {
-  private static readonly pb::MessageParser<HelloReply> _parser = new pb::MessageParser<HelloReply>(() => new HelloReply());
+  private static readonly pb::MessageParser<CompareAndSwapReply> _parser = new pb::MessageParser<CompareAndSwapReply>(() => new CompareAndSwapReply());
   private pb::UnknownFieldSet _unknownFields;
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public static pb::MessageParser<HelloReply> Parser { get { return _parser; } }
+  public static pb::MessageParser<CompareAndSwapReply> Parser { get { return _parser; } }
 
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -257,7 +289,7 @@ public sealed partial class HelloReply : pb::IMessage<HelloReply>
 
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public HelloReply() {
+  public CompareAndSwapReply() {
     OnConstruction();
   }
 
@@ -265,45 +297,45 @@ public sealed partial class HelloReply : pb::IMessage<HelloReply>
 
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public HelloReply(HelloReply other) : this() {
-    message_ = other.message_;
+  public CompareAndSwapReply(CompareAndSwapReply other) : this() {
+    leader_ = other.leader_;
     _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
   }
 
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public HelloReply Clone() {
-    return new HelloReply(this);
+  public CompareAndSwapReply Clone() {
+    return new CompareAndSwapReply(this);
   }
 
-  /// <summary>Field number for the "message" field.</summary>
-  public const int MessageFieldNumber = 1;
-  private string message_ = "";
+  /// <summary>Field number for the "leader" field.</summary>
+  public const int LeaderFieldNumber = 1;
+  private int leader_;
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public string Message {
-    get { return message_; }
+  public int Leader {
+    get { return leader_; }
     set {
-      message_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      leader_ = value;
     }
   }
 
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public override bool Equals(object other) {
-    return Equals(other as HelloReply);
+    return Equals(other as CompareAndSwapReply);
   }
 
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public bool Equals(HelloReply other) {
+  public bool Equals(CompareAndSwapReply other) {
     if (ReferenceEquals(other, null)) {
       return false;
     }
     if (ReferenceEquals(other, this)) {
       return true;
     }
-    if (Message != other.Message) return false;
+    if (Leader != other.Leader) return false;
     return Equals(_unknownFields, other._unknownFields);
   }
 
@@ -311,7 +343,7 @@ public sealed partial class HelloReply : pb::IMessage<HelloReply>
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public override int GetHashCode() {
     int hash = 1;
-    if (Message.Length != 0) hash ^= Message.GetHashCode();
+    if (Leader != 0) hash ^= Leader.GetHashCode();
     if (_unknownFields != null) {
       hash ^= _unknownFields.GetHashCode();
     }
@@ -330,9 +362,9 @@ public sealed partial class HelloReply : pb::IMessage<HelloReply>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     output.WriteRawMessage(this);
   #else
-    if (Message.Length != 0) {
-      output.WriteRawTag(10);
-      output.WriteString(Message);
+    if (Leader != 0) {
+      output.WriteRawTag(8);
+      output.WriteInt32(Leader);
     }
     if (_unknownFields != null) {
       _unknownFields.WriteTo(output);
@@ -344,9 +376,9 @@ public sealed partial class HelloReply : pb::IMessage<HelloReply>
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-    if (Message.Length != 0) {
-      output.WriteRawTag(10);
-      output.WriteString(Message);
+    if (Leader != 0) {
+      output.WriteRawTag(8);
+      output.WriteInt32(Leader);
     }
     if (_unknownFields != null) {
       _unknownFields.WriteTo(ref output);
@@ -358,8 +390,8 @@ public sealed partial class HelloReply : pb::IMessage<HelloReply>
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public int CalculateSize() {
     int size = 0;
-    if (Message.Length != 0) {
-      size += 1 + pb::CodedOutputStream.ComputeStringSize(Message);
+    if (Leader != 0) {
+      size += 1 + pb::CodedOutputStream.ComputeInt32Size(Leader);
     }
     if (_unknownFields != null) {
       size += _unknownFields.CalculateSize();
@@ -369,12 +401,12 @@ public sealed partial class HelloReply : pb::IMessage<HelloReply>
 
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public void MergeFrom(HelloReply other) {
+  public void MergeFrom(CompareAndSwapReply other) {
     if (other == null) {
       return;
     }
-    if (other.Message.Length != 0) {
-      Message = other.Message;
+    if (other.Leader != 0) {
+      Leader = other.Leader;
     }
     _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
   }
@@ -391,8 +423,8 @@ public sealed partial class HelloReply : pb::IMessage<HelloReply>
         default:
           _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
           break;
-        case 10: {
-          Message = input.ReadString();
+        case 8: {
+          Leader = input.ReadInt32();
           break;
         }
       }
@@ -410,8 +442,8 @@ public sealed partial class HelloReply : pb::IMessage<HelloReply>
         default:
           _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
           break;
-        case 10: {
-          Message = input.ReadString();
+        case 8: {
+          Leader = input.ReadInt32();
           break;
         }
       }
