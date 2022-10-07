@@ -26,5 +26,9 @@
     <Protobuf Include="Protos\paxos.proto" GrpcServices="Both" />
     <Protobuf Include="Protos\compareAndSwap.proto" GrpcServices="Server" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="domain\" />
+  </ItemGroup>
 </Project>
 

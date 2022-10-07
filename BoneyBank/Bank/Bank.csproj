@@ -22,4 +22,8 @@
     <Protobuf Include="Protos\compareAndSwap.proto" GrpcServices="Client" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="domain\" />
+  </ItemGroup>
+
 </Project>
