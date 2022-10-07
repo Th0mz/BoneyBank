@@ -1,2 +1,0 @@
-obj\Debug\netcoreapp3.1\Protos/ChatServicesClient.cs \
-obj\Debug\netcoreapp3.1\Protos/ChatServicesClientGrpc.cs: Protos/ChatServicesClient.proto
