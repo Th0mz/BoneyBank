@@ -21,6 +21,7 @@ public class CompareAndSwapImpl : CompareAndSwapService.CompareAndSwapServiceBas
     }
 
     private CompareAndSwapReply do_compareAndSwap(CompareAndSwapRequest request) {
+        // compareAndSwap code
         return new CompareAndSwapReply();
     }
 }
