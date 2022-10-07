@@ -1,0 +1,25 @@
+﻿syntax = "proto3";
+
+service PaxosService {
+  rpc Accept (CompareAndSwapRequest) returns (CompareAndSwapReply);
+  rpc Keepalive (KeepaliveRequest) returns (KeepaliveReply);
+}
+
+// accept 
+message AcceptRequest {
+	int slot = 1;
+	int leader = 2;
+}
+
+message AcceptReply {
+	int status = 1;
+	int leader = 2;
+}
+
+// Keepalive
+message KeepaliveRequest {
+}
+
+message KeepaliveReply {
+	int status = 1;
+}

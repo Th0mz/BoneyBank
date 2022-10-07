@@ -1,8 +1,14 @@
 {
   "version": 2,
-  "dgSpecHash": "RZZFis3ncv63RDollIoHO3Q9uMXRTyZADP1sFMVCnBclWo2Cx1cBoagaAQ+v47NCNuVJtF5xauUesF/DiB2qpg==",
+  "dgSpecHash": "cbKPfiMWXLU+cL7IdTtwWjKsly7MI3z396/xT4VzKj+yffcl82NoHDfWtM2t2SW+HW+j7RkA6LvRGa3auobIqg==",
   "success": true,
   "projectFilePath": "C:\\Users\\tomas\\OneDrive\\Ambiente de Trabalho\\Uni\\4Ano\\P1\\PADI\\projeto\\BoneyBank\\Bank\\Bank.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\tomas\\.nuget\\packages\\google.protobuf\\3.21.7\\google.protobuf.3.21.7.nupkg.sha512",
+    "C:\\Users\\tomas\\.nuget\\packages\\grpc.core\\2.46.5\\grpc.core.2.46.5.nupkg.sha512",
+    "C:\\Users\\tomas\\.nuget\\packages\\grpc.core.api\\2.46.5\\grpc.core.api.2.46.5.nupkg.sha512",
+    "C:\\Users\\tomas\\.nuget\\packages\\grpc.tools\\2.49.1\\grpc.tools.2.49.1.nupkg.sha512",
+    "C:\\Users\\tomas\\.nuget\\packages\\system.memory\\4.5.3\\system.memory.4.5.3.nupkg.sha512"
+  ],
   "logs": []
 }

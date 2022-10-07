@@ -1,0 +1,14 @@
+﻿syntax = "proto3";
+
+service CompareAndSwapService {
+  rpc CompareAndSwap (CompareAndSwapRequest) returns (CompareAndSwapReply);
+}
+
+message CompareAndSwapRequest {
+	int slot = 1;
+	int leader = 2;
+}
+
+message CompareAndSwapReply {
+	int leader = 1;
+}
