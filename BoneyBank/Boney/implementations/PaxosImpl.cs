@@ -6,34 +6,37 @@ using System.Threading.Channels;
 using Grpc.Net.Client;
 using static System.Net.Mime.MediaTypeNames;
 
-public class PaxosImpl : PaxosService.PaxosServiceBase {
+namespace Boney
+{
+    public class PaxosImpl : PaxosService.PaxosServiceBase {
 
-    public PaxosImpl() {
-        AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
-    }
+        public PaxosImpl() {
+            AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
+        }
 
-    // accept funcionality
-    public override Task<AcceptReply> Accept
-        (AcceptRequest request, ServerCallContext context) {
+        // accept funcionality
+        public override Task<AcceptReply> Accept
+            (AcceptRequest request, ServerCallContext context) {
 
-        return Task.FromResult(do_accept(request));
-    }
+            return Task.FromResult(do_accept(request));
+        }
 
-    private AcceptReply do_accept(AcceptRequest request) {
-        // accept code
-        return new AcceptReply();
-    }
+        private AcceptReply do_accept(AcceptRequest request) {
+            // accept code
+            return new AcceptReply();
+        }
 
 
-    // keepalive funcionality
-    public override Task<KeepaliveReply> Keepalive
-        (KeepaliveRequest request, ServerCallContext context) {
+        // keepalive funcionality
+        public override Task<KeepaliveReply> Keepalive
+            (KeepaliveRequest request, ServerCallContext context) {
 
-        return Task.FromResult(do_keepalive(request));
-    }
+            return Task.FromResult(do_keepalive(request));
+        }
 
-    private KeepaliveReply do_keepalive(KeepaliveRequest request) {
-        // keepalive code
-        return new KeepaliveReply();
+        private KeepaliveReply do_keepalive(KeepaliveRequest request) {
+            // keepalive code
+            return new KeepaliveReply();
+        }
     }
 }

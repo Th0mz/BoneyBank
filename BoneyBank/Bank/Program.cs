@@ -3,10 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-class Program
-{
-    static void Main(string[] args)
-    {
-        Console.WriteLine("yeee");
+namespace Bank 
+{   
+    class Program {
+        static void Main(string[] args) {
+            BankFrontend bankFrontend = new BankFrontend();
+
+            bankFrontend.compareAndSwap(1, 2);
+            
+        }
     }
 }
