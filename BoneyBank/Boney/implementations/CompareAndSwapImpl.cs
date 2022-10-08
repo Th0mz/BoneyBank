@@ -11,7 +11,10 @@ namespace Boney
 {
     public class CompareAndSwapImpl : CompareAndSwapService.CompareAndSwapServiceBase {
 
-        public CompareAndSwapImpl() {
+        private BoneyState state;
+
+        public CompareAndSwapImpl(BoneyState _state) {
+            state = _state;
             AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
         }
 
@@ -32,11 +35,17 @@ namespace Boney
                 if state.timeslots[slot] != null
                     unlock
                     return state.timeslots[slot]
-
+                
                 prepare(leader, propose_number [id + offset])
                 await state.timeslots[slot]
                 return state.timeslots[slot]
             
+            */
+
+            /*
+            acceptor : 
+            
+
             */
 
             /*

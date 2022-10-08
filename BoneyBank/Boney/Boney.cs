@@ -8,10 +8,18 @@ namespace Boney
     class Boney {
 
         static void Main(string[] args) {
+ 
+
             BoneyState state = new BoneyState();
+
+            // paxos frontend vai abrir conexões com todos os servers boney
+            // ou seja primeiro deve ser comunicada a lista de servidores
+            PaxosFrontend paxosClient = new PaxosFrontend();
+
             Server server = new Server
             {
-                Services = { CompareAndSwapService.BindService(new CompareAndSwapImpl())},
+                Services = { CompareAndSwapService.BindService(new CompareAndSwapImpl(state)), 
+                             PaxosService.BindService(new PaxosImpl(state))},
                 Ports = { new ServerPort("localhost", 5001, ServerCredentials.Insecure) }
             };
 

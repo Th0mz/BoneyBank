@@ -45,13 +45,29 @@ public static partial class PaxosService
   }
 
   [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+  static readonly grpc::Marshaller<global::PrepareRequest> __Marshaller_PrepareRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::PrepareRequest.Parser));
+  [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+  static readonly grpc::Marshaller<global::PrepareReply> __Marshaller_PrepareReply = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::PrepareReply.Parser));
+  [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
   static readonly grpc::Marshaller<global::AcceptRequest> __Marshaller_AcceptRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::AcceptRequest.Parser));
   [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
   static readonly grpc::Marshaller<global::AcceptReply> __Marshaller_AcceptReply = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::AcceptReply.Parser));
   [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+  static readonly grpc::Marshaller<global::LearnRequest> __Marshaller_LearnRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::LearnRequest.Parser));
+  [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+  static readonly grpc::Marshaller<global::LearnReply> __Marshaller_LearnReply = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::LearnReply.Parser));
+  [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
   static readonly grpc::Marshaller<global::KeepaliveRequest> __Marshaller_KeepaliveRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::KeepaliveRequest.Parser));
   [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
   static readonly grpc::Marshaller<global::KeepaliveReply> __Marshaller_KeepaliveReply = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::KeepaliveReply.Parser));
+
+  [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+  static readonly grpc::Method<global::PrepareRequest, global::PrepareReply> __Method_Prepare = new grpc::Method<global::PrepareRequest, global::PrepareReply>(
+      grpc::MethodType.Unary,
+      __ServiceName,
+      "Prepare",
+      __Marshaller_PrepareRequest,
+      __Marshaller_PrepareReply);
 
   [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
   static readonly grpc::Method<global::AcceptRequest, global::AcceptReply> __Method_Accept = new grpc::Method<global::AcceptRequest, global::AcceptReply>(
@@ -60,6 +76,14 @@ public static partial class PaxosService
       "Accept",
       __Marshaller_AcceptRequest,
       __Marshaller_AcceptReply);
+
+  [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+  static readonly grpc::Method<global::LearnRequest, global::LearnReply> __Method_Learn = new grpc::Method<global::LearnRequest, global::LearnReply>(
+      grpc::MethodType.Unary,
+      __ServiceName,
+      "Learn",
+      __Marshaller_LearnRequest,
+      __Marshaller_LearnReply);
 
   [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
   static readonly grpc::Method<global::KeepaliveRequest, global::KeepaliveReply> __Method_Keepalive = new grpc::Method<global::KeepaliveRequest, global::KeepaliveReply>(
@@ -80,7 +104,19 @@ public static partial class PaxosService
   public abstract partial class PaxosServiceBase
   {
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    public virtual global::System.Threading.Tasks.Task<global::PrepareReply> Prepare(global::PrepareRequest request, grpc::ServerCallContext context)
+    {
+      throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+    }
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     public virtual global::System.Threading.Tasks.Task<global::AcceptReply> Accept(global::AcceptRequest request, grpc::ServerCallContext context)
+    {
+      throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+    }
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    public virtual global::System.Threading.Tasks.Task<global::LearnReply> Learn(global::LearnRequest request, grpc::ServerCallContext context)
     {
       throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
     }
@@ -121,6 +157,26 @@ public static partial class PaxosService
     }
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    public virtual global::PrepareReply Prepare(global::PrepareRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+    {
+      return Prepare(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+    }
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    public virtual global::PrepareReply Prepare(global::PrepareRequest request, grpc::CallOptions options)
+    {
+      return CallInvoker.BlockingUnaryCall(__Method_Prepare, null, options, request);
+    }
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    public virtual grpc::AsyncUnaryCall<global::PrepareReply> PrepareAsync(global::PrepareRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+    {
+      return PrepareAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+    }
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    public virtual grpc::AsyncUnaryCall<global::PrepareReply> PrepareAsync(global::PrepareRequest request, grpc::CallOptions options)
+    {
+      return CallInvoker.AsyncUnaryCall(__Method_Prepare, null, options, request);
+    }
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     public virtual global::AcceptReply Accept(global::AcceptRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
     {
       return Accept(request, new grpc::CallOptions(headers, deadline, cancellationToken));
@@ -139,6 +195,26 @@ public static partial class PaxosService
     public virtual grpc::AsyncUnaryCall<global::AcceptReply> AcceptAsync(global::AcceptRequest request, grpc::CallOptions options)
     {
       return CallInvoker.AsyncUnaryCall(__Method_Accept, null, options, request);
+    }
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    public virtual global::LearnReply Learn(global::LearnRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+    {
+      return Learn(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+    }
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    public virtual global::LearnReply Learn(global::LearnRequest request, grpc::CallOptions options)
+    {
+      return CallInvoker.BlockingUnaryCall(__Method_Learn, null, options, request);
+    }
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    public virtual grpc::AsyncUnaryCall<global::LearnReply> LearnAsync(global::LearnRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+    {
+      return LearnAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+    }
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    public virtual grpc::AsyncUnaryCall<global::LearnReply> LearnAsync(global::LearnRequest request, grpc::CallOptions options)
+    {
+      return CallInvoker.AsyncUnaryCall(__Method_Learn, null, options, request);
     }
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     public virtual global::KeepaliveReply Keepalive(global::KeepaliveRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
@@ -174,7 +250,9 @@ public static partial class PaxosService
   public static grpc::ServerServiceDefinition BindService(PaxosServiceBase serviceImpl)
   {
     return grpc::ServerServiceDefinition.CreateBuilder()
+        .AddMethod(__Method_Prepare, serviceImpl.Prepare)
         .AddMethod(__Method_Accept, serviceImpl.Accept)
+        .AddMethod(__Method_Learn, serviceImpl.Learn)
         .AddMethod(__Method_Keepalive, serviceImpl.Keepalive).Build();
   }
 
@@ -185,7 +263,9 @@ public static partial class PaxosService
   [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
   public static void BindService(grpc::ServiceBinderBase serviceBinder, PaxosServiceBase serviceImpl)
   {
+    serviceBinder.AddMethod(__Method_Prepare, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::PrepareRequest, global::PrepareReply>(serviceImpl.Prepare));
     serviceBinder.AddMethod(__Method_Accept, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::AcceptRequest, global::AcceptReply>(serviceImpl.Accept));
+    serviceBinder.AddMethod(__Method_Learn, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::LearnRequest, global::LearnReply>(serviceImpl.Learn));
     serviceBinder.AddMethod(__Method_Keepalive, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::KeepaliveRequest, global::KeepaliveReply>(serviceImpl.Keepalive));
   }
 

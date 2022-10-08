@@ -12,7 +12,7 @@ public class Puppetmaster {
             /*var processBoney = new Process {
                 StartInfo = new ProcessStartInfo
                     {
-                        FileName = "C:\\Windows\\System32\\fsutil.exe",
+                        FileName = @"..\..\..\..\Boney\bin\Debug\net6.0\Boney.exe",
                         Arguments = "behavior query SymlinkEvaluation",
                         UseShellExecute = false, RedirectStandardOutput = true,
                         CreateNoWindow = true
@@ -22,6 +22,16 @@ public class Puppetmaster {
 
         }else if( cmds[2].Equals("bank")) {
             Console.WriteLine("bank");
+
+            /*var processBank = new Process {
+                StartInfo = new ProcessStartInfo
+                    {
+                        FileName = @"..\..\..\..\Bank\bin\Debug\net6.0\Bank.exe",
+                        Arguments = "behavior query SymlinkEvaluation",
+                        UseShellExecute = false, RedirectStandardOutput = true,
+                        CreateNoWindow = true
+                    }
+            }*/
         }
     }
 
