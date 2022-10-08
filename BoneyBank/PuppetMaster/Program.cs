@@ -9,7 +9,7 @@ public class Puppetmaster {
         if( cmds[2].Equals("boney") ) {
             Console.WriteLine("boney");
 
-            /*var processBoney = new Process {
+           /*var processBoney = new Process {
                 StartInfo = new ProcessStartInfo
                     {
                         FileName = @"..\..\..\..\Boney\bin\Debug\net6.0\Boney.exe",
@@ -32,6 +32,35 @@ public class Puppetmaster {
                         CreateNoWindow = true
                     }
             }*/
+      
+            var processBoney = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = @"..\Boney\bin\Debug\net6.0\Boney.exe",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = true
+                }
+            };
+            processBoney.Start();
+            /*fazer a cena de criar o processo com path tipo @"..\..\Boney\bin\Debug\netcoreapp3.1\Boney.exe";*/
+
+        }
+        else if( cmds[2].Equals("bank")) {
+            Console.WriteLine("bank");
+
+            var processBank = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = @"..\Boney\bin\Debug\net6.0\Boney.exe",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = true
+                }
+            };
+            processBank.Start();
         }
     }
 
