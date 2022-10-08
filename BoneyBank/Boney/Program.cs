@@ -7,6 +7,7 @@ namespace Boney
 {
     class Program {
         static void Main(string[] args) {
+            
             Server server = new Server
             {
                 Services = { CompareAndSwapService.BindService(new CompareAndSwapImpl())},

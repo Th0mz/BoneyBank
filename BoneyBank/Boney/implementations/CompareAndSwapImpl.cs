@@ -25,6 +25,7 @@ namespace Boney
         private CompareAndSwapReply do_compareAndSwap(CompareAndSwapRequest request) {
             // compareAndSwap code
 
+            
             Console.WriteLine("executing compare and swap");
             Console.WriteLine(request.Slot);
             Console.WriteLine(request.Leader);
