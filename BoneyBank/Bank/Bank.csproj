@@ -24,7 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="domain\" />
     <Folder Include="implementations\" />
   </ItemGroup>
 

@@ -25,10 +25,27 @@ namespace Boney
         private CompareAndSwapReply do_compareAndSwap(CompareAndSwapRequest request) {
             // compareAndSwap code
 
+            /*
+            proposer :
+
+            lock (state.timeslots[slot]) 
+                if state.timeslots[slot] != null
+                    unlock
+                    return state.timeslots[slot]
+
+                prepare(leader, propose_number [id + offset])
+                await state.timeslots[slot]
+                return state.timeslots[slot]
             
-            Console.WriteLine("executing compare and swap");
-            Console.WriteLine(request.Slot);
-            Console.WriteLine(request.Leader);
+            */
+
+            /*
+             learner : 
+                
+                state.timeslots[slot] = leader
+                pulse all no lock
+             */
+
 
             return new CompareAndSwapReply { Leader = request.Leader };
         }

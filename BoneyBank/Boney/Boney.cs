@@ -5,9 +5,10 @@ using System.Threading.Tasks;
 
 namespace Boney
 {
-    class Program {
+    class Boney {
+
         static void Main(string[] args) {
-            
+            BoneyState state = new BoneyState();
             Server server = new Server
             {
                 Services = { CompareAndSwapService.BindService(new CompareAndSwapImpl())},
