@@ -1,11 +1,22 @@
 ﻿syntax = "proto3";
 
 service PaxosService {
-  rpc Prepare (PrepareRequest) returns (PrepareReply);
-  rpc Accept (AcceptRequest) returns (AcceptReply);
-  rpc Learn (LearnRequest) returns (LearnReply);
   rpc Keepalive (KeepaliveRequest) returns (KeepaliveReply);
 }
+
+service PrepareService {
+	rpc Prepare (PrepareRequest) returns (PrepareReply);
+}
+
+service AcceptService {
+	rpc Accept (AcceptRequest) returns (AcceptReply);
+}
+
+service LearnService {
+	rpc Learn (LearnRequest) returns (LearnReply);
+}
+
+
 
 // prepare
 message PrepareRequest {
@@ -36,11 +47,10 @@ message LearnReply {
 
 }
 
-/* Keepalive
+
 message KeepaliveRequest {
 }
 
 message KeepaliveReply {
 	int32 status = 1;
 }
-*/
