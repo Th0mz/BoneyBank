@@ -9,8 +9,9 @@ namespace Boney
 
         static void Main(string[] args) {
  
-
-            BoneyState state = new BoneyState();
+            Console.WriteLine("Please select the server id: ");
+            int id = Convert.ToInt32(Console.ReadLine());
+            BoneyState state = new BoneyState(id);
 
             // paxos frontend vai abrir conexões com todos os servers boney
             // ou seja primeiro deve ser comunicada a lista de servidores
@@ -18,7 +19,7 @@ namespace Boney
 
             Server server = new Server
             {
-                Services = { CompareAndSwapService.BindService(new CompareAndSwapImpl(state)), 
+                Services = { CompareAndSwapService.BindService(new CompareAndSwapImpl(state, paxosClient)), 
                              PaxosService.BindService(new PaxosImpl(state))},
                 Ports = { new ServerPort("localhost", 5001, ServerCredentials.Insecure) }
             };
