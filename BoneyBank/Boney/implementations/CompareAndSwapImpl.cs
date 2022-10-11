@@ -55,7 +55,7 @@ namespace Boney
                 pulse all no lock
              */
 
-
+            Console.WriteLine(request.Leader + " " + request.Slot);
             return new CompareAndSwapReply { Leader = request.Leader };
         }
     }

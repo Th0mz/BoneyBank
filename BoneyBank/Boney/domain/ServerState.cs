@@ -37,7 +37,7 @@ namespace Boney
 
         // other servers info
         // instead of the url store the grpc stub <<<
-        private Dictionary<int, string> _bonies = new Dictionary<int, string>();
+        private Dictionary<int, PaxosService.PaxosServiceClient> _bonies = new Dictionary<int, PaxosService.PaxosServiceClient>();
         private int current_slot = 0;
         private Dictionary<int, ServerInfo[]> _timeslots_info = new Dictionary<int, ServerInfo[]>();
 
@@ -61,11 +61,18 @@ namespace Boney
             bool added_server = false;
             if (_class.Equals("boney")) {
 
-                _bonies.Add(id, url);
+                GrpcChannel channel = GrpcChannel.ForAddress(url);
+                PaxosService.PaxosServiceClient client = new PaxosService.PaxosServiceClient(channel);
+                
+                _bonies.Add(id, client);
                 added_server = true;
             }
 
             return added_server;
+        }
+
+        public string get_url() {
+            return _url;
         }
 
         public bool set_id(int id) {

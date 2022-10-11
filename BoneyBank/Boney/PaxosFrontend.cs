@@ -9,20 +9,11 @@ namespace Boney
 {
 
     public class PaxosFrontend {
-        // hardcoded max number of processes
-        private static int max = 3;
-        private Dictionary<int, PaxosService.PaxosServiceClient> boneyServers = 
-            new Dictionary<int, PaxosService.PaxosServiceClient>();
+        ServerState _serverState;
 
-        public PaxosFrontend () {
+        public PaxosFrontend(ServerState serverState) {
             AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
-        }
-
-        public void add_server (int id, string url) {
-            GrpcChannel channel = GrpcChannel.ForAddress(url);
-            PaxosService.PaxosServiceClient client = new PaxosService.PaxosServiceClient(channel);
-
-            boneyServers.Add(id, client);
+            _serverState = serverState; 
         }
 
         public void prepare (int proposal_number) {
@@ -31,9 +22,9 @@ namespace Boney
             };
 
             // sequencial
-            foreach (PaxosService.PaxosServiceClient client in boneyServers.Values) {
-                client.Prepare(request);
-            }
+            //foreach (PaxosService.PaxosServiceClient client in boneyServers.Values) {
+            //    client.Prepare(request);
+            //}
         }
         
 

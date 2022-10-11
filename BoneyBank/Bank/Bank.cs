@@ -10,22 +10,22 @@ namespace Bank
 
         private static bool processInput (string[] args, ServerState serverState) {
             // check arugments 
-            if (args.Length != 0) {
+            if (args.Length != 2) {
                 Console.WriteLine("Error : invalid number of arguments");
                 return false;
             }
 
-            string path = @"C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\configuration_sample.txt";
+            string path = args[0];
             if (!File.Exists(path)) {
                 Console.WriteLine("Error : invalid path");
                 return false;
             }
 
-            int id = 4;
-            /*if (!int.TryParse(args[1], out id)) {
+            int id;
+            if (!int.TryParse(args[1], out id)) {
                 Console.WriteLine("Error : process id is not a number");
                 return false;
-            }*/
+            }
 
             // read file 
             serverState.set_id(id);
@@ -70,8 +70,10 @@ namespace Bank
                 return;
             }
 
-            Console.ReadKey();
             BankFrontend bankFrontend = new BankFrontend(serverState);
+            Console.ReadKey();
+
+            // TODO : channel timeuot
             bankFrontend.compareAndSwap(1, 2);
             
 

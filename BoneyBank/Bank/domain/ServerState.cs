@@ -45,6 +45,10 @@ namespace Bank
 
         public ServerState() {  }
 
+        public Dictionary<int, CompareAndSwapService.CompareAndSwapServiceClient> get_bonies () {
+            return _bonies;
+        }
+
         public bool add_server (string sid, string _class, string url) {
             // convert id
             int id;

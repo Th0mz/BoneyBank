@@ -18,7 +18,6 @@ public class Puppetmaster {
                          CreateNoWindow = true
                      }
              }*/
-            /*fazer a cena de criar o processo com path tipo @"..\..\..\..\Boney\bin\Debug\netcoreapp3.1\Boney.exe";*/
 
             var processBoney = new Process
             {
@@ -50,7 +49,7 @@ public class Puppetmaster {
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = @"..\Bank\bin\Debug\net6.0\Bank.exe",
+                    FileName = @"..\..\..\..\Bank\bin\Debug\net6.0\Bank.exe",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     CreateNoWindow = true
@@ -73,44 +72,36 @@ public class Puppetmaster {
         /*chamada rpc para isso*/
     }
 
-
-    public void readCommand(string commandLine) {
-        char cmd = commandLine[0];
-
-        switch(cmd) {
-            case 'P':
-                handlePCommand(commandLine);
-                Console.WriteLine("P");
-                break;
-            case 'T':
-                handleTCommand(commandLine);
-                Console.WriteLine("T");
-                break;
-            case 'D':
-                handleDCommand(commandLine);
-                Console.WriteLine("D");
-                break;
-            default:
-                Console.WriteLine("ERROR: Command not found.");
-                break;
-        }
-    }
-
-
 }
 
 class Program {
     public static void Main(string []args) {
         /*começar Bank e Boney instances e depois ler comandos*/
-        /*sempre que ler um novo P cria se um processo novo???*/ 
+        /*sempre que ler um novo P cria se um processo novo???*/
+        /*
+        foreach (string line in File.ReadAllLines(path))
+        {
+            string[] parts = line.Split(' ');
 
-        Puppetmaster master = new Puppetmaster(); 
+            string command = parts[0];
 
-        int i = 0;
-        while(args != null) {
-            master.readCommand(args[i]);
-            i++;
-        }      
+            //TODO : do argument verifications ??
+            switch (command)
+            {
+                case "P":
+                    if (parts[2].Equals("client")) { continue; }
+
+                    // TODO : check errors
+                    //lançar servidor com url e id
+                    serverState.add_server(parts[1], parts[2], parts[3]);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        */
+        
 
     }
 }
