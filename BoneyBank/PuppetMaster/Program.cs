@@ -26,7 +26,7 @@ public class Puppetmaster {
                     FileName = @"..\Boney\bin\Debug\net6.0\Boney.exe",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
-                    CreateNoWindow = true
+                    CreateNoWindow = true,
                 }
             };
             processBoney.Start();
@@ -75,11 +75,46 @@ public class Puppetmaster {
 }
 
 class Program {
+
+    private static void startBoney(string id) {
+        var processBoney = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = @"..\Boney\bin\Debug\net6.0\Boney.exe",
+                UseShellExecute = true,
+                RedirectStandardOutput = true,
+                CreateNoWindow = true,
+                Arguments = id
+            }
+        };
+        processBoney.Start();
+    }
+
+    private static void startBank(string id)
+    {
+        var processBank = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = @"..\Bank\bin\Debug\net6.0\Bank.exe",
+                UseShellExecute = true,
+                RedirectStandardOutput = true,
+                CreateNoWindow = true,
+                Arguments = id
+            }
+        };
+        processBank.Start();
+    }
+
+
     public static void Main(string []args) {
         /*começar Bank e Boney instances e depois ler comandos*/
         /*sempre que ler um novo P cria se um processo novo???*/
-        /*
-        foreach (string line in File.ReadAllLines(path))
+
+        string config_path = args[0];
+
+        foreach (string line in File.ReadAllLines(config_path))
         {
             string[] parts = line.Split(' ');
 
@@ -91,17 +126,18 @@ class Program {
                 case "P":
                     if (parts[2].Equals("client")) { continue; }
 
-                    // TODO : check errors
-                    //lançar servidor com url e id
-                    serverState.add_server(parts[1], parts[2], parts[3]);
+                    else if (parts[2].Equals("boney")) {
+                        startBoney(parts[1]);
+                    }
+
+                    else if (parts[2].Equals("bank")) {
+                        startBank(parts[1]);
+                    }
                     break;
                 default:
                     break;
             }
-        }
-
-        */
-        
+        }     
 
     }
 }
