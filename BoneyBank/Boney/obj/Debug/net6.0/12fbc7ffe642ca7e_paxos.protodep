@@ -1,2 +1,0 @@
-obj\Debug\net6.0\Protos/Paxos.cs \
-obj\Debug\net6.0\Protos/PaxosGrpc.cs: Protos/paxos.proto

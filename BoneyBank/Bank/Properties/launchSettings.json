@@ -1,7 +1,8 @@
 {
   "profiles": {
     "Bank": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "1"
     }
   }
 }

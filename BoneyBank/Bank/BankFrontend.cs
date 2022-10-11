@@ -20,10 +20,13 @@ namespace Bank
         public void compareAndSwap (int slot, int leader) {
             CompareAndSwapRequest request = new CompareAndSwapRequest { Slot = slot, Leader = leader };
             
+
             foreach (CompareAndSwapService.CompareAndSwapServiceClient client in _serverState.get_bonies().Values) {
-                var reply = client.CompareAndSwap(request);
+                var reply = client.CompareAndSwapAsync(request);
                 
             }
+
+
         }
     }
 }

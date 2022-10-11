@@ -8,21 +8,20 @@ namespace Bank
 {   
     class Bank {
 
-        private static bool processInput (string[] args, ServerState serverState) {
+        private static bool processInput (string[] args, string path, ServerState serverState) {
             // check arugments 
-            if (args.Length != 2) {
+            if (args.Length != 1) {
                 Console.WriteLine("Error : invalid number of arguments");
                 return false;
             }
 
-            string path = args[0];
             if (!File.Exists(path)) {
                 Console.WriteLine("Error : invalid path");
                 return false;
             }
 
             int id;
-            if (!int.TryParse(args[1], out id)) {
+            if (!int.TryParse(args[0], out id)) {
                 Console.WriteLine("Error : process id is not a number");
                 return false;
             }
@@ -63,9 +62,10 @@ namespace Bank
         }
 
         static void Main(string[] args) {
-
             ServerState serverState = new ServerState();
-            if (! processInput(args, serverState)) {
+            string config_path = @"..\..\..\..\..\configuration_sample.txt";
+
+            if (! processInput(args, config_path, serverState)) {
                 // error processing input occurred
                 return;
             }
