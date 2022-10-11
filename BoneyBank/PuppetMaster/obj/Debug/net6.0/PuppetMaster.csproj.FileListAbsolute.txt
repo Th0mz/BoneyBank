@@ -1,0 +1,15 @@
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\BoneyBank\PuppetMaster\bin\Debug\net6.0\PuppetMaster.exe
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\BoneyBank\PuppetMaster\bin\Debug\net6.0\PuppetMaster.deps.json
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\BoneyBank\PuppetMaster\bin\Debug\net6.0\PuppetMaster.runtimeconfig.json
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\BoneyBank\PuppetMaster\bin\Debug\net6.0\PuppetMaster.dll
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\BoneyBank\PuppetMaster\bin\Debug\net6.0\PuppetMaster.pdb
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\BoneyBank\PuppetMaster\obj\Debug\net6.0\PuppetMaster.csproj.AssemblyReference.cache
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\BoneyBank\PuppetMaster\obj\Debug\net6.0\PuppetMaster.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\BoneyBank\PuppetMaster\obj\Debug\net6.0\PuppetMaster.AssemblyInfoInputs.cache
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\BoneyBank\PuppetMaster\obj\Debug\net6.0\PuppetMaster.AssemblyInfo.cs
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\BoneyBank\PuppetMaster\obj\Debug\net6.0\PuppetMaster.csproj.CoreCompileInputs.cache
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\BoneyBank\PuppetMaster\obj\Debug\net6.0\PuppetMaster.dll
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\BoneyBank\PuppetMaster\obj\Debug\net6.0\refint\PuppetMaster.dll
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\BoneyBank\PuppetMaster\obj\Debug\net6.0\PuppetMaster.pdb
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\BoneyBank\PuppetMaster\obj\Debug\net6.0\PuppetMaster.genruntimeconfig.cache
+C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\BoneyBank\PuppetMaster\obj\Debug\net6.0\ref\PuppetMaster.dll
