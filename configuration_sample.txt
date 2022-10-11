@@ -1,9 +1,9 @@
-P 1 boney http://1.2.3.4:10000
-P 2 boney http://1.2.3.4:10002
-P 3 boney http://1.2.3.4:10003
-P 4 bank http://1.2.3.5:10004
-P 5 bank http://1.2.3.5:10008
-P 6 bank http://1.2.3.5:10009
+P 1 boney http://localhost:5001
+P 2 boney http://localhost:5002
+P 3 boney http://localhost:5003
+P 4 bank http://localhost:5004
+P 5 bank http://localhost:5005
+P 6 bank http://localhost:5006
 P 7 client
 P 8 client
 S 3
