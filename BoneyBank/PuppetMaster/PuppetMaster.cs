@@ -7,9 +7,8 @@ public class Puppetmaster {
         {
             StartInfo = new ProcessStartInfo
             {
-                FileName = @"..\Boney\bin\Debug\net6.0\Boney.exe",
+                FileName = @"..\..\..\..\Boney\bin\Debug\net6.0\Boney.exe",
                 UseShellExecute = true,
-                RedirectStandardOutput = true,
                 CreateNoWindow = true,
                 Arguments = id
             }
@@ -23,9 +22,8 @@ public class Puppetmaster {
         {
             StartInfo = new ProcessStartInfo
             {
-                FileName = @"..\Bank\bin\Debug\net6.0\Bank.exe",
+                FileName = @"..\..\..\..\Bank\bin\Debug\net6.0\Bank.exe",
                 UseShellExecute = true,
-                RedirectStandardOutput = true,
                 CreateNoWindow = true,
                 Arguments = id
             }
