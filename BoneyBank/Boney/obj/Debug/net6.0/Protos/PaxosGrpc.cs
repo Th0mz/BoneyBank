@@ -56,10 +56,6 @@ public static partial class PaxosService
   static readonly grpc::Marshaller<global::LearnRequest> __Marshaller_LearnRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::LearnRequest.Parser));
   [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
   static readonly grpc::Marshaller<global::LearnReply> __Marshaller_LearnReply = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::LearnReply.Parser));
-  [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-  static readonly grpc::Marshaller<global::KeepaliveRequest> __Marshaller_KeepaliveRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::KeepaliveRequest.Parser));
-  [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-  static readonly grpc::Marshaller<global::KeepaliveReply> __Marshaller_KeepaliveReply = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::KeepaliveReply.Parser));
 
   [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
   static readonly grpc::Method<global::PrepareRequest, global::PrepareReply> __Method_Prepare = new grpc::Method<global::PrepareRequest, global::PrepareReply>(
@@ -85,14 +81,6 @@ public static partial class PaxosService
       __Marshaller_LearnRequest,
       __Marshaller_LearnReply);
 
-  [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-  static readonly grpc::Method<global::KeepaliveRequest, global::KeepaliveReply> __Method_Keepalive = new grpc::Method<global::KeepaliveRequest, global::KeepaliveReply>(
-      grpc::MethodType.Unary,
-      __ServiceName,
-      "Keepalive",
-      __Marshaller_KeepaliveRequest,
-      __Marshaller_KeepaliveReply);
-
   /// <summary>Service descriptor</summary>
   public static global::Google.Protobuf.Reflection.ServiceDescriptor Descriptor
   {
@@ -115,14 +103,14 @@ public static partial class PaxosService
       throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
     }
 
+    /// <summary>
+    ///rpc Keepalive (KeepaliveRequest) returns (KeepaliveReply);
+    /// </summary>
+    /// <param name="request">The request received from the client.</param>
+    /// <param name="context">The context of the server-side call handler being invoked.</param>
+    /// <returns>The response to send back to the client (wrapped by a task).</returns>
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     public virtual global::System.Threading.Tasks.Task<global::LearnReply> Learn(global::LearnRequest request, grpc::ServerCallContext context)
-    {
-      throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
-    }
-
-    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    public virtual global::System.Threading.Tasks.Task<global::KeepaliveReply> Keepalive(global::KeepaliveRequest request, grpc::ServerCallContext context)
     {
       throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
     }
@@ -196,45 +184,53 @@ public static partial class PaxosService
     {
       return CallInvoker.AsyncUnaryCall(__Method_Accept, null, options, request);
     }
+    /// <summary>
+    ///rpc Keepalive (KeepaliveRequest) returns (KeepaliveReply);
+    /// </summary>
+    /// <param name="request">The request to send to the server.</param>
+    /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+    /// <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+    /// <param name="cancellationToken">An optional token for canceling the call.</param>
+    /// <returns>The response received from the server.</returns>
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     public virtual global::LearnReply Learn(global::LearnRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
     {
       return Learn(request, new grpc::CallOptions(headers, deadline, cancellationToken));
     }
+    /// <summary>
+    ///rpc Keepalive (KeepaliveRequest) returns (KeepaliveReply);
+    /// </summary>
+    /// <param name="request">The request to send to the server.</param>
+    /// <param name="options">The options for the call.</param>
+    /// <returns>The response received from the server.</returns>
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     public virtual global::LearnReply Learn(global::LearnRequest request, grpc::CallOptions options)
     {
       return CallInvoker.BlockingUnaryCall(__Method_Learn, null, options, request);
     }
+    /// <summary>
+    ///rpc Keepalive (KeepaliveRequest) returns (KeepaliveReply);
+    /// </summary>
+    /// <param name="request">The request to send to the server.</param>
+    /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+    /// <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+    /// <param name="cancellationToken">An optional token for canceling the call.</param>
+    /// <returns>The call object.</returns>
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     public virtual grpc::AsyncUnaryCall<global::LearnReply> LearnAsync(global::LearnRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
     {
       return LearnAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
     }
+    /// <summary>
+    ///rpc Keepalive (KeepaliveRequest) returns (KeepaliveReply);
+    /// </summary>
+    /// <param name="request">The request to send to the server.</param>
+    /// <param name="options">The options for the call.</param>
+    /// <returns>The call object.</returns>
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     public virtual grpc::AsyncUnaryCall<global::LearnReply> LearnAsync(global::LearnRequest request, grpc::CallOptions options)
     {
       return CallInvoker.AsyncUnaryCall(__Method_Learn, null, options, request);
-    }
-    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    public virtual global::KeepaliveReply Keepalive(global::KeepaliveRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
-    {
-      return Keepalive(request, new grpc::CallOptions(headers, deadline, cancellationToken));
-    }
-    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    public virtual global::KeepaliveReply Keepalive(global::KeepaliveRequest request, grpc::CallOptions options)
-    {
-      return CallInvoker.BlockingUnaryCall(__Method_Keepalive, null, options, request);
-    }
-    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    public virtual grpc::AsyncUnaryCall<global::KeepaliveReply> KeepaliveAsync(global::KeepaliveRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
-    {
-      return KeepaliveAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
-    }
-    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    public virtual grpc::AsyncUnaryCall<global::KeepaliveReply> KeepaliveAsync(global::KeepaliveRequest request, grpc::CallOptions options)
-    {
-      return CallInvoker.AsyncUnaryCall(__Method_Keepalive, null, options, request);
     }
     /// <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
@@ -252,8 +248,7 @@ public static partial class PaxosService
     return grpc::ServerServiceDefinition.CreateBuilder()
         .AddMethod(__Method_Prepare, serviceImpl.Prepare)
         .AddMethod(__Method_Accept, serviceImpl.Accept)
-        .AddMethod(__Method_Learn, serviceImpl.Learn)
-        .AddMethod(__Method_Keepalive, serviceImpl.Keepalive).Build();
+        .AddMethod(__Method_Learn, serviceImpl.Learn).Build();
   }
 
   /// <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
@@ -266,7 +261,6 @@ public static partial class PaxosService
     serviceBinder.AddMethod(__Method_Prepare, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::PrepareRequest, global::PrepareReply>(serviceImpl.Prepare));
     serviceBinder.AddMethod(__Method_Accept, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::AcceptRequest, global::AcceptReply>(serviceImpl.Accept));
     serviceBinder.AddMethod(__Method_Learn, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::LearnRequest, global::LearnReply>(serviceImpl.Learn));
-    serviceBinder.AddMethod(__Method_Keepalive, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::KeepaliveRequest, global::KeepaliveReply>(serviceImpl.Keepalive));
   }
 
 }

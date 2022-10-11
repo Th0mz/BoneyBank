@@ -9,21 +9,18 @@ using Grpc.Core;
 namespace Bank
 {
     internal class BankFrontend {
-        private GrpcChannel channel;
-        private CompareAndSwapService.CompareAndSwapServiceClient client;
+        private ServerState _serverState;
 
-        public BankFrontend () {
+        public BankFrontend (ServerState serverState) {
             AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
-            channel = GrpcChannel.ForAddress("http://localhost:5001");
-            client = new CompareAndSwapService.CompareAndSwapServiceClient(channel);
+
+            _serverState = serverState; 
         }
 
         public void compareAndSwap (int slot, int leader) {
             CompareAndSwapRequest request = new CompareAndSwapRequest { Slot = slot, Leader = leader };
-            var reply = client.CompareAndSwap(request);
 
-            Console.WriteLine(reply.Leader);
-
+            foreach ()
             return;
         }
     }

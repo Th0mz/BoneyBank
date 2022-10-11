@@ -4,7 +4,7 @@ service PaxosService {
   rpc Prepare (PrepareRequest) returns (PrepareReply);
   rpc Accept (AcceptRequest) returns (AcceptReply);
   rpc Learn (LearnRequest) returns (LearnReply);
-  rpc Keepalive (KeepaliveRequest) returns (KeepaliveReply);
+  //rpc Keepalive (KeepaliveRequest) returns (KeepaliveReply);
 }
 
 // prepare

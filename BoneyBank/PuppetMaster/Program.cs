@@ -9,18 +9,31 @@ public class Puppetmaster {
         if( cmds[2].Equals("boney") ) {
             Console.WriteLine("boney");
 
-           /*var processBoney = new Process {
-                StartInfo = new ProcessStartInfo
-                    {
-                        FileName = @"..\..\..\..\Boney\bin\Debug\net6.0\Boney.exe",
-                        Arguments = "behavior query SymlinkEvaluation",
-                        UseShellExecute = false, RedirectStandardOutput = true,
-                        CreateNoWindow = true
-                    }
-            }*/
+            /*var processBoney = new Process {
+                 StartInfo = new ProcessStartInfo
+                     {
+                         FileName = @"..\..\..\..\Boney\bin\Debug\net6.0\Boney.exe",
+                         Arguments = "behavior query SymlinkEvaluation",
+                         UseShellExecute = false, RedirectStandardOutput = true,
+                         CreateNoWindow = true
+                     }
+             }*/
             /*fazer a cena de criar o processo com path tipo @"..\..\..\..\Boney\bin\Debug\netcoreapp3.1\Boney.exe";*/
 
-        }else if( cmds[2].Equals("bank")) {
+            var processBoney = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = @"..\Boney\bin\Debug\net6.0\Boney.exe",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = true
+                }
+            };
+            processBoney.Start();
+
+        }
+        else if( cmds[2].Equals("bank")) {
             Console.WriteLine("bank");
 
             /*var processBank = new Process {
@@ -33,34 +46,22 @@ public class Puppetmaster {
                     }
             }*/
       
-            var processBoney = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = @"..\Boney\bin\Debug\net6.0\Boney.exe",
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    CreateNoWindow = true
-                }
-            };
-            processBoney.Start();
-            /*fazer a cena de criar o processo com path tipo @"..\..\Boney\bin\Debug\netcoreapp3.1\Boney.exe";*/
-
-        }
-        else if( cmds[2].Equals("bank")) {
-            Console.WriteLine("bank");
-
             var processBank = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = @"..\Boney\bin\Debug\net6.0\Boney.exe",
+                    FileName = @"..\Bank\bin\Debug\net6.0\Bank.exe",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     CreateNoWindow = true
                 }
             };
             processBank.Start();
+            /*fazer a cena de criar o processo com path tipo @"..\..\Boney\bin\Debug\netcoreapp3.1\Boney.exe";*/
+
+        }
+        else if( cmds[2].Equals("client")) {
+
         }
     }
 
