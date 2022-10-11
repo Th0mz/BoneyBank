@@ -1,2 +1,0 @@
-obj\Debug\net6.0\Protos/CompareAndSwap.cs \
-obj\Debug\net6.0\Protos/CompareAndSwapGrpc.cs: Protos/compareAndSwap.proto
