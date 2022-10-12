@@ -35,7 +35,7 @@ namespace Boney
                     unlock
                     return state.timeslots[slot]
                 
-                paxosFrontend.prepare(leader, propose_number [id + offset])
+                paxosFrontend.propose(leader, propose_number [id + offset])
                 await state.timeslots[slot]
                 return state.timeslots[slot]
             

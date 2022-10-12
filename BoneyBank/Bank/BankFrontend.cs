@@ -38,8 +38,6 @@ namespace Bank
 
                 Console.WriteLine();
             }
-
-
         }
     }
 }
