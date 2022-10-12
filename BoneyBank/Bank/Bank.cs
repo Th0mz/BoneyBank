@@ -75,8 +75,8 @@ namespace Bank
 
             // TODO : channel timeuot
             bankFrontend.compareAndSwap(1, 2);
-            
 
+            Console.ReadKey();
         }
     }
 }

@@ -45,7 +45,7 @@ namespace Bank
 
         public ServerState() {  }
 
-        public Dictionary<int, CompareAndSwapService.CompareAndSwapServiceClient> get_bonies () {
+        public Dictionary<int, CompareAndSwapService.CompareAndSwapServiceClient> get_boney_servers () {
             return _bonies;
         }
 

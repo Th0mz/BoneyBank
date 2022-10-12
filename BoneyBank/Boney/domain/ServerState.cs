@@ -75,6 +75,10 @@ namespace Boney
             return _url;
         }
 
+        public Dictionary<int, PaxosService.PaxosServiceClient> get_paxos_servers() {
+            return _bonies;
+        }
+
         public bool set_id(int id) {
             _id = id;
             return true;

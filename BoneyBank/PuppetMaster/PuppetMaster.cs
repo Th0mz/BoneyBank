@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 public class Puppetmaster {
 
@@ -13,6 +14,7 @@ public class Puppetmaster {
                 Arguments = id
             }
         };
+
         processBoney.Start();
     }
 
@@ -38,8 +40,7 @@ public class Puppetmaster {
 
         string config_path = @"..\..\..\..\..\configuration_sample.txt";
 
-        foreach (string line in File.ReadAllLines(config_path))
-        {
+        foreach (string line in File.ReadAllLines(config_path)) {
             string[] parts = line.Split(' ');
             string command = parts[0];
 
@@ -60,7 +61,6 @@ public class Puppetmaster {
                 default:
                     break;
             }
-        }     
-
+        }
     }
 }

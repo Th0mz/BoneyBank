@@ -17,13 +17,26 @@ namespace Bank
             _serverState = serverState; 
         }
 
+        // this method shouldn't be async
         public void compareAndSwap (int slot, int leader) {
             CompareAndSwapRequest request = new CompareAndSwapRequest { Slot = slot, Leader = leader };
-            
 
-            foreach (CompareAndSwapService.CompareAndSwapServiceClient client in _serverState.get_bonies().Values) {
-                var reply = client.CompareAndSwapAsync(request);
-                
+            List<Task<CompareAndSwapReply>> replies = new List<Task<CompareAndSwapReply>>(); 
+            foreach (var client in _serverState.get_boney_servers().Values){
+                var reply = client.CompareAndSwapAsync(request).ResponseAsync;
+                replies.Add(reply);
+            }
+
+            while (replies.Any()) {
+                var task_reply = Task.WhenAny(replies).Result;
+                var reply = task_reply.Result;
+
+                Console.WriteLine(reply.Leader);
+
+                // remove recieved reply
+                replies.Remove(task_reply);
+
+                Console.WriteLine();
             }
 
 

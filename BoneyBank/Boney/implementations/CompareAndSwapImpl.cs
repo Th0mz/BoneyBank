@@ -11,10 +11,10 @@ namespace Boney
 {
     public class CompareAndSwapImpl : CompareAndSwapService.CompareAndSwapServiceBase {
 
-        private BoneyState state;
+        private BoneyState _state;
 
-        public CompareAndSwapImpl(BoneyState _state) {
-            state = _state;
+        public CompareAndSwapImpl(BoneyState state) {
+            _state = state;
             AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
         }
 
@@ -29,34 +29,21 @@ namespace Boney
             // compareAndSwap code
 
             /*
-            proposer :
-
+            
             lock (state.timeslots[slot]) 
                 if state.timeslots[slot] != null
                     unlock
                     return state.timeslots[slot]
                 
-                prepare(leader, propose_number [id + offset])
+                paxosFrontend.prepare(leader, propose_number [id + offset])
                 await state.timeslots[slot]
                 return state.timeslots[slot]
             
             */
 
-            /*
-            acceptor : 
-            
-
-            */
-
-            /*
-             learner : 
-                
-                state.timeslots[slot] = leader
-                pulse all no lock
-             */
-
             Console.WriteLine(request.Leader + " " + request.Slot);
-            return new CompareAndSwapReply { Leader = request.Leader };
+            Thread.Sleep(4000);
+            return new CompareAndSwapReply { Leader = request.Leader};
         }
     }
 }
