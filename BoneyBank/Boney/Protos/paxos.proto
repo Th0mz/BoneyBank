@@ -13,8 +13,9 @@ message PrepareRequest {
 }
 
 message PrepareReply {
-	int32 leader = 1;
-	int32 proposal_number = 2;
+	int32 last_accepted_value = 1;
+	int32 last_accepted_seqnum = 2;
+	int32 last_promised_seqnum = 3;
 }
 
 // accept 

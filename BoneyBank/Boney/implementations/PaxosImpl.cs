@@ -11,10 +11,13 @@ namespace Boney
     public class PaxosImpl : PaxosService.PaxosServiceBase {
 
         // lock this values 
-        private int value = 0;
+        private int last_accepted_value = 0;
 
-        private int last_proposal = 0;
-        private int last_accepted = 0;
+        private int last_promised_seqnum = 0;
+        private int last_accepted_seqnum = 0;
+
+        private const int _OK = 1;
+        private const int _NOK = -1;
 
         private BoneyState state;
 
@@ -33,7 +36,20 @@ namespace Boney
 
         private PrepareReply do_prepare(PrepareRequest request) {
             // accept code
-            return new PrepareReply();
+
+            if (request.ProposalNumber > last_promised_seqnum) {
+                //request.ProposalNumber
+                last_promised_seqnum = request.ProposalNumber;
+            }
+
+            return new PrepareReply
+            {
+                LastAcceptedValue = last_accepted_value,
+                LastAcceptedSeqnum = last_accepted_seqnum,
+                LastPromisedSeqnum = last_promised_seqnum
+
+            };
+
         }
 
 

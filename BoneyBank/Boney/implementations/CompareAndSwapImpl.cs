@@ -12,9 +12,11 @@ namespace Boney
     public class CompareAndSwapImpl : CompareAndSwapService.CompareAndSwapServiceBase {
 
         private BoneyState _state;
+        private PaxosFrontend _paxosFrontend;
 
-        public CompareAndSwapImpl(BoneyState state) {
+        public CompareAndSwapImpl(BoneyState state, PaxosFrontend frontend) {
             _state = state;
+            _paxosFrontend = frontend;
             AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
         }
 
@@ -28,22 +30,28 @@ namespace Boney
         private CompareAndSwapReply do_compareAndSwap(CompareAndSwapRequest request) {
             // compareAndSwap code
 
-            /*
-            
-            lock (state.timeslots[slot]) 
-                if state.timeslots[slot] != null
-                    unlock
-                    return state.timeslots[slot]
-                
-                paxosFrontend.propose(leader, propose_number [id + offset])
-                await state.timeslots[slot]
-                return state.timeslots[slot]
-            
-            */
+            int leader = request.Leader;
+            int slot = request.Slot;
 
-            Console.WriteLine(request.Leader + " " + request.Slot);
-            Thread.Sleep(4000);
-            return new CompareAndSwapReply { Leader = request.Leader};
+            Slot slot_obj = _state.get_slot(slot);
+            lock (slot_obj) {
+                if (slot_obj.has_leader()) {
+                    return new CompareAndSwapReply {
+                        Leader = slot_obj.get_leader()
+                    };
+                }
+
+                // TODO : coordinator
+                // if (coordinator) {
+                _paxosFrontend.propose(slot, leader);
+                // }
+                Monitor.Wait(slot_obj);
+
+                return new CompareAndSwapReply {
+                    Leader = slot_obj.get_leader()
+                };
+
+            }
         }
     }
 }

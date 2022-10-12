@@ -38,6 +38,7 @@ namespace Boney
         // other servers info
         // instead of the url store the grpc stub <<<
         private Dictionary<int, PaxosService.PaxosServiceClient> _bonies = new Dictionary<int, PaxosService.PaxosServiceClient>();
+        
         private int current_slot = 0;
         private Dictionary<int, ServerInfo[]> _timeslots_info = new Dictionary<int, ServerInfo[]>();
 
@@ -54,7 +55,6 @@ namespace Boney
             // add this server info
             if (id == _id) {
                 _url = url;
-                return true;
             }
 
             // add other server info
@@ -73,6 +73,10 @@ namespace Boney
 
         public string get_url() {
             return _url;
+        }
+
+        public int get_id() {
+            return _id;
         }
 
         public Dictionary<int, PaxosService.PaxosServiceClient> get_paxos_servers() {

@@ -67,6 +67,7 @@ namespace Boney
 
             BoneyState state = new BoneyState();
             ServerState serverState = new ServerState();
+            PaxosFrontend paxosFrontend = new PaxosFrontend(serverState);
             string config_path = @"..\..\..\..\..\configuration_sample.txt";
 
 
@@ -89,7 +90,7 @@ namespace Boney
 
             Server server = new Server
             {
-                Services = { CompareAndSwapService.BindService(new CompareAndSwapImpl(state)), 
+                Services = { CompareAndSwapService.BindService(new CompareAndSwapImpl(state, paxosFrontend)), 
                              PaxosService.BindService(new PaxosImpl(state))},
                 //meter aqui o url
                 Ports = { new ServerPort(host, port, ServerCredentials.Insecure) }
