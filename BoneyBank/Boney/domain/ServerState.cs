@@ -32,6 +32,8 @@ namespace Boney
         private int _delta;
         private bool _frozen;
         private DateTime _starting_date;
+        private int _lastRound = 0;
+        private int _numberServers = 3;
 
         // F list
 
@@ -71,9 +73,17 @@ namespace Boney
             return added_server;
         }
 
+        public Dictionary<int, PaxosService.PaxosServiceClient> getBoneyServers() { return _bonies; }
+
         public string get_url() {
             return _url;
         }
+
+        public int getId() { return _id; }
+        public int getLastRound() { return _lastRound; }
+        public int getNumberServers() { return _numberServers; }
+
+        public void setLastRound(int round) { _lastRound = round; }
 
         public bool set_id(int id) {
             _id = id;

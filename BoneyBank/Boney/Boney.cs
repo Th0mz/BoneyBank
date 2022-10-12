@@ -64,9 +64,8 @@ namespace Boney
 
         static void Main(string[] args) {
  
-
-            BoneyState state = new BoneyState();
             ServerState serverState = new ServerState();
+            
             string config_path = @"..\..\..\..\..\configuration_sample.txt";
 
 
@@ -74,7 +73,8 @@ namespace Boney
                 // error processing input occurred
                 return;
             }
-
+            Paxos paxos = new Paxos(serverState);
+            BoneyState state = new BoneyState(paxos);
             string url = serverState.get_url();
             string[] urlSplit = url.Split(':');
 

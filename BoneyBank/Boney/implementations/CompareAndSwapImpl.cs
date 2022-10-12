@@ -26,37 +26,10 @@ namespace Boney
         }
 
         private CompareAndSwapReply do_compareAndSwap(CompareAndSwapRequest request) {
-            // compareAndSwap code
-
-            /*
-            proposer :
-
-            lock (state.timeslots[slot]) 
-                if state.timeslots[slot] != null
-                    unlock
-                    return state.timeslots[slot]
-                
-                prepare(leader, propose_number [id + offset])
-                await state.timeslots[slot]
-                return state.timeslots[slot]
-            
-            */
-
-            /*
-            acceptor : 
-            
-
-            */
-
-            /*
-             learner : 
-                
-                state.timeslots[slot] = leader
-                pulse all no lock
-             */
-
             Console.WriteLine(request.Leader + " " + request.Slot);
-            return new CompareAndSwapReply { Leader = request.Leader };
+            //return new CompareAndSwapReply { Leader = request.Leader };
+            return new CompareAndSwapReply { 
+                                Leader = _state.doCompareAndSwap(request.slot, request.leader) };
         }
     }
 }

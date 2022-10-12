@@ -13,8 +13,9 @@ message PrepareRequest {
 }
 
 message PrepareReply {
-	int32 leader = 1;
-	int32 proposal_number = 2;
+	int32 leader = 1; //value of lastVoted
+	int32 proposal_number = 2; //sequence number of promise
+	int32 last_proposal = 3; //sequence number of when voted lastVoted
 }
 
 // accept 
