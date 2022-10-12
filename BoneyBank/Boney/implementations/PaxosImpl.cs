@@ -61,8 +61,20 @@ namespace Boney
         }
 
         private AcceptReply do_accept(AcceptRequest request) {
-            // accept code
-            return new AcceptReply();
+            //TODO tommy : synchronize :D (place locks in every shared variable)
+            if (request.ProposalNumber == last_promised_seqnum) {
+                last_accepted_seqnum = last_promised_seqnum;
+                last_accepted_value = request.Leader;
+
+                return new AcceptReply {
+                    Status = _OK
+                };
+            }
+
+            return new AcceptReply {
+                Status = _NOK
+            };
+
         }
 
 
@@ -76,7 +88,24 @@ namespace Boney
 
         private LearnReply do_learn(LearnRequest request) {
             // accept code
-            return new LearnReply();
+
+            int leader = request.Leader;
+            int slot = request.Slot;
+
+            Slot slot_obj = state.get_slot(slot);
+            lock (slot_obj)
+            {
+                if (slot_obj.has_leader())
+                {
+                    return new LearnReply{ };
+                }
+
+                slot_obj.set_leader(leader);
+
+                Monitor.PulseAll(slot_obj);
+
+                return new LearnReply { };
+            }
         }
 
 

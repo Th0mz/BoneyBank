@@ -18,6 +18,10 @@ namespace Boney
         public int get_leader() {
             return no_leader;
         }
+
+        public void set_leader(int leader) {
+            _leader = leader;
+        }
     }
     public class BoneyState {
 

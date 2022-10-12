@@ -31,6 +31,7 @@ message AcceptReply {
 // learn 
 message LearnRequest {
 	int32 leader = 1;
+	int32 slot = 2;
 }
 
 message LearnReply {
