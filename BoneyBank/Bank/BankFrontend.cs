@@ -35,8 +35,6 @@ namespace Bank
 
                 // remove recieved reply
                 replies.Remove(task_reply);
-
-                Console.WriteLine();
             }
         }
     }

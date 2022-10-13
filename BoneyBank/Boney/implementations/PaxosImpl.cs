@@ -54,10 +54,10 @@ namespace Boney
 
                 return new PrepareReply
                 {
+                    CurrentInstance = true,
                     LastAcceptedValue = last_accepted_value,
                     LastAcceptedSeqnum = last_accepted_seqnum,
-                    LastPromisedSeqnum = last_promised_seqnum,
-                    CurrentInstance = true
+                    LastPromisedSeqnum = last_promised_seqnum
                 };   
             }
             

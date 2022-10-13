@@ -44,7 +44,7 @@ namespace Boney
                 // Phase 1 : send prepares
                 int highest_value = 0;
                 int highest_sequence_number = 0;
-                if (mustStop) break; //is it necessary here??
+
                 while (!quorum_reached)
                 {
                     highest_value = 0;
@@ -78,7 +78,6 @@ namespace Boney
                         // remove recieved reply
                         proposal_replies.Remove(task_reply);
                     }
-                    if (mustStop) break;
 
                     if (highest_sequence_number == 0) {
                         highest_value = leader;

@@ -92,6 +92,7 @@ namespace Boney
             {
                 Services = { CompareAndSwapService.BindService(new CompareAndSwapImpl(state, paxosFrontend)), 
                              PaxosService.BindService(new PaxosImpl(state))},
+                
                 //meter aqui o url
                 Ports = { new ServerPort(host, port, ServerCredentials.Insecure) }
             };

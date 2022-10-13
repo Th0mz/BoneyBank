@@ -6,6 +6,7 @@ using System.Threading.Channels;
 using Grpc.Net.Client;
 using static System.Net.Mime.MediaTypeNames;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Boney
 {
@@ -33,17 +34,27 @@ namespace Boney
             int leader = request.Leader;
             int slot = request.Slot;
 
+            // DEBUG
+            Console.WriteLine("CompareAndSwap(" + leader + ", " + slot + ")");
+
             Slot slot_obj = _state.get_slot(slot);
-            lock (slot_obj) {
-                if (slot_obj.has_leader()) {
-                    return new CompareAndSwapReply {
+            lock (slot_obj)
+            {
+                if (slot_obj.has_leader())
+                {
+                    return new CompareAndSwapReply
+                    {
                         Leader = slot_obj.get_leader()
                     };
                 }
 
+                // DEBUG
+                Console.WriteLine("CompareAndSwap : Proposing leader");
                 // TODO : coordinator
                 // if (coordinator) {
+                // TODO : testar se for escolhido um valor a meio do propose se isto funciona
                 _paxosFrontend.propose(slot, leader);
+                Console.WriteLine("CompareAndSwap : Wait");
                 // }
                 Monitor.Wait(slot_obj);
 
@@ -52,6 +63,7 @@ namespace Boney
                 };
 
             }
+
         }
     }
 }
