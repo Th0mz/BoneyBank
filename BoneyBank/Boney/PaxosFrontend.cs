@@ -37,18 +37,21 @@ namespace Boney
 
             // TODO : dar clean do estado dos acceptors
 
+            //TODO locks tbm aqui no frontend???
+
             while (!consensus_reached) {
 
                 // Phase 1 : send prepares
                 int highest_value = 0;
                 int highest_sequence_number = 0;
+                if (mustStop) break; //is it necessary here??
                 while (!quorum_reached)
                 {
                     highest_value = 0;
                     highest_sequence_number = 0;
 
                     proposal_number = (last_round + 1) * number_servers + id;
-                    var proposal_replies = prepare(proposal_number);
+                    var proposal_replies = prepare(proposal_number, slot);
 
                     int count = 0;
                     // wait for replies
@@ -56,6 +59,8 @@ namespace Boney
                     {
                         var task_reply = Task.WhenAny(proposal_replies).Result;
                         var reply = task_reply.Result;
+
+                        if (reply.CurrentInstance != true) return;
 
                         // check if the propose was promissed by the acceptor
                         if (reply.LastPromisedSeqnum == proposal_number) {
@@ -73,6 +78,7 @@ namespace Boney
                         // remove recieved reply
                         proposal_replies.Remove(task_reply);
                     }
+                    if (mustStop) break;
 
                     if (highest_sequence_number == 0) {
                         highest_value = leader;
@@ -84,16 +90,17 @@ namespace Boney
                     }
                 }
 
-
                 // Phase 2 : send accepts
                 quorum_reached = false;
-                var accept_replies = accept(highest_sequence_number, highest_value);
+                var accept_replies = accept(highest_sequence_number, highest_value, slot);
                 
                 int accept_count = 0;
                 while (accept_replies.Any())
                 {
                     var task_reply = Task.WhenAny(accept_replies).Result;
                     var reply = task_reply.Result;
+
+                    if (reply.CurrentInstance != true) return;
 
                     if (reply.Status == _OK) {
                         accept_count++;
@@ -110,7 +117,7 @@ namespace Boney
 
 
                 // Propagate consensus value
-                learn(highest_value);
+                learn(highest_value, slot);
             }
 
         }
@@ -149,9 +156,10 @@ namespace Boney
                  */
 
 
-        public List<Task<PrepareReply>> prepare (int proposal_number) {
+        public List<Task<PrepareReply>> prepare (int proposal_number, int slot) {
             PrepareRequest request = new PrepareRequest {
-                ProposalNumber = proposal_number
+                ProposalNumber = proposal_number,
+                Slot = slot
             };
 
             List<Task<PrepareReply>> replies = new List<Task<PrepareReply>>();
@@ -164,11 +172,12 @@ namespace Boney
             return replies;
         }
 
-        public List<Task<AcceptReply>> accept (int proposal_number, int leader) {
+        public List<Task<AcceptReply>> accept (int proposal_number, int leader, int slot) {
             AcceptRequest request = new AcceptRequest
             {
                 ProposalNumber = proposal_number,
-                Leader = leader
+                Leader = leader,
+                Slot = slot
             };
 
             List<Task<AcceptReply>> replies = new List<Task<AcceptReply>>();
@@ -180,9 +189,10 @@ namespace Boney
             return replies;
         }
 
-        public void learn(int leader) {
+        public void learn(int leader, int slot) {
             LearnRequest request = new LearnRequest {
-                Leader = leader
+                Leader = leader,
+                Slot = slot
             };
 
             foreach (var client in _serverState.get_paxos_servers().Values) {
