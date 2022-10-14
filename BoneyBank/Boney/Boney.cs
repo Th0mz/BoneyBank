@@ -43,7 +43,7 @@ namespace Boney
                         serverState.add_server(parts[1], parts[2], parts[3]);
                         break;
                     case "T":
-                        serverState.set_starting_date(parts[1]);
+                        serverState.set_starting_time(parts[1]);
                         break;
                     case "S":
                         break;
@@ -63,12 +63,14 @@ namespace Boney
         }
 
         static void Main(string[] args) {
- 
+
+            DateTime start = DateTime.Now;
 
             BoneyState state = new BoneyState();
             ServerState serverState = new ServerState();
             PaxosFrontend paxosFrontend = new PaxosFrontend(serverState);
-            string config_path = @"..\..\..\..\..\configuration_sample.txt";
+            //string config_path = @"..\..\..\..\..\configuration_sample.txt";
+            string config_path = @"C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\configuration_sample.txt";
 
 
             if (!processInput(args, config_path, serverState)) {
@@ -92,10 +94,12 @@ namespace Boney
             {
                 Services = { CompareAndSwapService.BindService(new CompareAndSwapImpl(state, paxosFrontend)), 
                              PaxosService.BindService(new PaxosImpl(state))},
-                
-                //meter aqui o url
+
                 Ports = { new ServerPort(host, port, ServerCredentials.Insecure) }
             };
+
+            DateTime starting_time = serverState.get_starting_time();
+            TimeSpan wait_time = starting_time - DateTime.Now;
 
             server.Start();
 

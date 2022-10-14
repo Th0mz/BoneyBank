@@ -11,17 +11,12 @@ namespace Boney
     public class PaxosImpl : PaxosService.PaxosServiceBase {
 
         // lock this values 
+        private object mutex = new object();
+
         private int last_accepted_value = 0;
-        private object lockAcceptedValue = new object();
-
         private int last_promised_seqnum = 0;
-        private object lockPromisedSeqnum = new object();
-
         private int last_accepted_seqnum = 0;
-        private object lockAcceptedSeqnum = new object();
-
         private int currentInstance = 1;
-        private object lockCurrentInstance = new object();
 
         private const int _OK = 1;
         private const int _NOK = -1;
@@ -43,7 +38,7 @@ namespace Boney
 
         private PrepareReply do_prepare(PrepareRequest request) {
             // accept code
-            lock (lockAcceptedValue) lock(lockPromisedSeqnum) lock(lockAcceptedSeqnum) lock(lockCurrentInstance)
+            lock (mutex)
             {
                 if (request.Slot != currentInstance) return new PrepareReply { CurrentInstance = false };
 
@@ -75,7 +70,7 @@ namespace Boney
         private AcceptReply do_accept(AcceptRequest request) {
             //TODO tommy : synchronize :D (place locks in every shared variable)
 
-            lock (lockAcceptedValue) lock (lockPromisedSeqnum) lock (lockAcceptedSeqnum) lock (lockCurrentInstance)
+            lock (mutex)
             {
                 if (request.Slot != currentInstance) return new AcceptReply { CurrentInstance = false };
 
@@ -114,7 +109,7 @@ namespace Boney
             int leader = request.Leader;
             int slot = request.Slot;
 
-            lock (lockAcceptedValue) lock (lockPromisedSeqnum) lock (lockAcceptedSeqnum) lock (lockCurrentInstance)
+            lock (mutex)
             {
                 if (slot != currentInstance) return new LearnReply { };
 
@@ -127,8 +122,7 @@ namespace Boney
                 Slot slot_obj = state.get_slot(slot);
                 lock (slot_obj)
                 {
-                    if (slot_obj.has_leader())
-                    {
+                    if (slot_obj.has_leader()) {
                         return new LearnReply { };
                     }
 

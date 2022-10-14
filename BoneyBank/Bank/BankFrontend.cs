@@ -31,7 +31,7 @@ namespace Bank
                 var task_reply = Task.WhenAny(replies).Result;
                 var reply = task_reply.Result;
 
-                Console.WriteLine(reply.Leader);
+                Console.WriteLine("received reply with leader " + reply.Leader);
 
                 // remove recieved reply
                 replies.Remove(task_reply);

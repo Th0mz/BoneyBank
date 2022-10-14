@@ -8,8 +8,28 @@ using System.Threading.Tasks;
 namespace Boney
 {
 
+    public class PaxosServerConnection {
+        private string _url;
+        private GrpcChannel _channel;
+        private PaxosService.PaxosServiceClient _client;
+
+        public PaxosServerConnection(string url) {
+            this._url = url;
+        }
+
+        public void setup_stub() {
+            _channel = GrpcChannel.ForAddress(_url);
+            _client = new PaxosService.PaxosServiceClient(_channel);
+        }
+
+        public PaxosService.PaxosServiceClient get_client() {
+            return _client;
+        }
+    }
+
     public class PaxosFrontend {
         ServerState _serverState;
+        private bool initialized_connections = false;
 
         private const int _OK = 1;
         private const int _NOK = -1; 
@@ -20,7 +40,19 @@ namespace Boney
             _serverState = serverState; 
         }
 
+        public void setup_connections () {
+            if (!initialized_connections) {
+                foreach (PaxosServerConnection serverConnection in _serverState.get_paxos_servers().Values) {
+                    serverConnection.setup_stub();
+                }
+
+                initialized_connections = true;
+            }
+        }
+
         public void propose(int slot, int leader) {
+            
+            setup_connections();
             // full paxos propose algoritm
 
             int last_round = 0;
@@ -32,13 +64,14 @@ namespace Boney
             bool consensus_reached = false;
             bool quorum_reached = false;
 
+            Random random = new Random();
+
             //TODO SUBSCRIBE FOR EVENT OF VALUE BEING ELECTED
             // TODO timeouts
 
-            // TODO : dar clean do estado dos acceptors
-
             //TODO locks tbm aqui no frontend???
 
+            Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : starting propose of " + slot + ", " + leader);
             while (!consensus_reached) {
 
                 // Phase 1 : send prepares
@@ -50,8 +83,9 @@ namespace Boney
                     highest_value = 0;
                     highest_sequence_number = 0;
 
-                    proposal_number = (last_round + 1) * number_servers + id;
+                    proposal_number = last_round * number_servers + id;
                     var proposal_replies = prepare(proposal_number, slot);
+                    Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : sent prepare request with number " + proposal_number);
 
                     int count = 0;
                     // wait for replies
@@ -60,7 +94,13 @@ namespace Boney
                         var task_reply = Task.WhenAny(proposal_replies).Result;
                         var reply = task_reply.Result;
 
-                        if (reply.CurrentInstance != true) return;
+                        if (reply.CurrentInstance != true) {
+                            Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : not current instance");
+                            return;
+                        }
+
+                        Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : recived -  accepted_sn : "  + reply.LastAcceptedSeqnum 
+                            + " promised_sn  " + reply.LastPromisedSeqnum + "  accepted_v " + reply.LastAcceptedValue);
 
                         // check if the propose was promissed by the acceptor
                         if (reply.LastPromisedSeqnum == proposal_number) {
@@ -79,19 +119,32 @@ namespace Boney
                         proposal_replies.Remove(task_reply);
                     }
 
+
+                    // quorum not reached (must do another prepare)
+                    if (!(count >= (number_servers / 2 ) + 1)) {
+                        // random timeout
+                        Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : quorum not reached");
+                        int timeout = random.Next(0, (int)Math.Pow(2, last_round + 1));
+                        Thread.Sleep(timeout);
+                        continue;
+                    }
+
                     if (highest_sequence_number == 0) {
                         highest_value = leader;
                     }
 
-                    // got quorum
-                    if (count >= (number_servers / 2 ) + 1) {
-                        quorum_reached = true;
-                    }
+                    Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : after all replies " + highest_sequence_number + ", " + highest_value);
+                    Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : quorum reached");
+                    quorum_reached = true;
                 }
+
 
                 // Phase 2 : send accepts
                 quorum_reached = false;
-                var accept_replies = accept(highest_sequence_number, highest_value, slot);
+                Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : sent accept request with number " + proposal_number 
+                    + " and leader " + highest_value);
+
+                var accept_replies = accept(proposal_number, highest_value, slot);
                 
                 int accept_count = 0;
                 while (accept_replies.Any())
@@ -99,8 +152,12 @@ namespace Boney
                     var task_reply = Task.WhenAny(accept_replies).Result;
                     var reply = task_reply.Result;
 
-                    if (reply.CurrentInstance != true) return;
+                    if (reply.CurrentInstance != true) {
+                        Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : not current instance");
+                        return;
+                    }
 
+                    Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : recived accept status " + reply.Status);
                     if (reply.Status == _OK) {
                         accept_count++;
                     }
@@ -110,15 +167,22 @@ namespace Boney
                 }
 
                 // check if a majority replied
-                if ((accept_count >= (number_servers / 2) + 1)) {
+                if (!(accept_count >= (number_servers / 2) + 1)) {
+                    Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : quorum not reached");
+                    // random timeout
+                    int timeout = random.Next(0, (int) Math.Pow(2, last_round + 1));
+                    Thread.Sleep(timeout);
                     continue;
                 }
 
+                Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : quorum reached");
 
                 // Propagate consensus value
                 learn(highest_value, slot);
+                Console.WriteLine("Proposed : learn " + highest_value);
+                
+                return;
             }
-
         }
                 //HAS REACHED MAJORITY OF PROMISES
                 //TODO SEND ACCEPT'S AND ACT ACCORDINGLY
@@ -162,8 +226,9 @@ namespace Boney
             };
 
             List<Task<PrepareReply>> replies = new List<Task<PrepareReply>>();
-            foreach (var client in _serverState.get_paxos_servers().Values)
+            foreach (PaxosServerConnection connection in _serverState.get_paxos_servers().Values)
             {
+                var client = connection.get_client();
                 var reply = client.PrepareAsync(request).ResponseAsync;
                 replies.Add(reply);
             }
@@ -180,7 +245,8 @@ namespace Boney
             };
 
             List<Task<AcceptReply>> replies = new List<Task<AcceptReply>>();
-            foreach (var client in _serverState.get_paxos_servers().Values) {
+            foreach (PaxosServerConnection connection in _serverState.get_paxos_servers().Values) {
+                var client = connection.get_client();
                 var reply = client.AcceptAsync(request).ResponseAsync;
                 replies.Add(reply);
             }
@@ -194,7 +260,8 @@ namespace Boney
                 Slot = slot
             };
 
-            foreach (var client in _serverState.get_paxos_servers().Values) {
+            foreach (PaxosServerConnection connection in _serverState.get_paxos_servers().Values) {
+                var client = connection.get_client();
                 client.LearnAsync(request);
             }
         }

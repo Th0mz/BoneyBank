@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection.Metadata.Ecma335;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
 namespace Bank 
@@ -63,7 +65,8 @@ namespace Bank
 
         static void Main(string[] args) {
             ServerState serverState = new ServerState();
-            string config_path = @"..\..\..\..\..\configuration_sample.txt";
+            //string config_path = @"..\..\..\..\..\configuration_sample.txt";
+            string config_path = @"C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\configuration_sample.txt";
 
             if (! processInput(args, config_path, serverState)) {
                 // error processing input occurred
@@ -71,12 +74,35 @@ namespace Bank
             }
 
             BankFrontend bankFrontend = new BankFrontend(serverState);
-            Console.ReadKey();
+            
+            // wait until starting time
+            TimeSpan wait_time = serverState.get_starting_time() - DateTime.Now;
+            Thread.Sleep((int) wait_time.TotalMilliseconds);
+
 
             // TODO : channel timeuot
-            bankFrontend.compareAndSwap(1, 2);
+            while (serverState.has_next_slot())
+            {
+                serverState.setup_timeslot();
 
-            Console.ReadKey();
+                Console.WriteLine("Bank : sending comapare and swap for leader " + serverState.get_id());
+                bankFrontend.compareAndSwap(serverState.get_current_slot(), serverState.get_id());
+                
+                // sleep until the next slot begins
+                DateTime slot_beggining = serverState.get_starting_time() + (serverState.get_delta() * serverState.get_current_slot());
+                wait_time = slot_beggining - DateTime.Now;
+
+                Thread.Sleep(wait_time);
+
+                /*
+                // TODO : bank functionality
+                if (lider)
+                {
+                    ordenar mensagens
+                    enviar ordem para outros banks
+                }
+                */
+            }
         }
     }
 }

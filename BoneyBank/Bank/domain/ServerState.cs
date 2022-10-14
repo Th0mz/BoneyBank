@@ -29,9 +29,9 @@ namespace Bank
         // this process state
         private int _id;
         private string _url = "";
-        private int _delta;
+        private TimeSpan _delta;
         private bool _frozen;
-        private DateTime _starting_date;
+        private DateTime _starting_time;
 
         // F list
 
@@ -39,7 +39,8 @@ namespace Bank
         // instead of the url store the grpc stub <<<
         private Dictionary<int, string> _banks = new Dictionary<int, string>();
         private Dictionary<int, CompareAndSwapService.CompareAndSwapServiceClient> _bonies = new Dictionary<int, CompareAndSwapService.CompareAndSwapServiceClient>();
-        private int current_slot = 0;
+        
+        private int _current_slot = 0;
         private Dictionary<int, ServerInfo[]> _timeslots_info = new Dictionary<int, ServerInfo[]>();
 
 
@@ -47,6 +48,26 @@ namespace Bank
 
         public Dictionary<int, CompareAndSwapService.CompareAndSwapServiceClient> get_boney_servers () {
             return _bonies;
+        }
+
+        public int get_id() {
+            return _id;
+        }
+
+        public TimeSpan get_delta () {
+            return _delta;
+        }
+
+        public bool has_next_slot () {
+            return _current_slot < _timeslots_info.Count;
+        }
+
+        public DateTime get_starting_time() {
+            return _starting_time;
+        }
+
+        public int get_current_slot () {
+            return _current_slot;
         }
 
         public bool add_server (string sid, string _class, string url) {
@@ -87,15 +108,21 @@ namespace Bank
         }
 
         public bool set_starting_date(string starting_date) {
-            _starting_date = Convert.ToDateTime(starting_date);
+            _starting_time = Convert.ToDateTime(starting_date);
             
             // TODO : check ToDateTime error
             return true;
         }
 
         public bool set_delta (string delta) {
-            // TODO : this condition right?
-            return int.TryParse(delta, out _delta);
+
+            int _delta_int;
+            if (!int.TryParse(delta, out _delta_int)) {
+                return false;
+            }
+
+            _delta = TimeSpan.FromMilliseconds(_delta_int);
+            return true;
         }
 
         public bool add_timeslot(string slot, string[] timeslot_info) {
@@ -138,9 +165,11 @@ namespace Bank
             return true;
         }
 
-        public void setup_timeslot (int slot) {
-            
+        public void setup_timeslot () {
+
+            _current_slot++;
             // TODO : setup fronzen and current_slot
+
             return;
         }
     }

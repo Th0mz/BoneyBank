@@ -20,6 +20,7 @@ namespace Boney
             _suspected = suspected;
         }
     }
+
     public class ServerState {
 
         // constants
@@ -31,55 +32,35 @@ namespace Boney
         private string _url = "";
         private int _delta;
         private bool _frozen;
-        private DateTime _starting_date;
+        private DateTime _starting_time;
 
         // F list
 
         // other servers info
         // instead of the url store the grpc stub <<<
-        private Dictionary<int, PaxosService.PaxosServiceClient> _bonies = new Dictionary<int, PaxosService.PaxosServiceClient>();
+        private Dictionary<int, PaxosServerConnection> _bonies = new Dictionary<int, PaxosServerConnection>();
         
-        private int current_slot = 0;
+        private int _current_slot = 0;
         private Dictionary<int, ServerInfo[]> _timeslots_info = new Dictionary<int, ServerInfo[]>();
 
 
         public ServerState() {  }
 
-        public bool add_server (string sid, string _class, string url) {
-            // convert id
-            int id;
-            if (!int.TryParse(sid, out id)) {
-                return false;
-            }
 
-            // add this server info
-            if (id == _id) {
-                _url = url;
-            }
-
-            // add other server info
-            bool added_server = false;
-            if (_class.Equals("boney")) {
-
-                GrpcChannel channel = GrpcChannel.ForAddress(url);
-                PaxosService.PaxosServiceClient client = new PaxosService.PaxosServiceClient(channel);
-                
-                _bonies.Add(id, client);
-                added_server = true;
-            }
-
-            return added_server;
-        }
-
+        // getters
         public string get_url() {
             return _url;
+        }
+
+        public DateTime get_starting_time () {
+            return _starting_time;
         }
 
         public int get_id() {
             return _id;
         }
 
-        public Dictionary<int, PaxosService.PaxosServiceClient> get_paxos_servers() {
+        public Dictionary<int, PaxosServerConnection> get_paxos_servers() {
             return _bonies;
         }
 
@@ -88,8 +69,8 @@ namespace Boney
             return true;
         }
 
-        public bool set_starting_date(string starting_date) {
-            _starting_date = Convert.ToDateTime(starting_date);
+        public bool set_starting_time(string starting_date) {
+            _starting_time = Convert.ToDateTime(starting_date);
             
             // TODO : check ToDateTime error
             return true;
@@ -140,9 +121,35 @@ namespace Boney
             return true;
         }
 
-        public void setup_timeslot (int slot) {
+        public bool add_server(string sid, string _class, string url) {
+            // convert id
+            int id;
+            if (!int.TryParse(sid, out id)) {
+                return false;
+            }
+
+            // add this server info
+            if (id == _id) {
+                _url = url;
+            }
+
+            // add other server info
+            bool added_server = false;
+            if (_class.Equals("boney")) {
+
+                PaxosServerConnection client = new PaxosServerConnection(url);
+
+                _bonies.Add(id, client);
+                added_server = true;
+            }
+
+            return added_server;
+        }
+
+        public void setup_timeslot () {
             
             // TODO : setup fronzen and current_slot
+            
             return;
         }
     }
