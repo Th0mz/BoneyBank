@@ -69,8 +69,8 @@ namespace Boney
             BoneyState state = new BoneyState();
             ServerState serverState = new ServerState();
             PaxosFrontend paxosFrontend = new PaxosFrontend(serverState);
-            //string config_path = @"..\..\..\..\..\configuration_sample.txt";
-            string config_path = @"C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\configuration_sample.txt";
+            string config_path = @"..\..\..\..\..\configuration_sample.txt";
+            //string config_path = @"C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\configuration_sample.txt";
 
 
             if (!processInput(args, config_path, serverState)) {

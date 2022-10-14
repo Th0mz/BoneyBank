@@ -58,6 +58,7 @@ namespace Boney
             setup_connections();
             // full paxos propose algoritm
 
+            int timeout_exp = 0;
             int id = _serverState.get_id();
             int number_servers = _serverState.get_paxos_servers().Count();
 
@@ -73,7 +74,7 @@ namespace Boney
 
             //TODO locks tbm aqui no frontend???
 
-            Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : starting propose of " + slot + ", " + leader);
+            // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : starting propose of " + slot + ", " + leader);
             while (!consensus_reached) {
 
                 // Phase 1 : send prepares
@@ -90,9 +91,10 @@ namespace Boney
                         proposal_number = last_round * number_servers + id;
                         last_round++;
                     }
+                    timeout_exp++;
 
                     var proposal_replies = prepare(proposal_number, slot);
-                    Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : sent prepare request with number " + proposal_number);
+                    // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : sent prepare request with number " + proposal_number);
 
                     int count = 0;
                     // wait for replies
@@ -102,12 +104,12 @@ namespace Boney
                         var reply = task_reply.Result;
 
                         if (reply.CurrentInstance != true) {
-                            Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : not current instance");
+                            // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : not current instance");
                             return;
                         }
 
-                        Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : recived -  accepted_sn : "  + reply.LastAcceptedSeqnum 
-                            + " promised_sn  " + reply.LastPromisedSeqnum + "  accepted_v " + reply.LastAcceptedValue);
+                        // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : recived -  accepted_sn : "  + reply.LastAcceptedSeqnum 
+                        //    + " promised_sn  " + reply.LastPromisedSeqnum + "  accepted_v " + reply.LastAcceptedValue);
 
                         // check if the propose was promissed by the acceptor
                         if (reply.LastPromisedSeqnum == proposal_number) {
@@ -133,8 +135,8 @@ namespace Boney
                     // quorum not reached (must do another prepare)
                     if (!(count >= (number_servers / 2 ) + 1)) {
                         // random timeout
-                        Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : quorum not reached");
-                        int timeout = random.Next(0, (int)Math.Pow(2, last_round + 1));
+                        // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : quorum not reached");
+                        int timeout = random.Next(0, (int)Math.Pow(2, timeout_exp + 1));
                         Thread.Sleep(timeout);
                         continue;
                     }
@@ -143,16 +145,16 @@ namespace Boney
                         highest_value = leader;
                     }
 
-                    Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : after all replies " + highest_sequence_number + ", " + highest_value);
-                    Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : quorum reached");
+                    // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : after all replies " + highest_sequence_number + ", " + highest_value);
+                    // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : quorum reached");
                     quorum_reached = true;
                 }
 
 
                 // Phase 2 : send accepts
                 quorum_reached = false;
-                Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : sent accept request with number " + proposal_number 
-                    + " and leader " + highest_value);
+                // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : sent accept request with number " + proposal_number 
+                //    + " and leader " + highest_value);
 
                 var accept_replies = accept(proposal_number, highest_value, slot);
                 
@@ -163,11 +165,11 @@ namespace Boney
                     var reply = task_reply.Result;
 
                     if (reply.CurrentInstance != true) {
-                        Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : not current instance");
+                        // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : not current instance");
                         return;
                     }
 
-                    Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : recived accept status " + reply.Status);
+                    // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : recived accept status " + reply.Status);
                     if (reply.Status == _OK) {
                         accept_count++;
                     }
@@ -178,14 +180,14 @@ namespace Boney
 
                 // check if a majority replied
                 if (!(accept_count >= (number_servers / 2) + 1)) {
-                    Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : quorum not reached");
+                    // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : quorum not reached");
                     // random timeout
-                    int timeout = random.Next(0, (int) Math.Pow(2, last_round + 1));
+                    int timeout = random.Next(0, (int) Math.Pow(2, timeout_exp + 1));
                     Thread.Sleep(timeout);
                     continue;
                 }
 
-                Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : quorum reached");
+                // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : quorum reached");
 
                 // Propagate consensus value
                 learn(highest_value, slot);

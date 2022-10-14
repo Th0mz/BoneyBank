@@ -35,31 +35,41 @@ namespace Boney
             int slot = request.Slot;
 
             // DEBUG
-            Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "CompareAndSwap(" + leader + ", " + slot + ")");
+            // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "CompareAndSwap(" + leader + ", " + slot + ")");
             Slot slot_obj = _state.get_slot(slot);
 
-            if (slot_obj.has_leader())
+            lock (slot_obj)
             {
-                Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "CompareAndSwap : Leader already exists");
-                return new CompareAndSwapReply
+                if (slot_obj.has_leader())
                 {
-                    Leader = slot_obj.get_leader()
-                };
+                    // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "CompareAndSwap : Leader already exists");
+                    return new CompareAndSwapReply
+                    {
+                        Leader = slot_obj.get_leader()
+                    };
+                }
             }
 
             // DEBUG
-            Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "CompareAndSwap : Proposing leader");
+            // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "CompareAndSwap : Proposing leader");
             // TODO : coordinator
             // if (coordinator) {
             _paxosFrontend.propose(slot, leader);
-            Console.WriteLine("CompareAndSwap : Wait");
+            //Console.WriteLine("CompareAndSwap : Wait");
             // }
 
-            while (!slot_obj.has_leader()) { /* active wait, pls redo this */ }
+            lock (slot_obj)
+            {
+                while (!slot_obj.has_leader()) {
+                    Monitor.Wait(slot_obj);
+                }
+                leader = slot_obj.get_leader();
+            }
 
-            Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "CompareAndSwap : chosen value " + slot_obj.get_leader());
+
+            // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "CompareAndSwap : chosen value " + slot_obj.get_leader());
             return new CompareAndSwapReply {
-                Leader = slot_obj.get_leader()
+                Leader = leader
             };
 
         }

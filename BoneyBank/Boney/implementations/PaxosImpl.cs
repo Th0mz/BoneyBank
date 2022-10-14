@@ -38,13 +38,13 @@ namespace Boney
 
         private PrepareReply do_prepare(PrepareRequest request) {
             // accept code
-            Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Acceptor (prepare) : begining of prepare");
+            // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Acceptor (prepare) : begining of prepare");
             lock (mutex)
             {
-                Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Acceptor (prepare) : inside lock");
+                // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Acceptor (prepare) : inside lock");
                 if (request.Slot != currentInstance) {
                     
-                    Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Acceptor (prepare) : not current instance");
+                    // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Acceptor (prepare) : not current instance");
                     return new PrepareReply { 
                         CurrentInstance = false
                     };
@@ -55,7 +55,7 @@ namespace Boney
                     last_promised_seqnum = request.ProposalNumber;
                 }
 
-                Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Acceptor (prepare) : returning");
+                // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Acceptor (prepare) : returning");
                 return new PrepareReply
                 {
                     CurrentInstance = true,
@@ -78,20 +78,20 @@ namespace Boney
 
         private AcceptReply do_accept(AcceptRequest request) {
             //TODO tommy : synchronize :D (place locks in every shared variable)
-            Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Acceptor (accept) : begining of learn");
+            // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Acceptor (accept) : begining of learn");
             lock (mutex)
             {
-                Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Acceptor (accept) : inside lock");
+                // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Acceptor (accept) : inside lock");
 
 
                 if (request.Slot != currentInstance) {
-                    Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Acceptor (accept) : not current instance");
+                    // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Acceptor (accept) : not current instance");
                     return new AcceptReply { CurrentInstance = false };
                 }
 
                 if (request.ProposalNumber == last_promised_seqnum)
                 {
-                    Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Acceptor (accept) : accepted");
+                    // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Acceptor (accept) : accepted");
                     last_accepted_seqnum = last_promised_seqnum;
                     last_accepted_value = request.Leader;
 
@@ -101,7 +101,7 @@ namespace Boney
                     };
                 }
 
-                Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Acceptor (accept) : not accepted");
+                // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Acceptor (accept) : not accepted");
                 return new AcceptReply {
                     Status = _NOK,
                     CurrentInstance = true
@@ -124,12 +124,12 @@ namespace Boney
             int leader = request.Leader;
             int slot = request.Slot;
 
-            Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Learner : begining of accept");
+            // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Learner : begining of accept");
             lock (mutex)
             {
-                Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Learner : inside lock");
+                // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Learner : inside lock");
                 if (slot != currentInstance) {
-                    Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Learner : not current instance");
+                    // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Learner : not current instance");
                     return new LearnReply { };
                 }
 
@@ -138,19 +138,23 @@ namespace Boney
                 last_promised_seqnum = 0;
                 last_accepted_seqnum = 0;
                 currentInstance++;
-
-                Slot slot_obj = state.get_slot(slot);
-                Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Learner : got slot object");
                 
-                Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Learner : inside slot_obj lock");
-                if (slot_obj.has_leader()) {
-                    Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Learner : leader already elected");
-                    return new LearnReply { };
-                }
+                Slot slot_obj = state.get_slot(slot);
+                // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Learner : got slot object");
+                
+                lock (slot_obj)
+                {
+                    // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Learner : inside slot_obj lock");
+                    if (slot_obj.has_leader()) {
+                        // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Learner : leader already elected");
+                        return new LearnReply { };
+                    }
 
-                slot_obj.set_leader(leader);
-                Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Learner : pulsing all locked processes");
-                Monitor.PulseAll(slot_obj);
+                    slot_obj.set_leader(leader);
+                    // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Learner : pulsing all locked processes");
+                    
+                    Monitor.PulseAll(slot_obj);
+                }
 
                 return new LearnReply { };
             }
