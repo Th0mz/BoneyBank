@@ -7,7 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace Bank
 {
@@ -15,11 +15,13 @@ namespace Bank
         private int _id;
         private bool _frozen;
         private bool _suspected;
+        private AutoResetEvent _event;
 
         public ServerInfo(int id, bool frozen, bool suspected) {
             _id = id;
             _frozen = frozen;
             _suspected = suspected;
+            _event = new AutoResetEvent(false);
         }
     }
     public class ServerState {
@@ -150,29 +152,45 @@ namespace Bank
             // TODO : setup fronzen and current_slot
             return;
         }
-    }
 
-    public class ClientInterceptor : Interceptor
-    {
-        //private readonly ILogger logger;
 
-        //public GlobalServerLoggerInterceptor(ILogger logger) {
-        //    this.logger = logger;
-        //}
-
-        public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(TRequest request, ClientInterceptorContext<TRequest, TResponse> context, AsyncUnaryCallContinuation<TRequest, TResponse> continuation)
+        public class ClientInterceptor : Interceptor
         {
+            //private readonly ILogger logger;
 
-            Metadata metadata = new Metadata();
-            // create new context because original context is readonly
-            ClientInterceptorContext<TRequest, TResponse> modifiedContext =
-                new ClientInterceptorContext<TRequest, TResponse>(context.Method, context.Host,
-                    new CallOptions(metadata, context.Options.Deadline,
-                        context.Options.CancellationToken, context.Options.WriteOptions,
-                        context.Options.PropagationToken, context.Options.Credentials));
-            Console.Write("calling server...");
-            AsyncUnaryCall<TResponse> response = base.AsyncUnaryCall(request, modifiedContext, continuation);
-            return response;
+            //public GlobalServerLoggerInterceptor(ILogger logger) {
+            //    this.logger = logger;
+            //}
+
+
+            public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(TRequest request, ClientInterceptorContext<TRequest, TResponse> context, AsyncUnaryCallContinuation<TRequest, TResponse> continuation)
+            {
+
+                Metadata metadata = new Metadata();
+                // create new context because original context is readonly
+                ClientInterceptorContext<TRequest, TResponse> modifiedContext =
+                    new ClientInterceptorContext<TRequest, TResponse>(context.Method, context.Host,
+                        new CallOptions(metadata, context.Options.Deadline,
+                            context.Options.CancellationToken, context.Options.WriteOptions,
+                            context.Options.PropagationToken, context.Options.Credentials));
+                Console.Write("calling server...");
+                
+                
+                //set para dar unfreeze, senao vai reset
+                //depois falta codigo para mudar o estado freeze e unfreeze
+
+
+
+                /*
+                if (_frozen)
+                {
+                    _event.Wait();
+                }*/
+
+                //xixkebeb quanto ta frozen mete a dormir
+                AsyncUnaryCall<TResponse> response = base.AsyncUnaryCall(request, modifiedContext, continuation);
+                return response;
+            }
         }
     }
 }
