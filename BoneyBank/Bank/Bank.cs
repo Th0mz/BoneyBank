@@ -74,7 +74,7 @@ namespace Bank
             }
 
             BankFrontend bankFrontend = new BankFrontend(serverState);
-            
+
             // wait until starting time
             TimeSpan wait_time = serverState.get_starting_time() - DateTime.Now;
             Thread.Sleep((int) wait_time.TotalMilliseconds);

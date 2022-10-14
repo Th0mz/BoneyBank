@@ -31,6 +31,9 @@ namespace Boney
         ServerState _serverState;
         private bool initialized_connections = false;
 
+        private int last_round = 0;
+        private object mutex = new Object();
+
         private const int _OK = 1;
         private const int _NOK = -1; 
         // TODO : initialize proposal number
@@ -55,7 +58,6 @@ namespace Boney
             setup_connections();
             // full paxos propose algoritm
 
-            int last_round = 0;
             int id = _serverState.get_id();
             int number_servers = _serverState.get_paxos_servers().Count();
 
@@ -83,7 +85,12 @@ namespace Boney
                     highest_value = 0;
                     highest_sequence_number = 0;
 
-                    proposal_number = last_round * number_servers + id;
+                    lock (mutex)
+                    {
+                        proposal_number = last_round * number_servers + id;
+                        last_round++;
+                    }
+
                     var proposal_replies = prepare(proposal_number, slot);
                     Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : sent prepare request with number " + proposal_number);
 
@@ -112,7 +119,10 @@ namespace Boney
                             count++;
 
                         } else {
-                            last_round = reply.LastPromisedSeqnum / number_servers;
+                            lock (mutex)
+                            {
+                                last_round = reply.LastPromisedSeqnum / number_servers;
+                            }
                         }
 
                         // remove recieved reply
@@ -179,10 +189,12 @@ namespace Boney
 
                 // Propagate consensus value
                 learn(highest_value, slot);
+                consensus_reached = true;
                 Console.WriteLine("Proposed : learn " + highest_value);
                 
-                return;
             }
+
+            return;
         }
                 //HAS REACHED MAJORITY OF PROMISES
                 //TODO SEND ACCEPT'S AND ACT ACCORDINGLY
