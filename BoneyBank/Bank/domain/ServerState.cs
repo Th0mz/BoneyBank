@@ -1,4 +1,6 @@
-﻿using Grpc.Net.Client;
+﻿using Grpc.Core.Interceptors;
+using Grpc.Core;
+using Grpc.Net.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -70,10 +72,15 @@ namespace Bank
                 added_server = true;
             } else if (_class.Equals("boney")) {
 
+                var clientInterceptor = new ClientInterceptor();
+
                 GrpcChannel channel = GrpcChannel.ForAddress(url);
+                CallInvoker interceptingInvoker = channel.Intercept(clientInterceptor);
+
                 CompareAndSwapService.CompareAndSwapServiceClient client =
-                    new CompareAndSwapService.CompareAndSwapServiceClient(channel);
-                
+                    new CompareAndSwapService.CompareAndSwapServiceClient(interceptingInvoker);
+
+
                 _bonies.Add(id, client);
                 added_server = true;
             }
@@ -142,6 +149,30 @@ namespace Bank
             
             // TODO : setup fronzen and current_slot
             return;
+        }
+    }
+
+    public class ClientInterceptor : Interceptor
+    {
+        //private readonly ILogger logger;
+
+        //public GlobalServerLoggerInterceptor(ILogger logger) {
+        //    this.logger = logger;
+        //}
+
+        public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(TRequest request, ClientInterceptorContext<TRequest, TResponse> context, AsyncUnaryCallContinuation<TRequest, TResponse> continuation)
+        {
+
+            Metadata metadata = new Metadata();
+            // create new context because original context is readonly
+            ClientInterceptorContext<TRequest, TResponse> modifiedContext =
+                new ClientInterceptorContext<TRequest, TResponse>(context.Method, context.Host,
+                    new CallOptions(metadata, context.Options.Deadline,
+                        context.Options.CancellationToken, context.Options.WriteOptions,
+                        context.Options.PropagationToken, context.Options.Credentials));
+            Console.Write("calling server...");
+            AsyncUnaryCall<TResponse> response = base.AsyncUnaryCall(request, modifiedContext, continuation);
+            return response;
         }
     }
 }
