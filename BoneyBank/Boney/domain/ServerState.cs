@@ -32,8 +32,9 @@ namespace Boney
         private int _id;
         private string _url = "";
         private int _delta;
-        private bool _frozen;
+        static private bool _frozen;
         private DateTime _starting_date;
+        static private ManualResetEvent _event;
 
         // F list
 
@@ -45,7 +46,9 @@ namespace Boney
         private Dictionary<int, ServerInfo[]> _timeslots_info = new Dictionary<int, ServerInfo[]>();
 
 
-        public ServerState() {  }
+        public ServerState() {
+            _event = new ManualResetEvent(false);    
+        }
 
         public bool add_server (string sid, string _class, string url) {
             // convert id
@@ -133,7 +136,16 @@ namespace Boney
                 }
 
                 bool server_frozen = frozen.Equals(_FROZEN);
+                _frozen = server_frozen;
                 bool server_suspected = suspected.Equals(_SUSPECTED);
+
+                if(!_frozen)
+                {
+                    _event.Set();
+                } else
+                {
+                    _event.Reset();
+                }
 
 
                 // add new entry
@@ -152,29 +164,42 @@ namespace Boney
             // TODO : setup fronzen and current_slot
             return;
         }
-    }
 
-    public class ClientInterceptor : Interceptor
-    {
-        //private readonly ILogger logger;
 
-        //public GlobalServerLoggerInterceptor(ILogger logger) {
-        //    this.logger = logger;
-        //}
-
-        public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(TRequest request, ClientInterceptorContext<TRequest, TResponse> context, AsyncUnaryCallContinuation<TRequest, TResponse> continuation)
+        public class ClientInterceptor : Interceptor
         {
+            //private readonly ILogger logger;
 
-            Metadata metadata = new Metadata();
-            // create new context because original context is readonly
-            ClientInterceptorContext<TRequest, TResponse> modifiedContext =
-                new ClientInterceptorContext<TRequest, TResponse>(context.Method, context.Host,
-                    new CallOptions(metadata, context.Options.Deadline,
-                        context.Options.CancellationToken, context.Options.WriteOptions,
-                        context.Options.PropagationToken, context.Options.Credentials));
-            Console.Write("calling server...");
-            AsyncUnaryCall<TResponse> response = base.AsyncUnaryCall(request, modifiedContext, continuation);
-            return response;
+            //public GlobalServerLoggerInterceptor(ILogger logger) {
+            //    this.logger = logger;
+            //}
+
+
+            public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(TRequest request, ClientInterceptorContext<TRequest, TResponse> context, AsyncUnaryCallContinuation<TRequest, TResponse> continuation)
+            {
+
+                Metadata metadata = new Metadata();
+                // create new context because original context is readonly
+                ClientInterceptorContext<TRequest, TResponse> modifiedContext =
+                    new ClientInterceptorContext<TRequest, TResponse>(context.Method, context.Host,
+                        new CallOptions(metadata, context.Options.Deadline,
+                            context.Options.CancellationToken, context.Options.WriteOptions,
+                            context.Options.PropagationToken, context.Options.Credentials));
+                Console.Write("calling server...");
+
+
+                //set para dar unfreeze, senao vai reset
+                //depois falta codigo para mudar o estado freeze e unfreeze
+
+                if (ServerState._frozen)
+                {
+                    ServerState._event.WaitOne();
+                }
+
+                //xixkebeb quanto ta frozen mete a dormir
+                AsyncUnaryCall<TResponse> response = base.AsyncUnaryCall(request, modifiedContext, continuation);
+                return response;
+            }
         }
     }
 }

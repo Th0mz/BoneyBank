@@ -13,15 +13,13 @@ namespace Bank
 {
     public class ServerInfo {
         private int _id;
-        private bool _frozen;
+        public bool _frozen;
         private bool _suspected;
-        private AutoResetEvent _event;
 
         public ServerInfo(int id, bool frozen, bool suspected) {
             _id = id;
             _frozen = frozen;
             _suspected = suspected;
-            _event = new AutoResetEvent(false);
         }
     }
     public class ServerState {
@@ -34,8 +32,10 @@ namespace Bank
         private int _id;
         private string _url = "";
         private int _delta;
-        private bool _frozen;
+        static private bool _frozen;
         private DateTime _starting_date;
+        static public ManualResetEvent _event;
+
 
         // F list
 
@@ -47,7 +47,9 @@ namespace Bank
         private Dictionary<int, ServerInfo[]> _timeslots_info = new Dictionary<int, ServerInfo[]>();
 
 
-        public ServerState() {  }
+        public ServerState() {
+            _event = new ManualResetEvent(false);
+        }
 
         public Dictionary<int, CompareAndSwapService.CompareAndSwapServiceClient> get_boney_servers () {
             return _bonies;
@@ -133,7 +135,17 @@ namespace Bank
                 }
 
                 bool server_frozen = frozen.Equals(_FROZEN);
+                _frozen = server_frozen;
                 bool server_suspected = suspected.Equals(_SUSPECTED);
+
+                if (!_frozen)
+                {
+                    _event.Set();
+                }
+                else
+                {
+                    _event.Reset();
+                }
 
 
                 // add new entry
@@ -179,13 +191,10 @@ namespace Bank
                 //set para dar unfreeze, senao vai reset
                 //depois falta codigo para mudar o estado freeze e unfreeze
 
-
-
-                /*
-                if (_frozen)
+                if (ServerState._frozen)
                 {
-                    _event.Wait();
-                }*/
+                    ServerState._event.WaitOne();
+                }
 
                 //xixkebeb quanto ta frozen mete a dormir
                 AsyncUnaryCall<TResponse> response = base.AsyncUnaryCall(request, modifiedContext, continuation);
