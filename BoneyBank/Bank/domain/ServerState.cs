@@ -54,6 +54,10 @@ namespace Bank
             return _id;
         }
 
+        public string get_url() {
+            return _url;
+        }
+
         public TimeSpan get_delta () {
             return _delta;
         }

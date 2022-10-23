@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Protos\bankService.proto" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Google.Protobuf" Version="3.21.7" />
     <PackageReference Include="Grpc.Net.Client" Version="2.49.0" />
     <PackageReference Include="Grpc.Tools" Version="2.49.1">
@@ -15,8 +19,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
 
-	<Folder Include="Protos\" />
+  </ItemGroup>
 
+  <ItemGroup>
+    <Protobuf Include="Protos\bankService.proto" GrpcServices="Client" />
   </ItemGroup>
 
 </Project>

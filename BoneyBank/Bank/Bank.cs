@@ -64,6 +64,8 @@ namespace Bank
         }
 
         static void Main(string[] args) {
+
+            BankState bankState = new BankState();
             ServerState serverState = new ServerState();
             string config_path = @"..\..\..\..\..\configuration_sample.txt";
             //string config_path = @"C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\configuration_sample.txt";
@@ -75,12 +77,29 @@ namespace Bank
 
             BankFrontend bankFrontend = new BankFrontend(serverState);
 
+            // bank server setup
+            string url = serverState.get_url();
+            string[] urlSplit = url.Split(':');
+
+            string host = urlSplit[1][2..];
+            string _port = urlSplit[2];
+
+            int port;
+            if (!int.TryParse(_port, out port)) {
+                Console.WriteLine("Error : Invalid port");
+                return;
+            }
+
+            Server server = new Server {
+                Services = { BankService.BindService(new BankServiceImpl(bankState)) },
+                Ports = { new ServerPort(host, port, ServerCredentials.Insecure) }
+            };
+
             // wait until starting time
             TimeSpan wait_time = serverState.get_starting_time() - DateTime.Now;
             Thread.Sleep((int) wait_time.TotalMilliseconds);
 
 
-            // TODO : channel timeuot
             while (serverState.has_next_slot())
             {
                 serverState.setup_timeslot();

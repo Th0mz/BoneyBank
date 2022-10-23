@@ -25,7 +25,7 @@ namespace Boney
     }
     public class BoneyState {
 
-        // TODO : remove static size
+        // TODO : remove static size => change this to a list 
         private static int size = 1024;
         private Slot[] timeslots = new Slot[size];
 

@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Protos\bankService.proto" />
     <None Remove="Protos\compareAndSwap.proto" />
   </ItemGroup>
 
@@ -19,12 +20,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-	  
+    <Protobuf Include="Protos\bankService.proto" GrpcServices="Server" />
     <Protobuf Include="Protos\compareAndSwap.proto" GrpcServices="Client" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="implementations\" />
   </ItemGroup>
 
 </Project>

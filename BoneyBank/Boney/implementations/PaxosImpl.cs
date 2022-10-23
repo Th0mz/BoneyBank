@@ -77,7 +77,6 @@ namespace Boney
         }
 
         private AcceptReply do_accept(AcceptRequest request) {
-            //TODO tommy : synchronize :D (place locks in every shared variable)
             // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Acceptor (accept) : begining of learn");
             lock (mutex)
             {
@@ -96,14 +95,14 @@ namespace Boney
                     last_accepted_value = request.Leader;
 
                     return new AcceptReply {
-                        Status = _OK,
+                        Status = ResponseCode.Ok,
                         CurrentInstance = true
                     };
                 }
 
                 // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Acceptor (accept) : not accepted");
                 return new AcceptReply {
-                    Status = _NOK,
+                    Status = ResponseCode.Nok,
                     CurrentInstance = true
                 };
             }

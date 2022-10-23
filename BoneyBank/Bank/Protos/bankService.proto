@@ -1,0 +1,50 @@
+﻿syntax = "proto3";
+
+service BankService {
+	rpc Deposit (DepositRequest) returns (DepositReply);
+	rpc Withdrawal (WithdrawalRequest) returns (WithdrawalReply);
+	rpc ReadBalance (ReadBalanceRequest) returns (ReadBalanceReply);
+}
+
+// identifier
+message requestId {
+	int32 clientId = 1;
+	int32 clientSequenceNumber = 2;
+}
+
+// deposit
+message DepositRequest {
+	requestId id = 1;
+	float amount = 2;
+}
+
+message DepositReply {
+	ResponseStatus status = 1;
+}
+
+
+// withdrawal
+message WithdrawalRequest {
+	requestId id = 1;
+	float amount = 2;
+}
+
+message WithdrawalReply {
+	ResponseStatus status = 1;
+}
+
+
+// read balance
+message ReadBalanceRequest {
+	requestId id = 1;
+}
+
+message ReadBalanceReply {
+	float balance = 1;
+}
+
+enum ResponseStatus {
+	OK = 0;
+	NOK = 1;
+	NO_FUNDS = 2;
+}

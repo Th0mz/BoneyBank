@@ -4,7 +4,6 @@ service PaxosService {
   rpc Prepare (PrepareRequest) returns (PrepareReply);
   rpc Accept (AcceptRequest) returns (AcceptReply);
   rpc Learn (LearnRequest) returns (LearnReply);
-  //rpc Keepalive (KeepaliveRequest) returns (KeepaliveReply);
 }
 
 // prepare
@@ -28,7 +27,7 @@ message AcceptRequest {
 }
 
 message AcceptReply {
-	int32 status = 1;
+	ResponseCode status = 1;
 	bool current_instance = 2;
 }
 
@@ -38,15 +37,10 @@ message LearnRequest {
 	int32 slot = 2;
 }
 
-message LearnReply {
+message LearnReply { }
 
+// status codes
+enum ResponseCode {
+  OK = 0;
+  NOK = 1;
 }
-
-/* Keepalive
-message KeepaliveRequest {
-}
-
-message KeepaliveReply {
-	int32 status = 1;
-}
-*/

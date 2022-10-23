@@ -1,31 +1,7 @@
 ﻿using Grpc.Net.Client;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Boney
 {
-
-    public class PaxosServerConnection {
-        private string _url;
-        private GrpcChannel _channel;
-        private PaxosService.PaxosServiceClient _client;
-
-        public PaxosServerConnection(string url) {
-            this._url = url;
-        }
-
-        public void setup_stub() {
-            _channel = GrpcChannel.ForAddress(_url);
-            _client = new PaxosService.PaxosServiceClient(_channel);
-        }
-
-        public PaxosService.PaxosServiceClient get_client() {
-            return _client;
-        }
-    }
 
     public class PaxosFrontend {
         ServerState _serverState;
@@ -33,10 +9,6 @@ namespace Boney
 
         private int last_round = 0;
         private object mutex = new Object();
-
-        private const int _OK = 1;
-        private const int _NOK = -1; 
-        // TODO : initialize proposal number
 
         public PaxosFrontend(ServerState serverState) {
             AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
@@ -69,10 +41,6 @@ namespace Boney
 
             Random random = new Random();
 
-            //TODO SUBSCRIBE FOR EVENT OF VALUE BEING ELECTED
-            // TODO timeouts
-
-            //TODO locks tbm aqui no frontend???
 
             // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : starting propose of " + slot + ", " + leader);
             while (!consensus_reached) {
@@ -170,7 +138,7 @@ namespace Boney
                     }
 
                     // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : recived accept status " + reply.Status);
-                    if (reply.Status == _OK) {
+                    if (reply.Status == ResponseCode.Ok) {
                         accept_count++;
                     }
 
@@ -198,40 +166,6 @@ namespace Boney
 
             return;
         }
-                //HAS REACHED MAJORITY OF PROMISES
-                //TODO SEND ACCEPT'S AND ACT ACCORDINGLY
-
-
-                /*
-                 var replies = prepare(proposal_number)
-                 values = []
-                 while {
-                    var reply = WhenAny(replies);
-
-                    if (values.status = abort)
-                        fail
-
-                    values.add(reply.value)
-
-                    if (recieved a majority of replies)
-                        replies.deleteAll()
-                        continue
-                 }
-
-                  int leader = choose_leader(values)
-                  var replies = accept(proposal_number, leader)
-                  ok_count = 0
-                  while {
-                    var reply = WhenAny(replies);
-                    if reply.status = ok { ok_count++; }
-                 }
-
-                  if (!ok_count >= majority)
-                        fail
-
-                  learn(leader)
-                 */
-
 
         public List<Task<PrepareReply>> prepare (int proposal_number, int slot) {
             PrepareRequest request = new PrepareRequest {
@@ -279,9 +213,24 @@ namespace Boney
                 client.LearnAsync(request);
             }
         }
+    }
 
+    public class PaxosServerConnection {
+        private string _url;
+        private GrpcChannel _channel;
+        private PaxosService.PaxosServiceClient _client;
 
+        public PaxosServerConnection(string url) {
+            this._url = url;
+        }
 
+        public void setup_stub() {
+            _channel = GrpcChannel.ForAddress(_url);
+            _client = new PaxosService.PaxosServiceClient(_channel);
+        }
 
+        public PaxosService.PaxosServiceClient get_client() {
+            return _client;
+        }
     }
 }
