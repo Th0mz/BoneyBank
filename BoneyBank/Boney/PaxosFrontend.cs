@@ -1,4 +1,6 @@
-﻿using Grpc.Net.Client;
+﻿using Grpc.Core;
+using Grpc.Core.Interceptors;
+using Grpc.Net.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,16 +12,19 @@ namespace Boney
 
     public class PaxosServerConnection {
         private string _url;
+        private Interceptor _interceptor;
         private GrpcChannel _channel;
         private PaxosService.PaxosServiceClient _client;
 
-        public PaxosServerConnection(string url) {
+        public PaxosServerConnection(string url, Interceptor interceptor) {
             this._url = url;
+            this._interceptor = interceptor;
         }
 
         public void setup_stub() {
             _channel = GrpcChannel.ForAddress(_url);
-            _client = new PaxosService.PaxosServiceClient(_channel);
+            CallInvoker interceptingInvoker = _channel.Intercept(_interceptor);
+            _client = new PaxosService.PaxosServiceClient(interceptingInvoker);
         }
 
         public PaxosService.PaxosServiceClient get_client() {

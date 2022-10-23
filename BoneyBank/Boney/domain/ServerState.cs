@@ -1,4 +1,6 @@
-﻿using Grpc.Net.Client;
+﻿using Grpc.Core.Interceptors;
+using Grpc.Core;
+using Grpc.Net.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,8 +33,9 @@ namespace Boney
         private int _id;
         private string _url = "";
         private int _delta;
-        private bool _frozen;
+        static private bool _frozen;
         private DateTime _starting_time;
+        static public ManualResetEvent _event;
 
         // F list
 
@@ -44,7 +47,10 @@ namespace Boney
         private Dictionary<int, ServerInfo[]> _timeslots_info = new Dictionary<int, ServerInfo[]>();
 
 
-        public ServerState() {  }
+        public ServerState()
+        {
+            _event = new ManualResetEvent(false);
+        }
 
 
         // getters
@@ -107,7 +113,18 @@ namespace Boney
                 }
 
                 bool server_frozen = frozen.Equals(_FROZEN);
+                _frozen = server_frozen;
                 bool server_suspected = suspected.Equals(_SUSPECTED);
+
+                //TODO mudar isto do parsing para quando se vai para um novo time slot
+                /*if (!_frozen)
+                {
+                    _event.Set();
+                }
+                else
+                {
+                    _event.Reset();
+                }*/
 
 
                 // add new entry
@@ -137,7 +154,9 @@ namespace Boney
             bool added_server = false;
             if (_class.Equals("boney")) {
 
-                PaxosServerConnection client = new PaxosServerConnection(url);
+                var clientInterceptor = new ClientInterceptor();
+
+                PaxosServerConnection client = new PaxosServerConnection(url, clientInterceptor);
 
                 _bonies.Add(id, client);
                 added_server = true;
@@ -151,6 +170,27 @@ namespace Boney
             // TODO : setup fronzen and current_slot
             
             return;
+        }
+
+        public class ClientInterceptor : Interceptor
+        {
+
+            public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(TRequest request, ClientInterceptorContext<TRequest, TResponse> context, AsyncUnaryCallContinuation<TRequest, TResponse> continuation)
+            {
+
+
+                //set para dar unfreeze, senao vai reset
+                //depois falta codigo para mudar o estado freeze e unfreeze
+
+                if (ServerState._frozen)
+                {
+                    ServerState._event.WaitOne();
+                }
+
+                //xixkebeb quanto ta frozen mete a dormir
+                AsyncUnaryCall<TResponse> response = base.AsyncUnaryCall(request, context, continuation);
+                return response;
+            }
         }
     }
 }

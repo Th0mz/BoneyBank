@@ -1,4 +1,5 @@
 ﻿using Grpc.Core;
+using Grpc.Core.Interceptors;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -62,6 +63,16 @@ namespace Boney
             return true;
         }
 
+        public class ServerInterceptor : Interceptor
+        {
+
+            public override Task<TResponse> UnaryServerHandler<TRequest, TResponse>(TRequest request, ServerCallContext context, UnaryServerMethod<TRequest, TResponse> continuation)
+            {
+                return base.UnaryServerHandler(request, context, continuation);
+            }
+
+        }
+
         static void Main(string[] args) {
 
             DateTime start = DateTime.Now;
@@ -92,8 +103,8 @@ namespace Boney
 
             Server server = new Server
             {
-                Services = { CompareAndSwapService.BindService(new CompareAndSwapImpl(state, paxosFrontend)), 
-                             PaxosService.BindService(new PaxosImpl(state))},
+                Services = { CompareAndSwapService.BindService(new CompareAndSwapImpl(state, paxosFrontend)).Intercept(new ServerInterceptor()), 
+                             PaxosService.BindService(new PaxosImpl(state)).Intercept(new ServerInterceptor())},
 
                 Ports = { new ServerPort(host, port, ServerCredentials.Insecure) }
             };

@@ -1,4 +1,6 @@
-﻿using Grpc.Net.Client;
+﻿using Grpc.Core.Interceptors;
+using Grpc.Core;
+using Grpc.Net.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,8 +32,9 @@ namespace Bank
         private int _id;
         private string _url = "";
         private TimeSpan _delta;
-        private bool _frozen;
+        static private bool _frozen;
         private DateTime _starting_time;
+        static public ManualResetEvent _event;
 
         // F list
 
@@ -44,7 +47,10 @@ namespace Bank
         private Dictionary<int, ServerInfo[]> _timeslots_info = new Dictionary<int, ServerInfo[]>();
 
 
-        public ServerState() {  }
+        public ServerState()
+        {
+            _event = new ManualResetEvent(false);
+        }
 
         public Dictionary<int, CompareAndSwapService.CompareAndSwapServiceClient> get_boney_servers () {
             return _bonies;
@@ -91,10 +97,15 @@ namespace Bank
                 added_server = true;
             } else if (_class.Equals("boney")) {
 
+                var clientInterceptor = new ClientInterceptor();
+
                 GrpcChannel channel = GrpcChannel.ForAddress(url);
+                CallInvoker interceptingInvoker = channel.Intercept(clientInterceptor);
+
                 CompareAndSwapService.CompareAndSwapServiceClient client =
-                    new CompareAndSwapService.CompareAndSwapServiceClient(channel);
-                
+                    new CompareAndSwapService.CompareAndSwapServiceClient(interceptingInvoker);
+
+
                 _bonies.Add(id, client);
                 added_server = true;
             }
@@ -151,7 +162,18 @@ namespace Bank
                 }
 
                 bool server_frozen = frozen.Equals(_FROZEN);
+                _frozen = server_frozen;
                 bool server_suspected = suspected.Equals(_SUSPECTED);
+
+
+                if (!_frozen)
+                {
+                    _event.Set();
+                }
+                else
+                {
+                    _event.Reset();
+                }
 
 
                 // add new entry
@@ -171,6 +193,28 @@ namespace Bank
             // TODO : setup fronzen and current_slot
 
             return;
+        }
+
+
+        public class ClientInterceptor : Interceptor
+        {
+
+            public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(TRequest request, ClientInterceptorContext<TRequest, TResponse> context, AsyncUnaryCallContinuation<TRequest, TResponse> continuation)
+            {
+
+
+                //set para dar unfreeze, senao vai reset
+                //depois falta codigo para mudar o estado freeze e unfreeze
+
+                if (ServerState._frozen)
+                {
+                    ServerState._event.WaitOne();
+                }
+
+                //xixkebeb quanto ta frozen mete a dormir
+                AsyncUnaryCall<TResponse> response = base.AsyncUnaryCall(request, context, continuation);
+                return response;
+            }
         }
     }
 }
