@@ -8,6 +8,7 @@ namespace Bank
 {
     internal class BankState
     {
+        // TODO : must syncronize with read/write locks
         private float balance = 0;
 
         public BankState() { }

@@ -69,8 +69,8 @@ namespace Boney
             BoneyState state = new BoneyState();
             ServerState serverState = new ServerState();
             PaxosFrontend paxosFrontend = new PaxosFrontend(serverState);
-            string config_path = @"..\..\..\..\..\configuration_sample.txt";
-            //string config_path = @"C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\configuration_sample.txt";
+            //string config_path = @"..\..\..\..\..\configuration_sample.txt";
+            string config_path = @"C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\configuration_sample.txt";
 
 
             if (!processInput(args, config_path, serverState)) {
@@ -78,6 +78,8 @@ namespace Boney
                 return;
             }
 
+            
+            // server setup
             string url = serverState.get_url();
             string[] urlSplit = url.Split(':');
 
@@ -98,15 +100,34 @@ namespace Boney
                 Ports = { new ServerPort(host, port, ServerCredentials.Insecure) }
             };
 
-            DateTime starting_time = serverState.get_starting_time();
-            TimeSpan wait_time = starting_time - DateTime.Now;
-
             server.Start();
+
 
             Console.WriteLine("ChatServer server listening on port " + port);
             Console.WriteLine("Press any key to stop the server...");
+
             Console.ReadKey();
 
+            /*
+            // wait until starting time
+            TimeSpan wait_time = serverState.get_starting_time() - DateTime.Now;
+            Thread.Sleep((int)wait_time.TotalMilliseconds);
+
+
+            while (serverState.has_next_slot()) 
+            {
+                // TODO : finish this function functionality
+                serverState.setup_timeslot();
+
+                // sleep until the next slot begins
+                DateTime slot_beggining = serverState.get_starting_time() + (serverState.get_delta() * serverState.get_current_slot());
+                wait_time = slot_beggining - DateTime.Now;
+
+                Thread.Sleep(wait_time);
+            }
+            */
+
+            // adicionar no fim
             server.ShutdownAsync().Wait();
         }
     }

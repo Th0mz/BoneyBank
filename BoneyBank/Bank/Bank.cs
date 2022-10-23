@@ -67,8 +67,8 @@ namespace Bank
 
             BankState bankState = new BankState();
             ServerState serverState = new ServerState();
-            string config_path = @"..\..\..\..\..\configuration_sample.txt";
-            //string config_path = @"C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\configuration_sample.txt";
+            //string config_path = @"..\..\..\..\..\configuration_sample.txt";
+            string config_path = @"C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\configuration_sample.txt";
 
             if (! processInput(args, config_path, serverState)) {
                 // error processing input occurred
@@ -76,7 +76,9 @@ namespace Bank
             }
 
             BankFrontend bankFrontend = new BankFrontend(serverState);
-
+            /*
+             
+            // TODO : provavelmente tem de se criar uma thread para tratar deste server
             // bank server setup
             string url = serverState.get_url();
             string[] urlSplit = url.Split(':');
@@ -95,6 +97,13 @@ namespace Bank
                 Ports = { new ServerPort(host, port, ServerCredentials.Insecure) }
             };
 
+            server.Start();
+            
+            // colocar no final
+            server.ShutdownAsync().Wait();
+
+            */
+
             // wait until starting time
             TimeSpan wait_time = serverState.get_starting_time() - DateTime.Now;
             Thread.Sleep((int) wait_time.TotalMilliseconds);
@@ -102,6 +111,7 @@ namespace Bank
 
             while (serverState.has_next_slot())
             {
+                // TODO : finish this function 
                 serverState.setup_timeslot();
 
                 Console.WriteLine("Bank : sending comapare and swap for leader " + serverState.get_id());
@@ -122,6 +132,7 @@ namespace Bank
                 }
                 */
             }
+
         }
     }
 }

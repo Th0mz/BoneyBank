@@ -30,7 +30,7 @@ namespace Boney
         // this process state
         private int _id;
         private string _url = "";
-        private int _delta;
+        private TimeSpan _delta;
         private bool _frozen;
         private DateTime _starting_time;
 
@@ -60,6 +60,18 @@ namespace Boney
             return _id;
         }
 
+        public TimeSpan get_delta() {
+            return _delta;
+        }
+
+        public bool has_next_slot() {
+            return _current_slot < _timeslots_info.Count;
+        }
+
+        public int get_current_slot() {
+            return _current_slot;
+        }
+
         public Dictionary<int, PaxosServerConnection> get_paxos_servers() {
             return _bonies;
         }
@@ -77,8 +89,13 @@ namespace Boney
         }
 
         public bool set_delta (string delta) {
-            // TODO : this condition right?
-            return int.TryParse(delta, out _delta);
+            int _delta_int;
+            if (!int.TryParse(delta, out _delta_int)) {
+                return false;
+            }
+
+            _delta = TimeSpan.FromMilliseconds(_delta_int);
+            return true;
         }
 
         public bool add_timeslot(string slot, string[] timeslot_info) {

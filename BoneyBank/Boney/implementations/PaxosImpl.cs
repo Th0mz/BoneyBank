@@ -9,6 +9,8 @@ using static System.Net.Mime.MediaTypeNames;
 namespace Boney
 {
     public class PaxosImpl : PaxosService.PaxosServiceBase {
+        // TODO : use read/write locks??? locks that permit
+        // multiple reads if there is no one writting
 
         // lock this values 
         private object mutex = new object();

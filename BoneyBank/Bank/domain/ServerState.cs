@@ -172,7 +172,7 @@ namespace Bank
         public void setup_timeslot () {
 
             _current_slot++;
-            // TODO : setup fronzen and current_slot
+            // TODO : setup fronzen and current_slot and who is and isnt suspected in this new slot
 
             return;
         }

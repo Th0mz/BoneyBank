@@ -18,7 +18,11 @@ namespace Bank
         }
 
         private DepositReply do_deposit(DepositRequest request) {
-            return new DepositReply();
+            // TODO : final vertion uses 2 phase commit to order commands
+            float amount = request.Amount;
+
+            _bankState.deposit(amount);
+            return new DepositReply { Status = ResponseStatus.Ok };
         }
 
 
@@ -30,7 +34,17 @@ namespace Bank
         }
 
         private WithdrawalReply do_withdrawal(WithdrawalRequest request) {
-            return new WithdrawalReply();
+            // TODO : final vertion uses 2 phase commit to order commands
+            float amount = request.Amount;
+
+            bool succeeded = _bankState.withdrawal(amount);
+            ResponseStatus status = ResponseStatus.Ok;
+            if (!succeeded) {
+                status = ResponseStatus.NoFunds;
+            }
+
+
+            return new WithdrawalReply { Status = status};
         }
 
 
@@ -42,8 +56,10 @@ namespace Bank
         }
 
         private ReadBalanceReply do_readBalance(ReadBalanceRequest request) {
-
-            return new ReadBalanceReply();
+            // TODO : final vertion uses 2 phase commit to order commands
+            float balance = _bankState.readBalance();
+            
+            return new ReadBalanceReply { Balance = balance };
         }
 
     }

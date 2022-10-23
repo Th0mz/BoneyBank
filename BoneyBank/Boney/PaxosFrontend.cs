@@ -4,6 +4,8 @@ namespace Boney
 {
 
     public class PaxosFrontend {
+        // TODO : use read/write locks??? locks that permit
+        // multiple reads if there is no one writting
         ServerState _serverState;
         private bool initialized_connections = false;
 
