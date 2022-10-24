@@ -44,6 +44,7 @@ namespace Boney
             lock (mutex)
             {
                 // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Acceptor (prepare) : inside lock");
+                // TODO : remove this check
                 if (request.Slot != currentInstance) {
                     
                     // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Acceptor (prepare) : not current instance");

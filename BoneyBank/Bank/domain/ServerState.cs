@@ -13,24 +13,46 @@ namespace Bank
         private int _id;
         private bool _frozen;
         private bool _suspected;
+        private string _type;
 
-        public ServerInfo(int id, bool frozen, bool suspected) {
+        public ServerInfo(int id, bool frozen, bool suspected, string type) {
             _id = id;
             _frozen = frozen;
             _suspected = suspected;
+            _type = type;
         }
+
+        public bool is_bank () {
+            return _type.Equals("bank");
+        }
+
+        public int get_id () {
+            return _id;
+        }
+
+        public bool is_frozen () {
+            return _frozen;
+        }
+
+        public bool is_suspected() {
+            return _suspected;
+        }
+
     }
     public class ServerState {
 
         // constants
         private const string _FROZEN = "F";
         private const string _SUSPECTED = "S";
+        private const string _BONEY = "boney";
+        private const string _BANK = "bank";
 
         // this process state
         private int _id;
         private string _url = "";
         private TimeSpan _delta;
         private bool _frozen;
+        private int _coordinator;
         private DateTime _starting_time;
 
         // F list
@@ -46,8 +68,21 @@ namespace Bank
 
         public ServerState() {  }
 
+        // getters
         public Dictionary<int, CompareAndSwapService.CompareAndSwapServiceClient> get_boney_servers () {
             return _bonies;
+        }
+
+        public bool is_frozen() {
+            return _frozen;
+        }
+
+        public bool is_coordinator() {
+            return _coordinator == _id;
+        }
+
+        public int get_coordinator_id () {
+            return _coordinator;
         }
 
         public int get_id() {
@@ -89,11 +124,11 @@ namespace Bank
 
             // add other server info
             bool added_server = false;
-            if (_class.Equals("bank")) {
+            if (_class.Equals(_BANK)) {
 
                 _banks.Add(id, url);
                 added_server = true;
-            } else if (_class.Equals("boney")) {
+            } else if (_class.Equals(_BONEY)) {
 
                 GrpcChannel channel = GrpcChannel.ForAddress(url);
                 CompareAndSwapService.CompareAndSwapServiceClient client =
@@ -157,9 +192,14 @@ namespace Bank
                 bool server_frozen = frozen.Equals(_FROZEN);
                 bool server_suspected = suspected.Equals(_SUSPECTED);
 
+                // check server type
+                string type = "bank";
+                if (_bonies.ContainsKey(server_id)) {
+                    type = _BONEY;
+                }
 
                 // add new entry
-                ServerInfo server_info = new ServerInfo(server_id, server_frozen, server_suspected);
+                ServerInfo server_info = new ServerInfo(server_id, server_frozen, server_suspected, type);
                 servers_info[i] = server_info;
                 i++;
 
@@ -171,10 +211,32 @@ namespace Bank
 
         public void setup_timeslot () {
 
+            // TODO : need locks
             _current_slot++;
-            // TODO : setup fronzen and current_slot and who is and isnt suspected in this new slot
 
-            return;
+            var current_slot = _timeslots_info[_current_slot];
+            int coordinator = int.MaxValue;
+            foreach (var server_info in current_slot) {
+                int id = server_info.get_id();
+                // check if the current process is frozen
+                if (id == _id) {
+                    _frozen = server_info.is_frozen();
+                    // if not frozen and it has the smallest id, it must be the coordinator
+                    if (!_frozen && coordinator > id) {
+                        coordinator = id;
+                    }
+
+                    continue;
+                }
+
+                // check if the bank processess is the coordinator or not
+                // coordinator is the smallest process id not suspected
+                if (server_info.is_bank() && !server_info.is_suspected() && coordinator > id) {
+                    coordinator = id;
+                }
+            }
+
+            _coordinator = coordinator;
         }
     }
 }
