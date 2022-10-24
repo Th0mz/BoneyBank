@@ -210,7 +210,7 @@ namespace Bank
         }
 
         public void setup_timeslot () {
-
+            // TODO : pre-conpute coordinator for each timeslot?
             // TODO : need locks
             _current_slot++;
 
@@ -237,6 +237,12 @@ namespace Bank
             }
 
             _coordinator = coordinator;
+            // DEBUG : 
+            // Console.WriteLine("Setup TimeSlot\n======================");
+            // Console.WriteLine("Current Slot = " + _current_slot);
+            // Console.WriteLine("Frozen = " + _frozen);
+            // Console.WriteLine("Coordinator = " + _coordinator);
+
         }
     }
 }
