@@ -6,10 +6,12 @@ namespace Boney
 
         private BoneyState _state;
         private PaxosFrontend _paxosFrontend;
+        private ServerState _serverState;
 
-        public CompareAndSwapImpl(BoneyState state, PaxosFrontend frontend) {
+        public CompareAndSwapImpl(BoneyState state, PaxosFrontend frontend, ServerState serverState) {
             _state = state;
             _paxosFrontend = frontend;
+            _serverState = serverState;
             AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
         }
 
@@ -44,11 +46,11 @@ namespace Boney
 
             // DEBUG
             // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "CompareAndSwap : Proposing leader");
-            // TODO : coordinator
-            // if (coordinator) {
-            _paxosFrontend.propose(slot, leader);
-            //Console.WriteLine("CompareAndSwap : Wait");
-            // }
+            
+            // TODO : need to syncronize acess to server state
+            if (_serverState.is_coordinator()) {
+                _paxosFrontend.propose(slot, leader);
+            }
 
             lock (slot_obj)
             {

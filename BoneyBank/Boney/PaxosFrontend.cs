@@ -68,6 +68,9 @@ namespace Boney
 
                     int count = 0;
                     // wait for replies
+                    // TODO : must only wait for a quorum of replicas not for all
+                    // if a process is frozen no agreement is reached
+
                     while (proposal_replies.Any())
                     {
                         var task_reply = Task.WhenAny(proposal_replies).Result;
@@ -162,7 +165,7 @@ namespace Boney
                 // Propagate consensus value
                 learn(highest_value, slot);
                 consensus_reached = true;
-                Console.WriteLine("Proposed : learn " + highest_value);
+                // Console.WriteLine("Proposed : learn " + highest_value);
                 
             }
 

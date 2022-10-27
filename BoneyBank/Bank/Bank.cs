@@ -47,6 +47,7 @@ namespace Bank
                         serverState.set_starting_date(parts[1]);
                         break;
                     case "S":
+                        serverState.set_max_slots(parts[1]);
                         break;
                     case "D":
                         serverState.set_delta(parts[1]);
@@ -63,7 +64,7 @@ namespace Bank
             return true;
         }
 
-        static void Main(string[] args) {
+        static async Task Main(string[] args) {
 
             BankState bankState = new BankState();
             ServerState serverState = new ServerState();
@@ -76,9 +77,7 @@ namespace Bank
             }
 
             BankFrontend bankFrontend = new BankFrontend(serverState);
-            /*
              
-            // TODO : provavelmente tem de se criar uma thread para tratar deste server
             // bank server setup
             string url = serverState.get_url();
             string[] urlSplit = url.Split(':');
@@ -99,29 +98,26 @@ namespace Bank
 
             server.Start();
             
-            // colocar no final
-            server.ShutdownAsync().Wait();
-
-            */
-
             // wait until starting time
             TimeSpan wait_time = serverState.get_starting_time() - DateTime.Now;
-            Thread.Sleep((int) wait_time.TotalMilliseconds);
+            Task slotStart = Task.Delay((int)wait_time.TotalMilliseconds);
+            await slotStart;
 
 
             while (serverState.has_next_slot())
             {
-                // TODO : finish this function 
                 serverState.setup_timeslot();
 
-                Console.WriteLine("Bank : sending comapare and swap for leader " + serverState.get_id());
-                bankFrontend.compareAndSwap(serverState.get_current_slot(), serverState.get_id());
+                Console.WriteLine("Bank : sending comapare and swap for leader " + serverState.get_coordinator_id());
+                bankFrontend.compareAndSwap(serverState.get_current_slot(), serverState.get_coordinator_id());
                 
                 // sleep until the next slot begins
                 DateTime slot_beggining = serverState.get_starting_time() + (serverState.get_delta() * serverState.get_current_slot());
                 wait_time = slot_beggining - DateTime.Now;
 
-                Thread.Sleep(wait_time);
+                slotStart = Task.Delay(wait_time);
+                await slotStart;
+
 
                 /*
                 // TODO : bank functionality
@@ -133,6 +129,12 @@ namespace Bank
                 */
             }
 
+            Console.WriteLine("No more timeslots to execute");
+            Console.WriteLine("Press any key to stop the server...");
+
+            Console.ReadKey();
+
+            server.ShutdownAsync().Wait();
         }
     }
 }

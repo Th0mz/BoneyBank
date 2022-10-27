@@ -59,7 +59,8 @@ namespace Boney
         // other servers info
         // instead of the url store the grpc stub <<<
         private Dictionary<int, PaxosServerConnection> _bonies = new Dictionary<int, PaxosServerConnection>();
-        
+
+        private int _max_slots = 0;
         private int _current_slot = 0;
         private Dictionary<int, ServerInfo[]> _timeslots_info = new Dictionary<int, ServerInfo[]>();
 
@@ -97,7 +98,7 @@ namespace Boney
         }
 
         public bool has_next_slot() {
-            return _current_slot < _timeslots_info.Count;
+            return _current_slot < _max_slots;
         }
 
         public int get_current_slot() {
@@ -200,10 +201,16 @@ namespace Boney
             return added_server;
         }
 
-        public void setup_timeslot () {
+        public bool set_max_slots (string max_slots) {
+            int int_max_slots;
+            if (!int.TryParse(max_slots, out int_max_slots)) {
+                return false;
+            }
+            _max_slots = int_max_slots;
+            return true;
+        }
 
-            // TODO : need locks
-            _current_slot++;
+        public void setup_timeslot () {
 
             // TODO : need locks
             _current_slot++;

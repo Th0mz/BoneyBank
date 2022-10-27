@@ -1,6 +1,7 @@
 ﻿using Grpc.Core;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Boney
@@ -46,6 +47,7 @@ namespace Boney
                         serverState.set_starting_time(parts[1]);
                         break;
                     case "S":
+                        serverState.set_max_slots(parts[1]);
                         break;
                     case "D":
                         serverState.set_delta(parts[1]);
@@ -62,7 +64,7 @@ namespace Boney
             return true;
         }
 
-        static void Main(string[] args) {
+        static async Task Main(string[] args) {
 
             DateTime start = DateTime.Now;
 
@@ -94,7 +96,7 @@ namespace Boney
 
             Server server = new Server
             {
-                Services = { CompareAndSwapService.BindService(new CompareAndSwapImpl(state, paxosFrontend)), 
+                Services = { CompareAndSwapService.BindService(new CompareAndSwapImpl(state, paxosFrontend, serverState)), 
                              PaxosService.BindService(new PaxosImpl(state))},
 
                 Ports = { new ServerPort(host, port, ServerCredentials.Insecure) }
@@ -102,32 +104,32 @@ namespace Boney
 
             server.Start();
 
-
             Console.WriteLine("ChatServer server listening on port " + port);
-            Console.WriteLine("Press any key to stop the server...");
 
-            Console.ReadKey();
-
-            /*
             // wait until starting time
             TimeSpan wait_time = serverState.get_starting_time() - DateTime.Now;
-            Thread.Sleep((int)wait_time.TotalMilliseconds);
+            Task slotStart = Task.Delay((int) wait_time.TotalMilliseconds);
+            await slotStart;
 
-
-            while (serverState.has_next_slot()) 
-            {
-                // TODO : finish this function functionality
+            // TODO : need to call setup timeslot in the begining of each timeslot
+            while (serverState.has_next_slot()) {
+                
+                // setup current time slot
                 serverState.setup_timeslot();
+                Console.WriteLine("Leader" + serverState.is_coordinator());
 
-                // sleep until the next slot begins
+                // wait for the next time slot
                 DateTime slot_beggining = serverState.get_starting_time() + (serverState.get_delta() * serverState.get_current_slot());
                 wait_time = slot_beggining - DateTime.Now;
 
-                Thread.Sleep(wait_time);
+                slotStart = Task.Delay(wait_time);
+                await slotStart;
             }
-            */
 
-            // adicionar no fim
+            Console.WriteLine("No more timeslots to execute");
+            Console.WriteLine("Press any key to stop the server...");
+
+            Console.ReadKey();
             server.ShutdownAsync().Wait();
         }
     }

@@ -61,7 +61,8 @@ namespace Bank
         // instead of the url store the grpc stub <<<
         private Dictionary<int, string> _banks = new Dictionary<int, string>();
         private Dictionary<int, CompareAndSwapService.CompareAndSwapServiceClient> _bonies = new Dictionary<int, CompareAndSwapService.CompareAndSwapServiceClient>();
-        
+
+        private int _max_slots = 0;
         private int _current_slot = 0;
         private Dictionary<int, ServerInfo[]> _timeslots_info = new Dictionary<int, ServerInfo[]>();
 
@@ -78,6 +79,7 @@ namespace Bank
         }
 
         public bool is_coordinator() {
+            // TODO : add a lock for all timeslot associated info (must be read/write)
             return _coordinator == _id;
         }
 
@@ -98,7 +100,7 @@ namespace Bank
         }
 
         public bool has_next_slot () {
-            return _current_slot < _timeslots_info.Count;
+            return _current_slot < _max_slots;
         }
 
         public DateTime get_starting_time() {
@@ -206,6 +208,16 @@ namespace Bank
             }
 
             _timeslots_info.Add(_slot, servers_info);
+            return true;
+        }
+
+        public bool set_max_slots(string max_slots) {
+            int int_max_slots;
+            if (!int.TryParse(max_slots, out int_max_slots)) {
+                return false;
+            }
+
+            _max_slots = int_max_slots;
             return true;
         }
 
