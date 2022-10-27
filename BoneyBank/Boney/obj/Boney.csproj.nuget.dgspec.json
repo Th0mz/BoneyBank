@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\tomas\\OneDrive\\Ambiente de Trabalho\\Uni\\4Ano\\P1\\PADI\\projeto\\BoneyBank\\Boney\\Boney.csproj": {}
+    "D:\\downloads\\dad\\proj\\BoneyBank\\BoneyBank\\Boney\\Boney.csproj": {}
   },
   "projects": {
-    "C:\\Users\\tomas\\OneDrive\\Ambiente de Trabalho\\Uni\\4Ano\\P1\\PADI\\projeto\\BoneyBank\\Boney\\Boney.csproj": {
+    "D:\\downloads\\dad\\proj\\BoneyBank\\BoneyBank\\Boney\\Boney.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\tomas\\OneDrive\\Ambiente de Trabalho\\Uni\\4Ano\\P1\\PADI\\projeto\\BoneyBank\\Boney\\Boney.csproj",
+        "projectUniqueName": "D:\\downloads\\dad\\proj\\BoneyBank\\BoneyBank\\Boney\\Boney.csproj",
         "projectName": "Boney",
-        "projectPath": "C:\\Users\\tomas\\OneDrive\\Ambiente de Trabalho\\Uni\\4Ano\\P1\\PADI\\projeto\\BoneyBank\\Boney\\Boney.csproj",
-        "packagesPath": "C:\\Users\\tomas\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\tomas\\OneDrive\\Ambiente de Trabalho\\Uni\\4Ano\\P1\\PADI\\projeto\\BoneyBank\\Boney\\obj\\",
+        "projectPath": "D:\\downloads\\dad\\proj\\BoneyBank\\BoneyBank\\Boney\\Boney.csproj",
+        "packagesPath": "C:\\Users\\print\\.nuget\\packages\\",
+        "outputPath": "D:\\downloads\\dad\\proj\\BoneyBank\\BoneyBank\\Boney\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\tomas\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\print\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [

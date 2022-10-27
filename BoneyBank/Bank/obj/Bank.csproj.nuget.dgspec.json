@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\tomas\\OneDrive\\Ambiente de Trabalho\\Uni\\4Ano\\P1\\PADI\\projeto\\BoneyBank\\Bank\\Bank.csproj": {}
+    "D:\\downloads\\dad\\proj\\BoneyBank\\BoneyBank\\Bank\\Bank.csproj": {}
   },
   "projects": {
-    "C:\\Users\\tomas\\OneDrive\\Ambiente de Trabalho\\Uni\\4Ano\\P1\\PADI\\projeto\\BoneyBank\\Bank\\Bank.csproj": {
+    "D:\\downloads\\dad\\proj\\BoneyBank\\BoneyBank\\Bank\\Bank.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\tomas\\OneDrive\\Ambiente de Trabalho\\Uni\\4Ano\\P1\\PADI\\projeto\\BoneyBank\\Bank\\Bank.csproj",
+        "projectUniqueName": "D:\\downloads\\dad\\proj\\BoneyBank\\BoneyBank\\Bank\\Bank.csproj",
         "projectName": "Bank",
-        "projectPath": "C:\\Users\\tomas\\OneDrive\\Ambiente de Trabalho\\Uni\\4Ano\\P1\\PADI\\projeto\\BoneyBank\\Bank\\Bank.csproj",
-        "packagesPath": "C:\\Users\\tomas\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\tomas\\OneDrive\\Ambiente de Trabalho\\Uni\\4Ano\\P1\\PADI\\projeto\\BoneyBank\\Bank\\obj\\",
+        "projectPath": "D:\\downloads\\dad\\proj\\BoneyBank\\BoneyBank\\Bank\\Bank.csproj",
+        "packagesPath": "C:\\Users\\print\\.nuget\\packages\\",
+        "outputPath": "D:\\downloads\\dad\\proj\\BoneyBank\\BoneyBank\\Bank\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\tomas\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\print\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [

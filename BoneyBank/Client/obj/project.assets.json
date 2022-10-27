@@ -292,19 +292,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\tomas\\.nuget\\packages\\": {}
+    "C:\\Users\\print\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\tomas\\OneDrive\\Ambiente de Trabalho\\Uni\\4Ano\\P1\\PADI\\projeto\\BoneyBank\\Client\\Client.csproj",
+      "projectUniqueName": "D:\\downloads\\dad\\proj\\BoneyBank\\BoneyBank\\Client\\Client.csproj",
       "projectName": "Client",
-      "projectPath": "C:\\Users\\tomas\\OneDrive\\Ambiente de Trabalho\\Uni\\4Ano\\P1\\PADI\\projeto\\BoneyBank\\Client\\Client.csproj",
-      "packagesPath": "C:\\Users\\tomas\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\tomas\\OneDrive\\Ambiente de Trabalho\\Uni\\4Ano\\P1\\PADI\\projeto\\BoneyBank\\Client\\obj\\",
+      "projectPath": "D:\\downloads\\dad\\proj\\BoneyBank\\BoneyBank\\Client\\Client.csproj",
+      "packagesPath": "C:\\Users\\print\\.nuget\\packages\\",
+      "outputPath": "D:\\downloads\\dad\\proj\\BoneyBank\\BoneyBank\\Client\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\tomas\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\print\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
