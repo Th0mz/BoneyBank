@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+service BankPaxos {
+	rpc Tentative (TentativeRequest) returns (TentativeReply);
+	rpc Commit (CommitRequest) returns (CommitReply);
+}
+
+message TentativeRequest { //sends a command and its tentative sequence number
+	string commandId = 1;
+	int32 sequenceNumber = 2;
+}
+
+message TentativeReply {
+	bool ack = 1;
+}
+
+message CommitRequest {
+	string commandId = 1;
+	int32 sequenceNumber = 2;
+}
+
+message CommitReply {
+}

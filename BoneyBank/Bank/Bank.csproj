@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Protos\bankPaxos.proto" />
     <None Remove="Protos\bankService.proto" />
     <None Remove="Protos\compareAndSwap.proto" />
   </ItemGroup>
@@ -22,6 +23,7 @@
     </PackageReference>
     <Protobuf Include="Protos\bankService.proto" GrpcServices="Server" />
     <Protobuf Include="Protos\compareAndSwap.proto" GrpcServices="Client" />
+	<Protobuf Include="Protos\bankPaxos.proto" GrpcServices="Both" />
   </ItemGroup>
 
 </Project>

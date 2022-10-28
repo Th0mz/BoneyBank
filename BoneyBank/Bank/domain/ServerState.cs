@@ -66,6 +66,14 @@ namespace Bank
         private int _current_slot = 0;
         private Dictionary<int, ServerInfo[]> _timeslots_info = new Dictionary<int, ServerInfo[]>();
 
+        //-------------------------------------------
+        //------ Bank Paxos specific variables ------
+        //-------------------------------------------
+        private Dictionary<string, BankCommand> allCommands = new();
+        private HashSet<string> unordered = new();
+        private List<string> ordered = new();
+        private int lastCommited = 0;
+
 
         public ServerState() {  }
 
@@ -255,6 +263,24 @@ namespace Bank
             // Console.WriteLine("Frozen = " + _frozen);
             // Console.WriteLine("Coordinator = " + _coordinator);
 
+        }
+
+        //=============================================================
+        //====================== COMMAND LOGS =========================
+        //=============================================================
+        public void addUnordered(BankCommand command) {
+            allCommands.Add(command.getCommandId(), command);
+            unordered.Add(command.getCommandId());
+        }
+
+        public void addOrdered(string commandId) {
+            ordered.Add(commandId);
+        }
+
+        public void commit() {
+            //TODO:
+            //commit of only the first to commit, all the ordered, what exactly??
+            //only advance de "lastCommited" variable?
         }
     }
 }

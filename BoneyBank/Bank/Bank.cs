@@ -1,4 +1,5 @@
-﻿using Grpc.Core;
+﻿using Bank.implementations;
+using Grpc.Core;
 using System;
 using System.Collections.Generic;
 using System.Reflection.Metadata.Ecma335;
@@ -92,7 +93,8 @@ namespace Bank
             }
 
             Server server = new Server {
-                Services = { BankService.BindService(new BankServiceImpl(bankState)) },
+                Services = { BankService.BindService(new BankServiceImpl(bankState, serverState, bankFrontend)),
+                             BankPaxos.BindService(new BankPaxosServiceImpl(serverState))},
                 Ports = { new ServerPort(host, port, ServerCredentials.Insecure) }
             };
 
