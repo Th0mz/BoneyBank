@@ -8,13 +8,23 @@ using Grpc.Core;
 
 namespace Bank
 {
-    internal class BankFrontend {
+    public class BankFrontend {
         private ServerState _serverState;
+        private bool initialized_connections = false;
 
         public BankFrontend (ServerState serverState) {
             AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
 
             _serverState = serverState; 
+        }
+
+        public void setup_connections() {
+            if (!initialized_connections) {
+                foreach (BankPaxosServerConnection serverConnection in _serverState.get_paxos_servers().Values) {
+                    serverConnection.setup_stub();
+                }
+                initialized_connections = true;
+            }
         }
 
         // this method shouldn't be async
@@ -41,7 +51,35 @@ namespace Bank
 
         public void doCommand(string commandId)
         {
+            //create the grpc channels to other bank servers if they dont already exist
+            setup_connections();
 
+            if (_serverState.is_coordinator()) {
+                //TODO:
+            }
+
+        }
+    }
+
+
+
+    public class BankPaxosServerConnection
+    {
+        private string _url;
+        private GrpcChannel _channel;
+        private BankPaxos.BankPaxosClient _client;
+
+        public BankPaxosServerConnection(string url) {
+            this._url = url;
+        }
+
+        public void setup_stub() {
+            _channel = GrpcChannel.ForAddress(_url);
+            _client = new BankPaxos.BankPaxosClient(_channel);
+        }
+
+        public BankPaxos.BankPaxosClient get_client() {
+            return _client;
         }
     }
 }
