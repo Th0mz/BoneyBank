@@ -38,5 +38,10 @@ namespace Bank
                 replies.Remove(task_reply);
             }
         }
+
+        public void doCommand(string commandId)
+        {
+
+        }
     }
 }

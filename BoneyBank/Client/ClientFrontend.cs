@@ -36,7 +36,8 @@ namespace Client
             setup_connections();
 
             var id = get_request_id();
-            var request = new DepositRequest { Amount = amount, Id = id };
+            var uid = Guid.NewGuid().ToString();
+            var request = new DepositRequest { Amount = amount, Id = id, CommandId = uid };
             foreach (var bankConnection in _clientState.get_bank_servers().Values) {
                 var client = bankConnection.get_client();
                 var reply = client.Deposit(request);
@@ -52,7 +53,8 @@ namespace Client
             setup_connections();
 
             var id = get_request_id();
-            var request = new WithdrawalRequest { Amount = amount, Id = id };
+            var uid = Guid.NewGuid().ToString();
+            var request = new WithdrawalRequest { Amount = amount, Id = id, CommandId = uid };
             foreach (var bankConnection in _clientState.get_bank_servers().Values) {
                 var client = bankConnection.get_client();
                 var reply = client.Withdrawal(request);
@@ -67,7 +69,8 @@ namespace Client
             setup_connections();
 
             var id = get_request_id();
-            var request = new ReadBalanceRequest{ Id = id };
+            var uid = Guid.NewGuid().ToString();
+            var request = new ReadBalanceRequest{ Id = id, CommandId = uid };
             foreach (var bankConnection in _clientState.get_bank_servers().Values)
             {
                 var client = bankConnection.get_client();
