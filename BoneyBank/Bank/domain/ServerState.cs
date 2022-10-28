@@ -74,6 +74,7 @@ namespace Bank
         private HashSet<Tuple<int, int>> unordered = new();
         private List<string> ordered = new();
         private int sequence_number = 0;
+        private Object sequence_number_lock = new();
         private int lastCommited = 0;
         private int lastSequenceNumber = 0; //for the coordinator to know which number
                                             //to assign to the next command
@@ -122,8 +123,16 @@ namespace Bank
         public int get_current_slot () {
             return _current_slot;
         }
-        public Dictionary<int, BankPaxosServerConnection> get_paxos_servers()
-        {
+
+        public int get_next_sequence_number() {
+            lock (sequence_number_lock)
+            {
+                sequence_number++;
+                return sequence_number;
+            }
+        }
+
+        public Dictionary<int, BankPaxosServerConnection> get_bank_servers() {
             return _banks;
         }
 

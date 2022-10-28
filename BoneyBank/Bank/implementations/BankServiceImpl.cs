@@ -7,16 +7,15 @@ namespace Bank
     {
         public enum CommandType
         {
-            deposit,
-            withdrawal,
-            read
+            Deposit,
+            Withdrawal,
+            ReadBalance
         };
 
         CommandType _type;
         private static int _clientId = 0;
         private static int _sequence_number = 1;
         private Tuple<int, int> _id;
-
 
         public BankCommand(int clientId, int sequence_number, CommandType type) {
             _id = new Tuple<int, int>(clientId, sequence_number);
@@ -58,7 +57,7 @@ namespace Bank
             };
 
             // TODO : locks
-            var type = BankCommand.CommandType.deposit;
+            var type = BankCommand.CommandType.Deposit;
             var bankCommand = new BankCommand(requestId.ClientId, requestId.ClientSequenceNumber, type);
             _serverState.addUnordered(bankCommand);
 
@@ -94,7 +93,7 @@ namespace Bank
             };
 
             // TODO : locks
-            var type = BankCommand.CommandType.withdrawal;
+            var type = BankCommand.CommandType.Withdrawal;
             var bankCommand = new BankCommand(requestId.ClientId, requestId.ClientSequenceNumber, type);
             _serverState.addUnordered(bankCommand);
 
@@ -134,7 +133,7 @@ namespace Bank
             };
 
             // TODO : locks
-            var type = BankCommand.CommandType.read;
+            var type = BankCommand.CommandType.ReadBalance;
             var bankCommand = new BankCommand(requestId.ClientId, requestId.ClientSequenceNumber, type);
             _serverState.addUnordered(bankCommand);
 

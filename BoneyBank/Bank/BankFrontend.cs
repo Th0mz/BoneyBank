@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Grpc.Net.Client;
 using Grpc.Core;
+using System.ComponentModel.Design;
+using System.Threading;
 
 namespace Bank
 {
@@ -20,7 +22,7 @@ namespace Bank
 
         public void setup_connections() {
             if (!initialized_connections) {
-                foreach (BankPaxosServerConnection serverConnection in _serverState.get_paxos_servers().Values) {
+                foreach (BankPaxosServerConnection serverConnection in _serverState.get_bank_servers().Values) {
                     serverConnection.setup_stub();
                 }
                 initialized_connections = true;
@@ -53,13 +55,68 @@ namespace Bank
         {
             //create the grpc channels to other bank servers if they dont already exist
             setup_connections();
+            //TODO: locks
+            int sequence_number = _serverState.get_next_sequence_number();
+            var tentative_replies = tentative(sequence_number, commandId);
+            int number_servers = _serverState.get_bank_servers().Count();
+            int count = 0;
+            while (tentative_replies.Any() && (count < (number_servers / 2) + 1))
+            {
+                var task_reply = Task.WhenAny(tentative_replies).Result;
+                var reply = task_reply.Result;
 
-            if (_serverState.is_coordinator()) {
-                //TODO:
+                // check if the command was acked by the other banks
+                if (reply.Ack) count++;
+
+                // remove recieved reply
+                tentative_replies.Remove(task_reply);
+            }
+            if(count >= (number_servers / 2) + 1) {
+                commit(commandId, sequence_number);
+            } else {
+                //TODO: faz alguma coisa???
+            }
+        }
+
+        public List<Task<TentativeReply>> tentative(int sequence_number, CommandId commandId)
+        {
+            TentativeRequest request = new TentativeRequest
+            {
+                RequestId = commandId,
+                SequenceNumber = sequence_number
+            };
+
+            List<Task<TentativeReply>> replies = new List<Task<TentativeReply>>();
+            foreach (BankPaxosServerConnection connection in _serverState.get_bank_servers().Values)
+            {
+                var client = connection.get_client();
+                var reply = client.TentativeAsync(request).ResponseAsync; //TODO: should it be async???
+                replies.Add(reply);
             }
 
+            return replies;
         }
+
+        public void commit(CommandId commandId, int sequence_number) {
+            CommitRequest request = new CommitRequest
+            {
+                RequestId = commandId,
+                SequenceNumber = sequence_number
+            };
+
+            foreach (BankPaxosServerConnection connection in _serverState.get_bank_servers().Values)
+            {
+                var client = connection.get_client();
+                client.CommitAsync(request);
+            }
+        }
+
+
     }
+
+
+
+
 
     public class BankPaxosServerConnection
     {
