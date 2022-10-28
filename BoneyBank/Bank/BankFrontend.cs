@@ -28,6 +28,7 @@ namespace Bank
             }
 
             while (replies.Any()) {
+
                 var task_reply = Task.WhenAny(replies).Result;
                 var reply = task_reply.Result;
 

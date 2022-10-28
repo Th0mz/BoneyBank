@@ -110,23 +110,17 @@ namespace Bank
 
                 Console.WriteLine("Bank : sending comapare and swap for leader " + serverState.get_coordinator_id());
                 bankFrontend.compareAndSwap(serverState.get_current_slot(), serverState.get_coordinator_id());
-                
+
                 // sleep until the next slot begins
                 DateTime slot_beggining = serverState.get_starting_time() + (serverState.get_delta() * serverState.get_current_slot());
                 wait_time = slot_beggining - DateTime.Now;
 
-                slotStart = Task.Delay(wait_time);
-                await slotStart;
+                Console.WriteLine(wait_time);
 
-
-                /*
-                // TODO : bank functionality
-                if (lider)
-                {
-                    ordenar mensagens
-                    enviar ordem para outros banks
-                }
-                */
+                if (wait_time > TimeSpan.Zero) {
+                    slotStart = Task.Delay(wait_time);
+                    await slotStart;
+                } 
             }
 
             Console.WriteLine("No more timeslots to execute");

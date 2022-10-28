@@ -68,7 +68,6 @@ namespace Boney
 
             DateTime start = DateTime.Now;
 
-            BoneyState state = new BoneyState();
             ServerState serverState = new ServerState();
             PaxosFrontend paxosFrontend = new PaxosFrontend(serverState);
             //string config_path = @"..\..\..\..\..\configuration_sample.txt";
@@ -80,7 +79,9 @@ namespace Boney
                 return;
             }
 
-            
+            BoneyState state = new BoneyState(serverState.get_max_slot());
+
+
             // server setup
             string url = serverState.get_url();
             string[] urlSplit = url.Split(':');

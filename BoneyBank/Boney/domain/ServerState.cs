@@ -105,6 +105,10 @@ namespace Boney
             return _current_slot;
         }
 
+        public int get_max_slot () {
+            return _max_slots;
+        }
+
         public Dictionary<int, PaxosServerConnection> get_paxos_servers() {
             return _bonies;
         }

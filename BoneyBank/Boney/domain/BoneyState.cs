@@ -26,17 +26,20 @@ namespace Boney
     public class BoneyState {
 
         // TODO : remove static size => change this to a list 
-        private static int size = 1024;
-        private Slot[] timeslots = new Slot[size];
+        private int _size;
+        private Slot[] timeslots;
 
-        public BoneyState () {
+        public BoneyState (int size) {
+            _size = size;
+            timeslots = new Slot[size];
+            
             for (int i = 0; i < size; i++) {
                 timeslots[i] = new Slot();
             }
         }
 
         public Slot get_slot(int index) {
-            if (index < size) {
+            if (index < _size) {
                 return timeslots[index];
             }
 
