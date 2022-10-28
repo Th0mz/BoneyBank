@@ -70,8 +70,7 @@ namespace Bank
             /*
             TODO 
             float amount = request.Amount;
-            
-            _bankState.deposit(amount);
+            //_bankState.deposit(amount);
             return new DepositReply { Status = ResponseStatus.Ok };
             */
 
@@ -88,7 +87,6 @@ namespace Bank
 
         private WithdrawalReply do_withdrawal(WithdrawalRequest request) {
             // TODO : final vertion uses 2 phase commit to order commands
-
             var requestId = new CommandId 
             {
                 ClientId = request.Id.ClientId,
@@ -107,12 +105,11 @@ namespace Bank
             /*
             TODO :
             float amount = request.Amount;
-
-            bool succeeded = _bankState.withdrawal(amount);
+            //bool succeeded = _bankState.withdrawal(amount);
             ResponseStatus status = ResponseStatus.Ok;
-            if (!succeeded) {
-                status = ResponseStatus.NoFunds;
-            }
+            //if (!succeeded) {
+            //    status = ResponseStatus.NoFunds;
+            //}
 
             return new WithdrawalReply { Status = status};
             */

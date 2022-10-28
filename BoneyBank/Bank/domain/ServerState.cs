@@ -59,7 +59,7 @@ namespace Bank
 
         // other servers info
         // instead of the url store the grpc stub <<<
-        private Dictionary<int, string> _banks = new Dictionary<int, string>();
+        private Dictionary<int, BankPaxosServerConnection> _banks = new Dictionary<int, BankPaxosServerConnection>();
         private Dictionary<int, CompareAndSwapService.CompareAndSwapServiceClient> _bonies = new Dictionary<int, CompareAndSwapService.CompareAndSwapServiceClient>();
 
         private int _max_slots = 0;
@@ -75,6 +75,8 @@ namespace Bank
         private List<string> ordered = new();
         private int sequence_number = 0;
         private int lastCommited = 0;
+        private int lastSequenceNumber = 0; //for the coordinator to know which number
+                                            //to assign to the next command
 
 
         public ServerState() {  }
@@ -120,6 +122,10 @@ namespace Bank
         public int get_current_slot () {
             return _current_slot;
         }
+        public Dictionary<int, BankPaxosServerConnection> get_paxos_servers()
+        {
+            return _banks;
+        }
 
         public bool add_server (string sid, string _class, string url) {
             // convert id
@@ -137,9 +143,10 @@ namespace Bank
             // add other server info
             bool added_server = false;
             if (_class.Equals(_BANK)) {
-
-                _banks.Add(id, url);
+                BankPaxosServerConnection client = new BankPaxosServerConnection(url);
+                _banks.Add(id, client);
                 added_server = true;
+
             } else if (_class.Equals(_BONEY)) {
 
                 GrpcChannel channel = GrpcChannel.ForAddress(url);
