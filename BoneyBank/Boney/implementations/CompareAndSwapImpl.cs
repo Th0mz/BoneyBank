@@ -24,7 +24,6 @@ namespace Boney
 
         private CompareAndSwapReply do_compareAndSwap(CompareAndSwapRequest request) {
             // compareAndSwap code
-            //THREAD _serverState.addThread(Thread.CurrentThread);
             int leader = request.Leader;
             int slot = request.Slot;
 

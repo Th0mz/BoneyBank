@@ -55,8 +55,6 @@ namespace Boney
         private int _coordinator;
         private DateTime _starting_time;
 
-        private List<Thread> threads = new();
-
         // F list
 
         // other servers info
@@ -115,11 +113,6 @@ namespace Boney
         public Dictionary<int, PaxosServerConnection> get_paxos_servers() {
             return _bonies;
         }
-
-        //THREAD
-        /*public void addThread(Thread t) {
-            threads.Add(t);
-        }*/
 
         public bool set_id(int id) {
             _id = id;
@@ -227,9 +220,7 @@ namespace Boney
             // TODO : need locks
             _current_slot++;
 
-            //THREAD
             var current_slot = _timeslots_info[_current_slot];
-            //var previous_state_frozen = _frozen;
 
             int coordinator = int.MaxValue;
             foreach (var server_info in current_slot)
@@ -254,25 +245,6 @@ namespace Boney
             }
 
             _coordinator = coordinator;
-
-            //THREAD
-            /*//FREEZE
-            //SUSPEND ALL THREADS IF PREVIOUS==NORMAL && CURRENT==FROZEN
-            //TODO might need to add case when starts frozen if it can receive any call "before" setting the initial state 
-            if(_current_slot>1 && !previous_state_frozen && _frozen) {
-                foreach(Thread t in threads) {
-                    t.Suspend();
-                }
-            }
-
-            //UNFREEZE
-            //RESUME ALL THREADS IF PREVIOUS==FROZEN && CURRENT==NORMAL
-            if (_current_slot > 1 && previous_state_frozen && !_frozen) {
-                foreach (Thread t in threads) {
-                    t.Resume();
-                }
-            }*/
-
             // DEBUG : 
             // Console.WriteLine("Setup TimeSlot\n======================");
             // Console.WriteLine("Current Slot = " + _current_slot);

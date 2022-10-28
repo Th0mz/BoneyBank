@@ -11,19 +11,16 @@ namespace Bank.implementations
     {
         ServerState _serverState;
 
-        public BankPaxosServiceImpl(ServerState serverState)
-        {
+        public BankPaxosServiceImpl(ServerState serverState) {
             _serverState = serverState;
         }
 
         //receive tentative ordered commands
-        public override Task<TentativeReply> Tentative(TentativeRequest request, ServerCallContext context)
-        {
+        public override Task<TentativeReply> Tentative(TentativeRequest request, ServerCallContext context) {
             return Task.FromResult(doTentative(request));
         }
 
-        private TentativeReply doTentative(TentativeRequest request)
-        {
+        private TentativeReply doTentative(TentativeRequest request) {
             //TODO:
             //ver quem mandou
             //ver se o command existe na lista unordered no server state
@@ -34,13 +31,11 @@ namespace Bank.implementations
         }
 
         //receive commit requests
-        public override Task<CommitReply> Commit(CommitRequest request, ServerCallContext context)
-        {
+        public override Task<CommitReply> Commit(CommitRequest request, ServerCallContext context) {
             return Task.FromResult(doCommit(request));
         }
 
-        private CommitReply doCommit(CommitRequest request)
-        {
+        private CommitReply doCommit(CommitRequest request) {
             //TODO:
             //tem de aplicar os comandos por ordem
             //o commit eh so do primeiro comando nao commited ou de um grupo random??

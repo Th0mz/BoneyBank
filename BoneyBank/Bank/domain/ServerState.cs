@@ -69,9 +69,11 @@ namespace Bank
         //-------------------------------------------
         //------ Bank Paxos specific variables ------
         //-------------------------------------------
-        private Dictionary<string, BankCommand> allCommands = new();
-        private HashSet<string> unordered = new();
+        private object paxos_lock = new object();
+        private Dictionary<Tuple<int, int>, BankCommand> allCommands = new();
+        private HashSet<Tuple<int, int>> unordered = new();
         private List<string> ordered = new();
+        private int sequence_number = 0;
         private int lastCommited = 0;
 
 

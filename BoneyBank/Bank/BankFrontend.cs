@@ -39,8 +39,7 @@ namespace Bank
             }
         }
 
-        public void doCommand(string commandId)
-        {
+        public void doCommand(CommandId commandId) {
 
         }
     }

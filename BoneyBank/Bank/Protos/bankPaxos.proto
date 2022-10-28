@@ -3,10 +3,18 @@ syntax = "proto3";
 service BankPaxos {
 	rpc Tentative (TentativeRequest) returns (TentativeReply);
 	rpc Commit (CommitRequest) returns (CommitReply);
+	rpc Cleanup (CleanupRequest) returns (CleanupReply);
 }
 
+// identifier
+message CommandId {
+	int32 clientId = 1;
+	int32 clientSequenceNumber = 2;
+}
+
+// tentative
 message TentativeRequest { //sends a command and its tentative sequence number
-	string commandId = 1;
+	CommandId requestId = 1;
 	int32 sequenceNumber = 2;
 }
 
@@ -14,10 +22,21 @@ message TentativeReply {
 	bool ack = 1;
 }
 
+// commit
 message CommitRequest {
-	string commandId = 1;
+	CommandId requestId = 1;
 	int32 sequenceNumber = 2;
 }
 
 message CommitReply {
+}
+
+// cleanup
+message CleanupRequest {
+	// TODO
+	int32 lastSequenceNumber = 1;
+}
+
+message CleanupReply {
+	// TODO : retorna lista de commited pelo master antigo
 }

@@ -5,21 +5,26 @@ namespace Bank
 {
     public class BankCommand //TODO: Good idea???
     {
-        //TODO: Missing all the necessary values for each command
         public enum CommandType
         {
-            Deposit,
-            Withdrawal,
-            ReadBalance
+            deposit,
+            withdrawal,
+            read
+        };
+
+        CommandType _type;
+        private static int _clientId = 0;
+        private static int _sequence_number = 1;
+        private Tuple<int, int> _id;
+
+
+        public BankCommand(int clientId, int sequence_number, CommandType type) {
+            _id = new Tuple<int, int>(clientId, sequence_number);
+            _type = type;
         }
 
-        CommandType type;
-        string commandId; //always identify commands by this unique id
-        public BankCommand(CommandType t) {
-            type = t;
-        }
-        public string getCommandId() {
-            return commandId;
+        public Tuple<int, int>  getCommandId() {
+            return _id;
         }
     }
 
@@ -45,12 +50,32 @@ namespace Bank
 
         private DepositReply do_deposit(DepositRequest request) {
             // TODO : final vertion uses 2 phase commit to order commands
-            _serverState.addUnordered(new BankCommand(BankCommand.CommandType.Deposit));
-            _bankFrontend.doCommand(request.CommandId);
+
+            var requestId = new CommandId
+            {
+                ClientId = request.Id.ClientId,
+                ClientSequenceNumber = request.Id.ClientSequenceNumber,
+            };
+
+            // TODO : locks
+            var type = BankCommand.CommandType.deposit;
+            var bankCommand = new BankCommand(requestId.ClientId, requestId.ClientSequenceNumber, type);
+            _serverState.addUnordered(bankCommand);
+
+            if (_serverState.is_coordinator()) {
+                _bankFrontend.doCommand(requestId);
+            }
+
+
+            /*
+            TODO 
             float amount = request.Amount;
             
             _bankState.deposit(amount);
             return new DepositReply { Status = ResponseStatus.Ok };
+            */
+
+            return new DepositReply { };
         }
 
 
@@ -63,8 +88,24 @@ namespace Bank
 
         private WithdrawalReply do_withdrawal(WithdrawalRequest request) {
             // TODO : final vertion uses 2 phase commit to order commands
-            _serverState.addUnordered(new BankCommand(BankCommand.CommandType.Withdrawal));
-            _bankFrontend.doCommand(request.CommandId);
+
+            var requestId = new CommandId 
+            {
+                ClientId = request.Id.ClientId,
+                ClientSequenceNumber = request.Id.ClientSequenceNumber,
+            };
+
+            // TODO : locks
+            var type = BankCommand.CommandType.withdrawal;
+            var bankCommand = new BankCommand(requestId.ClientId, requestId.ClientSequenceNumber, type);
+            _serverState.addUnordered(bankCommand);
+
+            if (_serverState.is_coordinator()) {
+                _bankFrontend.doCommand(requestId);
+            }
+
+            /*
+            TODO :
             float amount = request.Amount;
 
             bool succeeded = _bankState.withdrawal(amount);
@@ -73,8 +114,10 @@ namespace Bank
                 status = ResponseStatus.NoFunds;
             }
 
-
             return new WithdrawalReply { Status = status};
+            */
+
+            return new WithdrawalReply { };
         }
 
 
@@ -87,11 +130,29 @@ namespace Bank
 
         private ReadBalanceReply do_readBalance(ReadBalanceRequest request) {
             // TODO : final vertion uses 2 phase commit to order commands
-            _serverState.addUnordered(new BankCommand(BankCommand.CommandType.ReadBalance));
-            _bankFrontend.doCommand(request.CommandId);
+            var requestId = new CommandId
+            {
+                ClientId = request.Id.ClientId,
+                ClientSequenceNumber = request.Id.ClientSequenceNumber,
+            };
+
+            // TODO : locks
+            var type = BankCommand.CommandType.read;
+            var bankCommand = new BankCommand(requestId.ClientId, requestId.ClientSequenceNumber, type);
+            _serverState.addUnordered(bankCommand);
+
+            if (_serverState.is_coordinator()) {
+                _bankFrontend.doCommand(requestId);
+            }
+
+            /*
+            TODO : 
             float balance = _bankState.readBalance();
             
             return new ReadBalanceReply { Balance = balance };
+            */
+
+            return new ReadBalanceReply { };
         }
 
     }
