@@ -16,6 +16,8 @@ message CommandId {
 message TentativeRequest { //sends a command and its tentative sequence number
 	CommandId requestId = 1;
 	int32 sequenceNumber = 2;
+	int32 assignmentSlot  = 3;
+	int32 senderId = 4;
 }
 
 message TentativeReply {

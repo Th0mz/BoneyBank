@@ -56,8 +56,10 @@ namespace Bank
             //create the grpc channels to other bank servers if they dont already exist
             setup_connections();
             //TODO: locks
+            int id = _serverState.get_id();
             int sequence_number = _serverState.get_next_sequence_number();
-            var tentative_replies = tentative(sequence_number, commandId);
+            int assignment_slot = _serverState.get_current_slot();
+            var tentative_replies = tentative(id, sequence_number, assignment_slot, commandId);
             int number_servers = _serverState.get_bank_servers().Count();
             int count = 0;
             while (tentative_replies.Any() && (count < (number_servers / 2) + 1))
@@ -78,12 +80,15 @@ namespace Bank
             }
         }
 
-        public List<Task<TentativeReply>> tentative(int sequence_number, CommandId commandId)
+        public List<Task<TentativeReply>> tentative(int id, int sequence_number, int assignment_slot, CommandId commandId)
         {
             TentativeRequest request = new TentativeRequest
             {
                 RequestId = commandId,
-                SequenceNumber = sequence_number
+                SequenceNumber = sequence_number,
+                AssignmentSlot = assignment_slot,
+                SenderId = id
+
             };
 
             List<Task<TentativeReply>> replies = new List<Task<TentativeReply>>();

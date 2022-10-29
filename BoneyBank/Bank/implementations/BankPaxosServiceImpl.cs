@@ -21,13 +21,31 @@ namespace Bank.implementations
         }
 
         private TentativeReply doTentative(TentativeRequest request) {
-            //TODO:
-            //ver quem mandou
-            //ver se o command existe na lista unordered no server state
-            //ver se o seq number esta vazio na lista de ordered no server state
-            //se for valido responder com "ack=true", remover de unordered e adicionar a ordered
+            Tuple<int, int> commandId = new(request.RequestId.ClientId, request.RequestId.ClientSequenceNumber);
+            int assignment_slot = request.AssignmentSlot;
+            int sender_id = request.SenderId;
+            int sequence_number = request.SequenceNumber;
+            
+            //check if sender was the primary for the slot of the assignment
+            int coordinator_assignment_slot = _serverState.get_coordinator_id(assignment_slot);
+            if (!(coordinator_assignment_slot == sender_id))
+                return new TentativeReply { Ack = false };
 
-            return new TentativeReply { };
+            //check if the coordinator has changed since
+            for(int slot = assignment_slot; slot < _serverState.get_current_slot(); slot++) {
+                if(_serverState.get_coordinator_id(slot) != sender_id)
+                    return new TentativeReply { Ack = false };
+            }
+
+            //needed??? check if the sequence number is valid??
+            //should be as the coordinator is the only one who assigns sequence numbers
+            if(_serverState.is_index_taken(sequence_number) || !_serverState.command_exists(commandId))
+                return new TentativeReply { Ack = false };
+
+            _serverState.removeUnordered(commandId);
+            _serverState.addOrdered(commandId);
+
+            return new TentativeReply { Ack = true };
         }
 
         //receive commit requests

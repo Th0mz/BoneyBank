@@ -62,9 +62,11 @@ namespace Bank
         private Dictionary<int, BankPaxosServerConnection> _banks = new Dictionary<int, BankPaxosServerConnection>();
         private Dictionary<int, CompareAndSwapService.CompareAndSwapServiceClient> _bonies = new Dictionary<int, CompareAndSwapService.CompareAndSwapServiceClient>();
 
+        private Dictionary<int, ServerInfo[]> _timeslots_info = new Dictionary<int, ServerInfo[]>();
+
         private int _max_slots = 0;
         private int _current_slot = 0;
-        private Dictionary<int, ServerInfo[]> _timeslots_info = new Dictionary<int, ServerInfo[]>();
+        private Dictionary<int, int> _coordinators_dict = new(); //<slot, coordinator for that slot>
 
         //-------------------------------------------
         //------ Bank Paxos specific variables ------
@@ -72,7 +74,7 @@ namespace Bank
         private object paxos_lock = new object();
         private Dictionary<Tuple<int, int>, BankCommand> allCommands = new();
         private HashSet<Tuple<int, int>> unordered = new();
-        private List<string> ordered = new();
+        private List<Tuple<int, int>> ordered = new();
         private int sequence_number = 0;
         private Object sequence_number_lock = new();
         private int lastCommited = 0;
@@ -98,6 +100,10 @@ namespace Bank
 
         public int get_coordinator_id () {
             return _coordinator;
+        }
+
+        public int get_coordinator_id(int slot) {
+            return _coordinators_dict[slot];
         }
 
         public int get_id() {
@@ -291,8 +297,19 @@ namespace Bank
             unordered.Add(command.getCommandId());
         }
 
-        public void addOrdered(string commandId) {
+        public void removeUnordered(Tuple<int, int> commandId) {
+            unordered.Remove(commandId);
+        }
+
+        public void addOrdered(Tuple<int, int> commandId) {
             ordered.Add(commandId);
+        }
+        public bool command_exists(Tuple<int, int> commandId) {
+            return allCommands.ContainsKey(commandId);
+        }
+
+        public bool is_index_taken(int index) {
+            return ordered[index] != null;
         }
 
         public void commit() {
