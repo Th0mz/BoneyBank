@@ -3,7 +3,7 @@ using System.ComponentModel.Design;
 
 namespace Bank
 {
-    public class BankCommand //TODO: Good idea???
+    public class BankCommand
     {
         public enum CommandType
         {
@@ -12,19 +12,22 @@ namespace Bank
             ReadBalance
         };
 
-        CommandType _type;
         private static int _clientId = 0;
         private static int _sequence_number = 1;
         private Tuple<int, int> _id;
+        CommandType _type;
+        private bool _is_commited = false;
 
         public BankCommand(int clientId, int sequence_number, CommandType type) {
             _id = new Tuple<int, int>(clientId, sequence_number);
             _type = type;
         }
 
-        public Tuple<int, int>  getCommandId() {
-            return _id;
-        }
+        public Tuple<int, int>  getCommandId() { return _id; }
+
+        public bool is_commited() { return _is_commited; }
+
+        //TODO: public void set_commited() { return _ }
     }
 
     internal class BankServiceImpl : BankService.BankServiceBase

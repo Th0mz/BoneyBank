@@ -39,8 +39,9 @@ namespace Bank.implementations
 
             //needed??? check if the sequence number is valid??
             //should be as the coordinator is the only one who assigns sequence numbers
-            if(_serverState.is_index_taken(sequence_number) || !_serverState.command_exists(commandId))
-                return new TentativeReply { Ack = false };
+            //if(_serverState.is_index_taken(sequence_number) || !_serverState.command_exists(commandId))
+            //    return new TentativeReply { Ack = false };
+            //sequence numbers are not definitive until commit
 
             _serverState.removeUnordered(commandId);
             _serverState.addOrdered(commandId);
