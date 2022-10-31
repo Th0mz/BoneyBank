@@ -47,37 +47,42 @@ namespace Client
             }
 
             // TODO : wait for all to finish ??
-            var task_reply = Task.WhenAny(replies).Result;
-            var _reply = task_reply.Result;
+            while (replies.Any())
+            {
+                var task_reply = Task.WhenAny(replies).Result;
+                var _reply = task_reply.Result;
 
-            Console.WriteLine("[" + _reply.Server + "]" + " Deposit succesful");
+                Console.WriteLine("[" + _reply.Server + "]" + " Deposit succesful");
+
+                replies.Remove(task_reply);
+            }
         }
 
         public void withdrawal(float amount) {
-            Console.WriteLine("Connection setup");
             setup_connections();
-            Console.WriteLine("ended");
 
 
             var id = get_request_id();
             var request = new WithdrawalRequest { Amount = amount, Id = id };
             List<Task<WithdrawalReply>> replies = new List<Task<WithdrawalReply>>();
-            Console.WriteLine("Entering loop");
             foreach (var bankConnection in _clientState.get_bank_servers().Values) {
-                Console.WriteLine("inside loop");
                 var client = bankConnection.get_client();
                 var reply = client.WithdrawalAsync(request).ResponseAsync;
-                Console.WriteLine("sendt reply");
 
 
                 replies.Add(reply);
             }
 
             // TODO : wait for all to finish ??
-            var task_reply = Task.WhenAny(replies).Result;
-            var _reply = task_reply.Result;
+            while (replies.Any())
+            {
+                var task_reply = Task.WhenAny(replies).Result;
+                var _reply = task_reply.Result;
 
-            Console.WriteLine("[" + _reply.Server + "]" + " Withdrawal " + _reply.Status);
+                Console.WriteLine("[" + _reply.Server + "]" + " Withdrawal " + _reply.Status);
+
+                replies.Remove(task_reply);
+            }
         }
 
         public void readBalance () {
@@ -95,10 +100,16 @@ namespace Client
             }
 
             // TODO : wait for all to finish ??
-            var task_reply = Task.WhenAny(replies).Result;
-            var _reply = task_reply.Result;
+            while (replies.Any())
+            {
+                var task_reply = Task.WhenAny(replies).Result;
+                var _reply = task_reply.Result;
 
-            Console.WriteLine("[" + _reply.Server + "]" + "Balance : " + _reply.Balance);
+                Console.WriteLine("[" + _reply.Server + "]" + "Balance : " + _reply.Balance);
+
+                replies.Remove(task_reply);
+            }
+
         }
     }
 

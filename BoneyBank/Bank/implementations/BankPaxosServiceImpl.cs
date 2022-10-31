@@ -17,26 +17,33 @@ namespace Bank.implementations
 
         //receive tentative ordered commands
         public override Task<TentativeReply> Tentative(TentativeRequest request, ServerCallContext context) {
-            return Task.FromResult(doTentative(request));
+            return Task.FromResult(do_tentative(request));
         }
 
-        private TentativeReply doTentative(TentativeRequest request) {
+        private TentativeReply do_tentative(TentativeRequest request) {
+            Console.WriteLine("Processing tentative");
+            Console.WriteLine("=======================");
             Tuple<int, int> commandId = new(request.RequestId.ClientId, request.RequestId.ClientSequenceNumber);
             int assignment_slot = request.AssignmentSlot;
             int sender_id = request.SenderId;
             int sequence_number = request.SequenceNumber;
-            
-            //check if sender was the primary for the slot of the assignment
-            int coordinator_assignment_slot = _serverState.get_coordinator_id(assignment_slot);
-            if (!(coordinator_assignment_slot == sender_id))
-                return new TentativeReply { Ack = false };
 
-            //check if the coordinator has changed since
-            for(int slot = assignment_slot; slot < _serverState.get_current_slot(); slot++) {
-                if(_serverState.get_coordinator_id(slot) != sender_id)
-                    return new TentativeReply { Ack = false };
+            //check if sender was the primary for the slot of the assignment
+            Console.WriteLine("Check slot leader");
+            int coordinator_assignment_slot = _serverState.get_coordinator_id(assignment_slot);
+            if (coordinator_assignment_slot != sender_id) {
+                return new TentativeReply { Ack = false };
             }
 
+            //check if the coordinator has changed since
+            Console.WriteLine("Check ifif the coordinator has changed since");
+            for (int slot = assignment_slot; slot < _serverState.get_current_slot(); slot++) {
+                if(_serverState.get_coordinator_id(slot) != sender_id) {
+                    return new TentativeReply { Ack = false };
+                }
+            }
+
+            
             lock (_serverState.lastTentativeLock) {
                 //only responds with ack after all the previous commands were received
                 if(sequence_number <= _serverState.get_last_commited())
@@ -48,21 +55,25 @@ namespace Bank.implementations
                 }
                 _serverState.removeUnordered(commandId);
                 _serverState.addOrdered(commandId);
-            }            
+            }
+           
+            Console.WriteLine("=======================");
 
             return new TentativeReply { Ack = true };
         }
 
         //receive commit requests
         public override Task<CommitReply> Commit(CommitRequest request, ServerCallContext context) {
-            return Task.FromResult(doCommit(request));
+            return Task.FromResult(do_commit(request));
         }
 
-        private CommitReply doCommit(CommitRequest request) {
+        private CommitReply do_commit(CommitRequest request) {
             //TODO:
             //DOES IT MATTER IN WHICH SLOT A SERVER IS COMMITING ITS REQUESTS
             //THAT GOT ACCEPTED???
 
+            Console.WriteLine("Processing commit");
+            Console.WriteLine("=======================");
             lock (_serverState.orderedLock)
             {
                 int lastCommited = _serverState.get_last_commited();
@@ -76,12 +87,9 @@ namespace Bank.implementations
                 //DO NEED TO MAKE SURE THE COORDINATOR HAS NOT CHANGED SINCE THE SLOT
                 //IN WHICH THE COMMIT WAS SENT. IS IT SUFFICENT TO GUARANTEE SAFETY???
 
-                //Make sure that the command still holds given sequence number.
-                if (commandToCommit.getCommandId() != commandId)
-                    return new CommitReply { };
-
                 //Already has been commited; nothing to do
                 //Possible if the commits from a coordinator come out of order
+                Console.WriteLine("Already has been commited");
                 if (seqNumberToCommit < lastCommited)
                     return new CommitReply { };
 
@@ -89,13 +97,17 @@ namespace Bank.implementations
                 //a commit for all commands y for y < x, since backups only accept command x if
                 //all commands y have already been acked
                 //commit for x => majority ack for x => same majority ack for y => should commit y
+                Console.WriteLine("Loop throught the uncommited commands and execute them");
                 for (int index = lastCommited + 1; index <= seqNumberToCommit; index++) {
+                    Console.WriteLine("Started command commit");
                     BankCommand command = _serverState.get_command(index);
                     
                     lock (command) {
                         command.execute();
                         Monitor.PulseAll(command);
                     }
+                    Console.WriteLine("Ended command commit");
+
                 }
                 _serverState.setLastCommited(seqNumberToCommit);
             

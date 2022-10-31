@@ -26,6 +26,7 @@ namespace Bank
                 foreach (BankPaxosServerConnection serverConnection in _serverState.get_bank_servers().Values) {
                     serverConnection.setup_stub();
                 }
+
                 initialized_connections = true;
             }
         }
@@ -56,7 +57,7 @@ namespace Bank
         {
             //create the grpc channels to other bank servers if they dont already exist
             setup_connections();
-            
+
             //TODO: locks
             int id = _serverState.get_id();
             int sequence_number = _serverState.get_next_sequence_number();
@@ -72,12 +73,15 @@ namespace Bank
                 var task_reply = Task.WhenAny(tentative_replies).Result;
                 var reply = task_reply.Result;
 
+                Console.WriteLine("Recieved an response : " + reply.Ack);
                 // check if the command was acked by the other banks
-                if (reply.Ack) count++;
+                if (reply.Ack) { count++; }
 
                 // remove received reply
                 tentative_replies.Remove(task_reply);
             }
+
+            Console.WriteLine("Goning to commit, count = " + count);
             if(count >= (number_servers / 2) + 1) {
                 commit(commandId, sequence_number);
             } else {
@@ -108,6 +112,7 @@ namespace Bank
 
         public List<Task<TentativeReply>> tentative(int id, int sequence_number, int assignment_slot, CommandId commandId)
         {
+            Console.WriteLine("Started tentative");
             TentativeRequest request = new TentativeRequest
             {
                 RequestId = commandId,
@@ -121,16 +126,19 @@ namespace Bank
             foreach (BankPaxosServerConnection connection in _serverState.get_bank_servers().Values)
             {
                 var client = connection.get_client();
-                var reply = client.TentativeAsync(request).ResponseAsync; //TODO: should it be async???
+                var reply = client.TentativeAsync(request).ResponseAsync;
+               
                 replies.Add(reply);
             }
 
+            Console.WriteLine("Ended tentative");
             return replies;
         }
 
         public void commit(CommandId commandId, int sequence_number) {
-            CommitRequest request = new CommitRequest
-            {
+            Console.WriteLine("Started commit");
+
+            CommitRequest request = new CommitRequest {
                 RequestId = commandId,
                 SequenceNumber = sequence_number
             };
@@ -140,9 +148,28 @@ namespace Bank
                 var client = connection.get_client();
                 client.CommitAsync(request);
             }
+
+            Console.WriteLine("Ended commit");
         }
 
+        public List<Task<CleanupReply>> cleanup (int last_commited, int slot) {
 
+            CleanupRequest request = new CleanupRequest
+            {
+                LastCommitted = last_commited,
+                Slot = slot
+            };
+
+            List<Task<CleanupReply>> replies = new List<Task<CleanupReply>>();
+            foreach (BankPaxosServerConnection connection in _serverState.get_bank_servers().Values) {
+                var client = connection.get_client();
+                var reply = client.CleanupAsync(request).ResponseAsync; //TODO: should it be async???
+                
+                replies.Add(reply);
+            }
+
+            return replies;
+        }
     }
 
 

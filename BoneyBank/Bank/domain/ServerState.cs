@@ -82,10 +82,10 @@ namespace Bank
         private int sequence_number = 0;
         public Object sequence_number_lock = new();
 
-        private int lastCommited = 0;
+        private int lastCommited = -1;
         public Object lastCommitedLock = new();
 
-        private int lastTentative = 0; //for the coordinator to know which number
+        private int lastTentative = -1; //for the coordinator to know which number
                                        //to assign to the next command
         public Object lastTentativeLock = new();
 
@@ -139,10 +139,8 @@ namespace Bank
         }
 
         public int get_next_sequence_number() {
-            lock (sequence_number_lock)
-            {
-                sequence_number++;
-                return sequence_number;
+            lock (sequence_number_lock) {
+                return sequence_number++; 
             }
         }
 
@@ -288,6 +286,8 @@ namespace Bank
             }
 
             _coordinator = coordinator;
+            _coordinators_dict.Add(_current_slot, _coordinator);
+
             // DEBUG : 
             // Console.WriteLine("Setup TimeSlot\n======================");
             // Console.WriteLine("Current Slot = " + _current_slot);
@@ -327,6 +327,11 @@ namespace Bank
         public BankCommand get_command(int sequence_number) {
             var command_id = ordered[sequence_number];
             return allCommands[command_id];
+        }
+
+        public Dictionary<Tuple<int, int>, BankCommand> get_all_commands()
+        {
+            return allCommands;
         }
 
         public bool command_exists(Tuple<int, int> commandId) {

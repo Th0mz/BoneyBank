@@ -73,10 +73,14 @@ namespace Bank
             // TODO : locks
             Console.WriteLine("Created command");
             var bankCommand = new WithdrawalCommand(requestId.ClientId, requestId.ClientSequenceNumber, request.Amount,_bankState);
+            
+            Console.WriteLine("Adding command to unordered list");
             _serverState.addUnordered(bankCommand);
 
             ServerStatus server = ServerStatus.Backup;
+            Console.WriteLine("coordinator : " + _serverState.get_coordinator_id());
             if (_serverState.is_coordinator()) {
+                Console.WriteLine("Executing doCommand as primary");
                 server = ServerStatus.Primary;
                 _bankFrontend.doCommand(requestId);
             }

@@ -35,11 +35,12 @@ message CommitReply {
 
 // cleanup
 message CleanupRequest {
-	int32 lastSequenceNumber = 1;
+	int32 lastCommitted = 1;
 	int32 slot = 2;
 }
 
 message CleanupReply {
+	bool ack = 1;
 	//1.List of commited commands because these should be applied on
 	//the server if they have not yet
 
