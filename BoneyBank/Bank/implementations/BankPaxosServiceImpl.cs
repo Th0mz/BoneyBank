@@ -37,14 +37,18 @@ namespace Bank.implementations
                     return new TentativeReply { Ack = false };
             }
 
-            //needed??? check if the sequence number is valid??
-            //should be as the coordinator is the only one who assigns sequence numbers
-            //if(_serverState.is_index_taken(sequence_number) || !_serverState.command_exists(commandId))
-            //    return new TentativeReply { Ack = false };
-            //sequence numbers are not definitive until commit
+            lock (_serverState.lastTentativeLock) {
+                //only responds with ack after all the previous commands were received
+                if(sequence_number <= _serverState.get_last_commited())
+                    return new TentativeReply { Ack = false };
 
-            _serverState.removeUnordered(commandId);
-            _serverState.addOrdered(commandId);
+                while (_serverState.get_last_tentative() < sequence_number - 1)
+                {
+                    Monitor.Wait(_serverState.lastTentativeLock);
+                }
+                _serverState.removeUnordered(commandId);
+                _serverState.addOrdered(commandId);
+            }            
 
             return new TentativeReply { Ack = true };
         }
@@ -56,27 +60,48 @@ namespace Bank.implementations
 
         private CommitReply doCommit(CommitRequest request) {
             //TODO:
-            //tem de aplicar os comandos por ordem
-            //o commit eh so do primeiro comando nao commited ou de um grupo random??
+            //DOES IT MATTER IN WHICH SLOT A SERVER IS COMMITING ITS REQUESTS
+            //THAT GOT ACCEPTED???
 
-            /*
-            lock (order_list)
+            lock (_serverState.orderedLock)
             {
-            */
+                int lastCommited = _serverState.get_last_commited();
+                int lastTentative = _serverState.get_last_tentative();
+                int seqNumberToCommit = request.SequenceNumber;
 
-            int lastCommited = _serverState.get_last_commited();
-            int lastTentative = _serverState.get_last_tentative();
+                Tuple<int, int> commandId = new(request.RequestId.ClientId, request.RequestId.ClientSequenceNumber);
+                BankCommand commandToCommit = _serverState.get_command(seqNumberToCommit);
 
-            for (int sequence_number = lastCommited; sequence_number < lastTentative; sequence_number++) {
-                BankCommand command = _serverState.get_command(sequence_number);
+                //TODO:
+                //DO NEED TO MAKE SURE THE COORDINATOR HAS NOT CHANGED SINCE THE SLOT
+                //IN WHICH THE COMMIT WAS SENT. IS IT SUFFICENT TO GUARANTEE SAFETY???
+
+                //Make sure that the command still holds given sequence number.
+                if (commandToCommit.getCommandId() != commandId)
+                    return new CommitReply { };
+
+                //Already has been commited; nothing to do
+                //Possible if the commits from a coordinator come out of order
+                if (seqNumberToCommit < lastCommited)
+                    return new CommitReply { };
+
+                //When receiving a commit for command x we can be sure there will be...
+                //a commit for all commands y for y < x, since backups only accept command x if
+                //all commands y have already been acked
+                //commit for x => majority ack for x => same majority ack for y => should commit y
+                for (int index = lastCommited + 1; index <= seqNumberToCommit; index++) {
+                    BankCommand command = _serverState.get_command(index);
                     
-                lock (command) {
-                    command.execute();
-                    Monitor.PulseAll(command);
+                    lock (command) {
+                        command.execute();
+                        Monitor.PulseAll(command);
+                    }
                 }
+                _serverState.setLastCommited(seqNumberToCommit);
+            
+                return new CommitReply { };
             }
             
-            return new CommitReply { };
         }
 
     }

@@ -7,6 +7,7 @@ using Grpc.Net.Client;
 using Grpc.Core;
 using System.ComponentModel.Design;
 using System.Threading;
+using System.Diagnostics.Metrics;
 
 namespace Bank
 {
@@ -74,7 +75,7 @@ namespace Bank
                 // check if the command was acked by the other banks
                 if (reply.Ack) count++;
 
-                // remove recieved reply
+                // remove received reply
                 tentative_replies.Remove(task_reply);
             }
             if(count >= (number_servers / 2) + 1) {
@@ -85,7 +86,24 @@ namespace Bank
         }
 
         public void doCleanup () {
-            // TODO :  
+            
+            int number_servers = _serverState.get_bank_servers().Count();
+            int count = 0;
+
+            var cleanup_replies = cleanup(_serverState.get_last_commited(), _serverState.get_current_slot());
+
+            while (cleanup_replies.Any() && (count < (number_servers / 2) + 1))
+            {
+                var task_reply = Task.WhenAny(cleanup_replies).Result;
+                var reply = task_reply.Result;
+
+                // check if the command was acked by the other banks
+                if (reply.Ack) count++;
+
+                // remove received reply
+                cleanup_replies.Remove(task_reply);
+            }
+
         }
 
         public List<Task<TentativeReply>> tentative(int id, int sequence_number, int assignment_slot, CommandId commandId)

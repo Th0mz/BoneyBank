@@ -74,13 +74,20 @@ namespace Bank
         private object paxos_lock = new object();
         private Dictionary<Tuple<int, int>, BankCommand> allCommands = new();
         private HashSet<Tuple<int, int>> unordered = new();
+        public Object unorderedLock = new();
+
         private List<Tuple<int, int>> ordered = new();
+        public Object orderedLock = new();
+
         private int sequence_number = 0;
-        private Object sequence_number_lock = new();
+        public Object sequence_number_lock = new();
 
         private int lastCommited = 0;
+        public Object lastCommitedLock = new();
+
         private int lastTentative = 0; //for the coordinator to know which number
-                                            //to assign to the next command
+                                       //to assign to the next command
+        public Object lastTentativeLock = new();
 
 
         public ServerState() {  }
@@ -109,19 +116,6 @@ namespace Bank
 
         public int get_id() {
             return _id;
-        }
-
-        public int get_last_commited () {
-            return lastCommited;
-        }
-
-        public int get_last_tentative () {
-            return lastTentative;
-        }
-
-        public BankCommand get_command (int sequence_number) {
-            var command_id = ordered[sequence_number];
-            return allCommands[command_id];
         }
 
         public string get_url() {
@@ -315,10 +309,33 @@ namespace Bank
         }
 
         public void addOrdered(Tuple<int, int> commandId) {
-            ordered.Add(commandId);
+            lastTentative++;
+            ordered.Add(commandId);            
         }
+        public int get_last_commited() {
+            return lastCommited;
+        }
+
+        public void setLastCommited(int newLastcommited) {
+            lastCommited = newLastcommited;
+        }
+
+        public int get_last_tentative() {
+            return lastTentative;
+        }
+
+        public BankCommand get_command(int sequence_number) {
+            var command_id = ordered[sequence_number];
+            return allCommands[command_id];
+        }
+
         public bool command_exists(Tuple<int, int> commandId) {
             return allCommands.ContainsKey(commandId);
+        }
+
+        public Tuple<int, int> get_ordered_command(int index)
+        {
+            return ordered[index];
         }
 
         public bool is_index_taken(int index) {

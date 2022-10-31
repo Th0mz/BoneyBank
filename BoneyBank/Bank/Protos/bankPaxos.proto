@@ -35,10 +35,17 @@ message CommitReply {
 
 // cleanup
 message CleanupRequest {
-	// TODO
 	int32 lastSequenceNumber = 1;
+	int32 slot = 2;
 }
 
 message CleanupReply {
-	// TODO : retorna lista de commited pelo master antigo
+	//1.List of commited commands because these should be applied on
+	//the server if they have not yet
+
+	//2.List of accepted commands and respective slot in which they were received
+	//New leader should propose the commands founds in the most up to date log
+	//Most up to date means the last entry was proposed in a later slot or if they
+	//are equal then the longer log is more recent
+
 }
