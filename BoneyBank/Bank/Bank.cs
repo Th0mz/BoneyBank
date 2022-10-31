@@ -36,12 +36,10 @@ namespace Bank
 
                 string command = parts[0];
                 
-                //TODO : do argument verifications ??
                 switch (command) {
                     case "P":
                         if (parts[2].Equals("client")) { continue; }
 
-                        // TODO : check errors
                         serverState.add_server(parts[1], parts[2], parts[3]);
                         break;
                     case "T":

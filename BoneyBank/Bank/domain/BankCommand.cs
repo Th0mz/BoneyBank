@@ -24,8 +24,6 @@ namespace Bank
         public virtual void execute () {
             throw new NotImplementedException();
         }
-
-        //TODO: public void set_commited() { return _ }
     }
      
     public class WithdrawalCommand : BankCommand

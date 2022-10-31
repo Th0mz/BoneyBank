@@ -1,4 +1,5 @@
 ﻿using Grpc.Net.Client;
+using System.Diagnostics.Metrics;
 
 namespace Boney
 {
@@ -67,11 +68,8 @@ namespace Boney
                     // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : sent prepare request with number " + proposal_number);
 
                     int count = 0;
-                    // wait for replies
-                    // TODO : must only wait for a quorum of replicas not for all
-                    // if a process is frozen no agreement is reached
-
-                    while (proposal_replies.Any())
+                    // wait for replies or a quorum of acks
+                    while (proposal_replies.Any() && count < (number_servers / 2) + 1)
                     {
                         var task_reply = Task.WhenAny(proposal_replies).Result;
                         var reply = task_reply.Result;
@@ -130,9 +128,9 @@ namespace Boney
                 //    + " and leader " + highest_value);
 
                 var accept_replies = accept(proposal_number, highest_value, slot);
-                
                 int accept_count = 0;
-                while (accept_replies.Any())
+                // wait for replies or a quorum of acks
+                while (accept_replies.Any() && accept_count < (number_servers / 2) + 1)
                 {
                     var task_reply = Task.WhenAny(accept_replies).Result;
                     var reply = task_reply.Result;

@@ -32,13 +32,11 @@ namespace Client
 
                 string command = parts[0];
 
-                //TODO : do argument verifications ??
                 switch (command)
                 {
                     case "P":
                         if (parts[2].Equals("client") || parts[2].Equals("boney")) { continue; }
 
-                        // TODO : check errors
                         clientState.add_server(parts[1], parts[3]);
                         break;
                 }

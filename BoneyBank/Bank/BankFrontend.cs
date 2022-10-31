@@ -63,7 +63,6 @@ namespace Bank
             int sequence_number = _serverState.get_next_sequence_number();
             int assignment_slot = _serverState.get_current_slot();
             
-            // TODO : sequence number é mesmo necessário?
             var tentative_replies = tentative(id, sequence_number, assignment_slot, commandId);
             int number_servers = _serverState.get_bank_servers().Count();
             int count = 0;
@@ -163,7 +162,7 @@ namespace Bank
             List<Task<CleanupReply>> replies = new List<Task<CleanupReply>>();
             foreach (BankPaxosServerConnection connection in _serverState.get_bank_servers().Values) {
                 var client = connection.get_client();
-                var reply = client.CleanupAsync(request).ResponseAsync; //TODO: should it be async???
+                var reply = client.CleanupAsync(request).ResponseAsync; 
                 
                 replies.Add(reply);
             }

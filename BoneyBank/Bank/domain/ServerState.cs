@@ -102,7 +102,6 @@ namespace Bank
         }
 
         public bool is_coordinator() {
-            // TODO : add a lock for all timeslot associated info (must be read/write)
             return _coordinator == _id;
         }
 
@@ -187,8 +186,6 @@ namespace Bank
 
         public bool set_starting_date(string starting_date) {
             _starting_time = Convert.ToDateTime(starting_date);
-            
-            // TODO : check ToDateTime error
             return true;
         }
 
@@ -259,8 +256,6 @@ namespace Bank
         }
 
         public void setup_timeslot () {
-            // TODO : pre-conpute coordinator for each timeslot?
-            // TODO : need locks
             _current_slot++;
 
             var current_slot = _timeslots_info[_current_slot];
@@ -347,10 +342,5 @@ namespace Bank
             return ordered[index] != null;
         }
 
-        public void commit() {
-            //TODO:
-            //commit of only the first to commit, all the ordered, what exactly??
-            //only advance de "lastCommited" variable?
-        }
     }
 }

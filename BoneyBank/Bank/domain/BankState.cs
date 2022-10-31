@@ -10,25 +10,33 @@ namespace Bank
     {
         // TODO : must syncronize with read/write locks
         private float balance = 0;
+        private object mutex = new object();
 
         public BankState() { }
 
         public bool deposit(float value) {
-            balance += value;
-            return true;
+            lock (mutex) {
+                balance += value;
+                return true;
+            }
         }
 
         public bool withdrawal(float value) {
-            if (balance - value < 0) {
-                return false;
-            }
+            lock (mutex)
+            {
+                if (balance - value < 0) {
+                    return false;
+                }
 
-            balance -= value;
-            return true;
+                balance -= value;
+                return true;
+            }
         }
 
         public float readBalance() {
-            return balance;
+            lock (mutex) {
+                return balance;
+            }
         }
     }
 }
