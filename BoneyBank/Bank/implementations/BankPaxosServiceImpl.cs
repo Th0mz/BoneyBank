@@ -59,6 +59,23 @@ namespace Bank.implementations
             //tem de aplicar os comandos por ordem
             //o commit eh so do primeiro comando nao commited ou de um grupo random??
 
+            /*
+            lock (order_list)
+            {
+            */
+
+            int lastCommited = _serverState.get_last_commited();
+            int lastTentative = _serverState.get_last_tentative();
+
+            for (int sequence_number = lastCommited; sequence_number < lastTentative; sequence_number++) {
+                BankCommand command = _serverState.get_command(sequence_number);
+                    
+                lock (command) {
+                    command.execute();
+                    Monitor.PulseAll(command);
+                }
+            }
+            
             return new CommitReply { };
         }
 

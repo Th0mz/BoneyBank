@@ -3,32 +3,6 @@ using System.ComponentModel.Design;
 
 namespace Bank
 {
-    public class BankCommand
-    {
-        public enum CommandType
-        {
-            Deposit,
-            Withdrawal,
-            ReadBalance
-        };
-
-        private static int _clientId = 0;
-        private static int _sequence_number = 1;
-        private Tuple<int, int> _id;
-        CommandType _type;
-        private bool _is_commited = false;
-
-        public BankCommand(int clientId, int sequence_number, CommandType type) {
-            _id = new Tuple<int, int>(clientId, sequence_number);
-            _type = type;
-        }
-
-        public Tuple<int, int>  getCommandId() { return _id; }
-
-        public bool is_commited() { return _is_commited; }
-
-        //TODO: public void set_commited() { return _ }
-    }
 
     internal class BankServiceImpl : BankService.BankServiceBase
     {
@@ -60,23 +34,23 @@ namespace Bank
             };
 
             // TODO : locks
-            var type = BankCommand.CommandType.Deposit;
-            var bankCommand = new BankCommand(requestId.ClientId, requestId.ClientSequenceNumber, type);
+            var bankCommand = new DepositCommand(requestId.ClientId, requestId.ClientSequenceNumber, request.Amount, _bankState);
             _serverState.addUnordered(bankCommand);
 
+            ServerStatus server = ServerStatus.Backup;
             if (_serverState.is_coordinator()) {
+                server = ServerStatus.Primary;
                 _bankFrontend.doCommand(requestId);
             }
 
+            lock (bankCommand) {
+                while (!bankCommand.is_commited()) {
+                    Monitor.Wait(bankCommand);
+                }
 
-            /*
-            TODO 
-            float amount = request.Amount;
-            //_bankState.deposit(amount);
-            return new DepositReply { Status = ResponseStatus.Ok };
-            */
+            }
 
-            return new DepositReply { };
+            return new DepositReply { Status = ResponseStatus.Ok, Server = server };
         }
 
 
@@ -88,6 +62,7 @@ namespace Bank
         }
 
         private WithdrawalReply do_withdrawal(WithdrawalRequest request) {
+            Console.WriteLine("Starting do_withdrawal");
             // TODO : final vertion uses 2 phase commit to order commands
             var requestId = new CommandId 
             {
@@ -96,27 +71,36 @@ namespace Bank
             };
 
             // TODO : locks
-            var type = BankCommand.CommandType.Withdrawal;
-            var bankCommand = new BankCommand(requestId.ClientId, requestId.ClientSequenceNumber, type);
+            Console.WriteLine("Created command");
+            var bankCommand = new WithdrawalCommand(requestId.ClientId, requestId.ClientSequenceNumber, request.Amount,_bankState);
             _serverState.addUnordered(bankCommand);
 
+            ServerStatus server = ServerStatus.Backup;
             if (_serverState.is_coordinator()) {
+                server = ServerStatus.Primary;
                 _bankFrontend.doCommand(requestId);
             }
+            Console.WriteLine("do_command completed");
 
-            /*
-            TODO :
-            float amount = request.Amount;
-            //bool succeeded = _bankState.withdrawal(amount);
+            lock (bankCommand) {
+                while (!bankCommand.is_commited()) {
+                    Console.WriteLine("waiting");
+                    Monitor.Wait(bankCommand);
+                }
+            }
+
+            Console.WriteLine("outside");
+
+
+            bool succeeded = bankCommand.get_result();
             ResponseStatus status = ResponseStatus.Ok;
-            //if (!succeeded) {
-            //    status = ResponseStatus.NoFunds;
-            //}
+            if (!succeeded) {
+                status = ResponseStatus.NoFunds;
+            }
 
-            return new WithdrawalReply { Status = status};
-            */
+            Console.WriteLine("return");
 
-            return new WithdrawalReply { };
+            return new WithdrawalReply { Status = status, Server = server };
         }
 
 
@@ -136,22 +120,23 @@ namespace Bank
             };
 
             // TODO : locks
-            var type = BankCommand.CommandType.ReadBalance;
-            var bankCommand = new BankCommand(requestId.ClientId, requestId.ClientSequenceNumber, type);
+            var bankCommand = new ReadBalanceCommand(requestId.ClientId, requestId.ClientSequenceNumber, _bankState);
             _serverState.addUnordered(bankCommand);
 
+            ServerStatus server = ServerStatus.Backup;
             if (_serverState.is_coordinator()) {
+                server = ServerStatus.Primary;
                 _bankFrontend.doCommand(requestId);
             }
 
-            /*
-            TODO : 
-            float balance = _bankState.readBalance();
-            
-            return new ReadBalanceReply { Balance = balance };
-            */
+            lock (bankCommand) {
+                while (!bankCommand.is_commited()) {
+                    Monitor.Wait(bankCommand);
+                }
+            }
 
-            return new ReadBalanceReply { };
+            float balance = bankCommand.get_result();
+            return new ReadBalanceReply { Balance = balance, Server = server };
         }
 
     }

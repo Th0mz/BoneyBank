@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32901.215
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bank", "Bank\Bank.csproj", "{EB79419C-707B-4F86-B03A-344426F322A3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bank", "Bank\Bank.csproj", "{EB79419C-707B-4F86-B03A-344426F322A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boney", "Boney\Boney.csproj", "{6A5B815D-C1BF-4CF4-AD78-8A34C307691B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boney", "Boney\Boney.csproj", "{6A5B815D-C1BF-4CF4-AD78-8A34C307691B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{FAB7D9CF-3A17-48F8-A400-8C5786A8DD53}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Client", "Client\Client.csproj", "{FAB7D9CF-3A17-48F8-A400-8C5786A8DD53}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PuppetMaster", "PuppetMaster\PuppetMaster.csproj", "{1DDC5970-95AE-42EB-865E-8FACDE37B179}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PuppetMaster", "PuppetMaster\PuppetMaster.csproj", "{1DDC5970-95AE-42EB-865E-8FACDE37B179}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

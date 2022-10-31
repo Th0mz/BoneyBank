@@ -16,11 +16,11 @@ message requestId {
 message DepositRequest {
 	requestId id = 1;
 	float amount = 2;
-	string commandId = 3;
 }
 
 message DepositReply {
 	ResponseStatus status = 1;
+	ServerStatus server = 2;
 }
 
 
@@ -28,26 +28,31 @@ message DepositReply {
 message WithdrawalRequest {
 	requestId id = 1;
 	float amount = 2;	
-	string commandId = 3;
 }
 
 message WithdrawalReply {
 	ResponseStatus status = 1;
+	ServerStatus server = 2;
 }
 
 
 // read balance
 message ReadBalanceRequest {
 	requestId id = 1;
-	string commandId = 2;
 }
 
 message ReadBalanceReply {
 	float balance = 1;
+	ServerStatus server = 2;
 }
 
 enum ResponseStatus {
 	OK = 0;
 	NOK = 1;
 	NO_FUNDS = 2;
+}
+
+enum ServerStatus {
+	PRIMARY = 0;
+	BACKUP = 1;
 }

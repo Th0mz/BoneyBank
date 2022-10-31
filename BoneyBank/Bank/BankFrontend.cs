@@ -55,13 +55,17 @@ namespace Bank
         {
             //create the grpc channels to other bank servers if they dont already exist
             setup_connections();
+            
             //TODO: locks
             int id = _serverState.get_id();
             int sequence_number = _serverState.get_next_sequence_number();
             int assignment_slot = _serverState.get_current_slot();
+            
+            // TODO : sequence number é mesmo necessário?
             var tentative_replies = tentative(id, sequence_number, assignment_slot, commandId);
             int number_servers = _serverState.get_bank_servers().Count();
             int count = 0;
+           
             while (tentative_replies.Any() && (count < (number_servers / 2) + 1))
             {
                 var task_reply = Task.WhenAny(tentative_replies).Result;
@@ -78,6 +82,10 @@ namespace Bank
             } else {
                 //TODO: faz alguma coisa???
             }
+        }
+
+        public void doCleanup () {
+            // TODO :  
         }
 
         public List<Task<TentativeReply>> tentative(int id, int sequence_number, int assignment_slot, CommandId commandId)
@@ -118,9 +126,6 @@ namespace Bank
 
 
     }
-
-
-
 
 
     public class BankPaxosServerConnection

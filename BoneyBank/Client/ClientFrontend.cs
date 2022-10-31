@@ -36,50 +36,69 @@ namespace Client
             setup_connections();
 
             var id = get_request_id();
-            var uid = Guid.NewGuid().ToString();
-            var request = new DepositRequest { Amount = amount, Id = id, CommandId = uid };
+            var request = new DepositRequest { Amount = amount, Id = id};
+
+            List<Task<DepositReply>> replies = new List<Task<DepositReply>>();
             foreach (var bankConnection in _clientState.get_bank_servers().Values) {
                 var client = bankConnection.get_client();
-                var reply = client.Deposit(request);
+                var reply = client.DepositAsync(request).ResponseAsync;
 
-                // TODO : print out all replies received and the information of whether each
-                // server is replying as a primary or a backup server.
-                Console.WriteLine("Reply status : " + reply.Status);
+                replies.Add(reply);
             }
 
+            // TODO : wait for all to finish ??
+            var task_reply = Task.WhenAny(replies).Result;
+            var _reply = task_reply.Result;
+
+            Console.WriteLine("[" + _reply.Server + "]" + " Deposit succesful");
         }
 
         public void withdrawal(float amount) {
+            Console.WriteLine("Connection setup");
             setup_connections();
+            Console.WriteLine("ended");
+
 
             var id = get_request_id();
-            var uid = Guid.NewGuid().ToString();
-            var request = new WithdrawalRequest { Amount = amount, Id = id, CommandId = uid };
+            var request = new WithdrawalRequest { Amount = amount, Id = id };
+            List<Task<WithdrawalReply>> replies = new List<Task<WithdrawalReply>>();
+            Console.WriteLine("Entering loop");
             foreach (var bankConnection in _clientState.get_bank_servers().Values) {
+                Console.WriteLine("inside loop");
                 var client = bankConnection.get_client();
-                var reply = client.Withdrawal(request);
+                var reply = client.WithdrawalAsync(request).ResponseAsync;
+                Console.WriteLine("sendt reply");
 
-                // TODO : print out all replies received and the information of whether each
-                // server is replying as a primary or a backup server.
-                Console.WriteLine("Reply status : " + reply.Status);
+
+                replies.Add(reply);
             }
+
+            // TODO : wait for all to finish ??
+            var task_reply = Task.WhenAny(replies).Result;
+            var _reply = task_reply.Result;
+
+            Console.WriteLine("[" + _reply.Server + "]" + " Withdrawal " + _reply.Status);
         }
 
         public void readBalance () {
             setup_connections();
 
             var id = get_request_id();
-            var uid = Guid.NewGuid().ToString();
-            var request = new ReadBalanceRequest{ Id = id, CommandId = uid };
+            var request = new ReadBalanceRequest{ Id = id };
+            List<Task<ReadBalanceReply>> replies = new List<Task<ReadBalanceReply>>();
             foreach (var bankConnection in _clientState.get_bank_servers().Values)
             {
                 var client = bankConnection.get_client();
-                var reply = client.ReadBalance(request);
+                var reply = client.ReadBalanceAsync(request).ResponseAsync;
 
-                // TODO : print out all replies received and the information of whether each
-                // server is replying as a primary or a backup server.
-                Console.WriteLine("Balance : " + reply.Balance);
+                replies.Add(reply);
             }
+
+            // TODO : wait for all to finish ??
+            var task_reply = Task.WhenAny(replies).Result;
+            var _reply = task_reply.Result;
+
+            Console.WriteLine("[" + _reply.Server + "]" + "Balance : " + _reply.Balance);
         }
     }
 
@@ -90,7 +109,7 @@ namespace Client
         private BankService.BankServiceClient _client;
 
         public BankServerConnection(string url) {
-            this._url = url;
+            _url = url;
         }
 
         public void setup_stub() {

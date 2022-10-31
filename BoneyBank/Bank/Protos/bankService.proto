@@ -20,6 +20,7 @@ message DepositRequest {
 
 message DepositReply {
 	ResponseStatus status = 1;
+	ServerStatus server = 2;
 }
 
 
@@ -31,6 +32,7 @@ message WithdrawalRequest {
 
 message WithdrawalReply {
 	ResponseStatus status = 1;
+	ServerStatus server = 2;
 }
 
 
@@ -41,10 +43,16 @@ message ReadBalanceRequest {
 
 message ReadBalanceReply {
 	float balance = 1;
+	ServerStatus server = 2;
 }
 
 enum ResponseStatus {
 	OK = 0;
 	NOK = 1;
 	NO_FUNDS = 2;
+}
+
+enum ServerStatus {
+	PRIMARY = 0;
+	BACKUP = 1;
 }

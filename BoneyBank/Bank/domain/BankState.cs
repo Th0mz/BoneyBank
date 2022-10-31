@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Bank
 {
-    internal class BankState
+    public class BankState
     {
         // TODO : must syncronize with read/write locks
         private float balance = 0;

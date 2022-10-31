@@ -77,8 +77,9 @@ namespace Bank
         private List<Tuple<int, int>> ordered = new();
         private int sequence_number = 0;
         private Object sequence_number_lock = new();
+
         private int lastCommited = 0;
-        private int lastSequenceNumber = 0; //for the coordinator to know which number
+        private int lastTentative = 0; //for the coordinator to know which number
                                             //to assign to the next command
 
 
@@ -108,6 +109,19 @@ namespace Bank
 
         public int get_id() {
             return _id;
+        }
+
+        public int get_last_commited () {
+            return lastCommited;
+        }
+
+        public int get_last_tentative () {
+            return lastTentative;
+        }
+
+        public BankCommand get_command (int sequence_number) {
+            var command_id = ordered[sequence_number];
+            return allCommands[command_id];
         }
 
         public string get_url() {
@@ -152,7 +166,6 @@ namespace Bank
             // add this server info
             if (id == _id) {
                 _url = url;
-                return true;
             }
 
             // add other server info
