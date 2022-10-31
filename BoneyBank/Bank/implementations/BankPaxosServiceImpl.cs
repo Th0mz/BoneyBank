@@ -28,6 +28,8 @@ namespace Bank.implementations
             int sender_id = request.SenderId;
             int sequence_number = request.SequenceNumber;
 
+            //TODO: lock this too???
+
             //check if sender was the primary for the slot of the assignment
             Console.WriteLine("Check slot leader");
             int coordinator_assignment_slot = _serverState.get_coordinator_id(assignment_slot);
@@ -36,81 +38,102 @@ namespace Bank.implementations
             }
 
             //check if the coordinator has changed since
-            Console.WriteLine("Check ifif the coordinator has changed since");
+            Console.WriteLine("Check if the coordinator has changed since");
             for (int slot = assignment_slot; slot < _serverState.get_current_slot(); slot++) {
                 if(_serverState.get_coordinator_id(slot) != sender_id) {
                     return new TentativeReply { Ack = false };
                 }
             }
 
-            
-            lock (_serverState.lastTentativeLock) {
-                //only responds with ack after all the previous commands were received
-                if(sequence_number <= _serverState.get_last_commited())
-                    return new TentativeReply { Ack = false };
+            //TODO: completely correct???
+            lock (_serverState.orderedLock) {
+                lock (_serverState.lastAppliedLock) {
+                    lock (_serverState.lastSequentialLock)
+                    {
+                        //already applied
+                        if (sequence_number <= _serverState.get_last_applied())
+                            return new TentativeReply { Ack = false };
+                        
+                        //update the last sequential
+                        for (int index = _serverState.getLastSequential() + 1; 
+                            index <= _serverState.get_last_tentative(); index++) {
+                            if (_serverState.get_ordered_command(index) != null) {
+                                _serverState.setLastSequential(index);
+                            } else { break; }
+                        } 
 
-                while (_serverState.get_last_tentative() < sequence_number - 1)
-                {
-                    Monitor.Wait(_serverState.lastTentativeLock);
+                        //only responds with ack after all the previous commands were received
+                        while (_serverState.getLastSequential() < sequence_number - 1)
+                        {
+                            Monitor.Wait(_serverState.lastSequentialLock);
+                        }
+
+                        _serverState.removeUnordered(commandId);
+                        _serverState.addOrdered(commandId, sequence_number);
+                        _serverState.setLastSequential(sequence_number);
+                        Monitor.PulseAll(_serverState.lastSequentialLock);
+
+                        Console.WriteLine("=======================");
+
+                        return new TentativeReply { Ack = true };
+                    }
                 }
-                _serverState.removeUnordered(commandId);
-                _serverState.addOrdered(commandId);
             }
-           
-            Console.WriteLine("=======================");
-
-            return new TentativeReply { Ack = true };
         }
+
 
         //receive commit requests
         public override Task<CommitReply> Commit(CommitRequest request, ServerCallContext context) {
             return Task.FromResult(do_commit(request));
         }
 
+
         private CommitReply do_commit(CommitRequest request) {
-            //TODO:
-            //DOES IT MATTER IN WHICH SLOT A SERVER IS COMMITING ITS REQUESTS
-            //THAT GOT ACCEPTED???
 
             Console.WriteLine("Processing commit");
             Console.WriteLine("=======================");
             lock (_serverState.orderedLock)
             {
-                int lastCommited = _serverState.get_last_commited();
+                int lastApplied = _serverState.get_last_applied();
                 int lastTentative = _serverState.get_last_tentative();
                 int seqNumberToCommit = request.SequenceNumber;
 
                 Tuple<int, int> commandId = new(request.RequestId.ClientId, request.RequestId.ClientSequenceNumber);
                 BankCommand commandToCommit = _serverState.get_command(seqNumberToCommit);
 
-                //TODO:
-                //DO NEED TO MAKE SURE THE COORDINATOR HAS NOT CHANGED SINCE THE SLOT
-                //IN WHICH THE COMMIT WAS SENT. IS IT SUFFICENT TO GUARANTEE SAFETY???
+                //case when a commit comes from a previous view. Has to be added and only then applied
+                if (commandToCommit == null) {
+                    _serverState.removeUnordered(commandId);
+                    _serverState.addOrdered(commandId, seqNumberToCommit);
+                    commandToCommit = _serverState.get_command(seqNumberToCommit);
+                }
 
                 //Already has been commited; nothing to do
-                //Possible if the commits from a coordinator come out of order
-                Console.WriteLine("Already has been commited");
-                if (seqNumberToCommit < lastCommited)
+                //Possible if the new coordinator sends new commmit for command already applied
+                Console.WriteLine("Already has been applied");
+                if (seqNumberToCommit < lastApplied)
                     return new CommitReply { };
 
-                //When receiving a commit for command x we can be sure there will be...
-                //a commit for all commands y for y < x, since backups only accept command x if
-                //all commands y have already been acked
-                //commit for x => majority ack for x => same majority ack for y => should commit y
+                commandToCommit.set_commited();
+
+                //apply all the commands possible
                 Console.WriteLine("Loop throught the uncommited commands and execute them");
-                for (int index = lastCommited + 1; index <= seqNumberToCommit; index++) {
+                for (int index = lastApplied + 1; index <= lastTentative; index++) {
                     Console.WriteLine("Started command commit");
                     BankCommand command = _serverState.get_command(index);
-                    
+                    if (command == null) break; //list of commands isnt sequential
+
                     lock (command) {
+                        if (!command.is_commited()) break; //not all previous commands are committed. cant apply yet
+
                         command.execute();
+                        _serverState.setLastApplied(index);
                         Monitor.PulseAll(command);
                     }
-                    Console.WriteLine("Ended command commit");
 
+                    Console.WriteLine("Ended command commit");
                 }
-                _serverState.setLastCommited(seqNumberToCommit);
-            
+                
                 return new CommitReply { };
             }
             

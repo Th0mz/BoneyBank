@@ -81,7 +81,7 @@ namespace Bank
                 tentative_replies.Remove(task_reply);
             }
 
-            Console.WriteLine("Goning to commit, count = " + count);
+            Console.WriteLine("Going to commit, count = " + count);
             if(count >= (number_servers / 2) + 1) {
                 commit(commandId, sequence_number);
             } else {
@@ -94,7 +94,9 @@ namespace Bank
             int number_servers = _serverState.get_bank_servers().Count();
             int count = 0;
 
-            var cleanup_replies = cleanup(_serverState.get_last_commited(), _serverState.get_current_slot());
+            var cleanup_replies = cleanup(_serverState.get_last_applied(), _serverState.get_current_slot());
+
+            //TODO: create 'previous' list <commandId, sequenceNumber>
 
             while (cleanup_replies.Any() && (count < (number_servers / 2) + 1))
             {
@@ -104,9 +106,18 @@ namespace Bank
                 // check if the command was acked by the other banks
                 if (reply.Ack) count++;
 
+                //TODO: add commands after lastApplied to ordered
+
                 // remove received reply
                 cleanup_replies.Remove(task_reply);
             }
+
+            //TODO: initiate a special doCommand for each command in 'previous' list
+            // doTentative and doCommit exactly to the sequenceNumber in the reply
+
+            //TODO: update lastSequential e lastTentative??? or service side does it?
+
+            //then everyhing goes back to normal
 
         }
 

@@ -82,12 +82,15 @@ namespace Bank
         private int sequence_number = 0;
         public Object sequence_number_lock = new();
 
-        private int lastCommited = -1;
-        public Object lastCommitedLock = new();
+        private int lastApplied = -1;
+        public Object lastAppliedLock = new();
 
         private int lastTentative = -1; //for the coordinator to know which number
                                        //to assign to the next command
         public Object lastTentativeLock = new();
+
+        private int lastSequential = -1; //index of the last sequential command acked by the replica
+        public Object lastSequentialLock = new();
 
 
         public ServerState() {  }
@@ -296,6 +299,8 @@ namespace Bank
 
         }
 
+
+
         //=============================================================
         //====================== COMMAND LOGS =========================
         //=============================================================
@@ -308,21 +313,38 @@ namespace Bank
             unordered.Remove(commandId);
         }
 
-        public void addOrdered(Tuple<int, int> commandId) {
-            lastTentative++;
-            ordered.Add(commandId);            
-        }
-        public int get_last_commited() {
-            return lastCommited;
+        public void addOrdered(Tuple<int, int> commandId, int sequence_number) {
+            if (sequence_number > lastTentative)
+                lastTentative = sequence_number;
+            ordered[sequence_number] = commandId;            
         }
 
-        public void setLastCommited(int newLastcommited) {
-            lastCommited = newLastcommited;
+
+        public int get_last_applied() {
+            return lastApplied;
         }
+        public void setLastApplied(int newLastApplied) {
+            lastApplied = newLastApplied;
+        }
+
 
         public int get_last_tentative() {
             return lastTentative;
         }
+        public void set_last_tentative(int newLastTentative)
+        {
+            lastTentative = newLastTentative;
+        }
+
+
+        public int getLastSequential()
+        {
+            return lastSequential;
+        }
+        public void setLastSequential(int newLastSequential) {
+            lastSequential = newLastSequential;
+        }
+
 
         public BankCommand get_command(int sequence_number) {
             var command_id = ordered[sequence_number];
