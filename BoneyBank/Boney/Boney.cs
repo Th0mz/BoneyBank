@@ -34,13 +34,11 @@ namespace Boney
 
                 string command = parts[0];
 
-                //TODO : do argument verifications ??
                 switch (command)
                 {
                     case "P":
                         if (parts[2].Equals("client") || parts[2].Equals("bank")) { continue; }
 
-                        // TODO : check errors
                         serverState.add_server(parts[1], parts[2], parts[3]);
                         break;
                     case "T":
@@ -112,7 +110,6 @@ namespace Boney
             Task slotStart = Task.Delay((int) wait_time.TotalMilliseconds);
             await slotStart;
 
-            // TODO : need to call setup timeslot in the begining of each timeslot
             while (serverState.has_next_slot()) {
                 
                 // setup current time slot
