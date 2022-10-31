@@ -54,6 +54,7 @@ namespace Client
 
             //string config_path = @"..\..\..\..\..\configuration_sample.txt";
             string config_path = @"C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\configuration_sample.txt";
+            string script_path = @"C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\bank_client_script_sample.txt";
             
             if (!processInput(args, config_path, state)) {
                 // error proceseing input
@@ -61,17 +62,17 @@ namespace Client
             }
 
             // user input process
-            while (true)
+            foreach (string command_line in File.ReadLines(script_path))
             {
-                Console.Write(" > ");
-                string command_line = Console.ReadLine();
-
                 if (command_line == null) {
                     continue;
                 }
 
+                Console.WriteLine("===============\nExecuting : " + command_line);
+
                 float amount;
                 string[] parts = command_line.Split(' ');
+
                 string command = parts[0];
                 switch (command)
                 {
@@ -145,6 +146,11 @@ namespace Client
                         break;
                 }
             }
+
+            Console.WriteLine("\nClient script ended");
+            Console.WriteLine("Press any key to close the client...");
+
+            Console.ReadKey();
         }
     }
 }
