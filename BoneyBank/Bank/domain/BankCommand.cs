@@ -56,7 +56,7 @@ namespace Bank
         public override void execute ()
         {
             no_balance = _state.withdrawal(_amount);
-            _is_commited = true;
+            _is_applied = true;
         }
     }
 
@@ -77,7 +77,7 @@ namespace Bank
         public override void execute()
         {
             _state.deposit(_amount);
-            _is_commited = true;
+            _is_applied = true;
         }
     }
 
@@ -95,7 +95,7 @@ namespace Bank
         public override void execute()
         {
             balance = _state.readBalance();
-            _is_commited = true;
+            _is_applied = true;
         }
     }
 }

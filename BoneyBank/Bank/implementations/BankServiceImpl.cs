@@ -35,16 +35,23 @@ namespace Bank
 
             // TODO : locks
             var bankCommand = new DepositCommand(requestId.ClientId, requestId.ClientSequenceNumber, request.Amount, _bankState);
-            _serverState.addUnordered(bankCommand);
+            lock(_serverState.unorderedLock) { 
+                _serverState.addUnordered(bankCommand);
+            }
+
+            bool is_coordinator;
+            lock (_serverState.coordinatorLock) {
+                is_coordinator = _serverState.is_coordinator();
+            }
 
             ServerStatus server = ServerStatus.Backup;
-            if (_serverState.is_coordinator()) {
+            if (is_coordinator) {
                 server = ServerStatus.Primary;
                 _bankFrontend.doCommand(requestId);
             }
 
             lock (bankCommand) {
-                while (!bankCommand.is_commited()) {
+                while (!bankCommand.is_applied()) {
                     Monitor.Wait(bankCommand);
                 }
 
@@ -75,11 +82,20 @@ namespace Bank
             var bankCommand = new WithdrawalCommand(requestId.ClientId, requestId.ClientSequenceNumber, request.Amount,_bankState);
             
             Console.WriteLine("Adding command to unordered list");
-            _serverState.addUnordered(bankCommand);
+            lock (_serverState.unorderedLock) { 
+                _serverState.addUnordered(bankCommand);
+            }
+
+            bool is_coordinator;
+            int coordinator_id;
+            lock (_serverState.coordinatorLock) {
+                is_coordinator = _serverState.is_coordinator();
+                coordinator_id = _serverState.get_coordinator_id();
+            }
 
             ServerStatus server = ServerStatus.Backup;
-            Console.WriteLine("coordinator : " + _serverState.get_coordinator_id());
-            if (_serverState.is_coordinator()) {
+            Console.WriteLine("coordinator : " + coordinator_id);
+            if (is_coordinator) {
                 Console.WriteLine("Executing doCommand as primary");
                 server = ServerStatus.Primary;
                 _bankFrontend.doCommand(requestId);
@@ -87,14 +103,13 @@ namespace Bank
             Console.WriteLine("do_command completed");
 
             lock (bankCommand) {
-                while (!bankCommand.is_commited()) {
+                while (!bankCommand.is_applied()) {
                     Console.WriteLine("waiting");
                     Monitor.Wait(bankCommand);
                 }
             }
 
             Console.WriteLine("outside");
-
 
             bool succeeded = bankCommand.get_result();
             ResponseStatus status = ResponseStatus.Ok;
@@ -123,18 +138,23 @@ namespace Bank
                 ClientSequenceNumber = request.Id.ClientSequenceNumber,
             };
 
-            // TODO : locks
             var bankCommand = new ReadBalanceCommand(requestId.ClientId, requestId.ClientSequenceNumber, _bankState);
-            _serverState.addUnordered(bankCommand);
+            lock (_serverState.unorderedLock) { 
+                _serverState.addUnordered(bankCommand);
+            }
 
+            bool is_coordinator;
+            lock (_serverState.coordinatorLock) {
+                is_coordinator = _serverState.is_coordinator();
+            }
             ServerStatus server = ServerStatus.Backup;
-            if (_serverState.is_coordinator()) {
+            if (is_coordinator) {
                 server = ServerStatus.Primary;
                 _bankFrontend.doCommand(requestId);
             }
 
             lock (bankCommand) {
-                while (!bankCommand.is_commited()) {
+                while (!bankCommand.is_applied()) {
                     Monitor.Wait(bankCommand);
                 }
             }

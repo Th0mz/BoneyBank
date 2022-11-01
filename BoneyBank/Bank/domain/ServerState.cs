@@ -53,6 +53,7 @@ namespace Bank
         private TimeSpan _delta;
         private bool _frozen;
         private int _coordinator;
+        public Object coordinatorLock = new();
         private DateTime _starting_time;
 
         // F list
@@ -66,6 +67,7 @@ namespace Bank
 
         private int _max_slots = 0;
         private int _current_slot = 0;
+        public Object currentSlotLock = new();
         private Dictionary<int, int> _coordinators_dict = new(); //<slot, coordinator for that slot>
 
         //-------------------------------------------
@@ -78,9 +80,6 @@ namespace Bank
 
         private List<Tuple<int, int>> ordered = new();
         public Object orderedLock = new();
-
-        private int sequence_number = 0;
-        public Object sequence_number_lock = new();
 
         private int lastApplied = -1;
         public Object lastAppliedLock = new();
@@ -138,12 +137,6 @@ namespace Bank
 
         public int get_current_slot () {
             return _current_slot;
-        }
-
-        public int get_next_sequence_number() {
-            lock (sequence_number_lock) {
-                return sequence_number++; 
-            }
         }
 
         public Dictionary<int, BankPaxosServerConnection> get_bank_servers() {
@@ -330,8 +323,7 @@ namespace Bank
         public int get_last_tentative() {
             return lastTentative;
         }
-        public void set_last_tentative(int newLastTentative)
-        {
+        public void set_last_tentative(int newLastTentative) {
             lastTentative = newLastTentative;
         }
 

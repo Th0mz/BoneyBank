@@ -58,16 +58,22 @@ namespace Bank
             //create the grpc channels to other bank servers if they dont already exist
             setup_connections();
 
-            //TODO: locks
             int id = _serverState.get_id();
-            int sequence_number = _serverState.get_last_tentative();
-            _serverState.set_last_tentative(sequence_number+1);
-            int assignment_slot = _serverState.get_current_slot();
-            
-            var tentative_replies = tentative(id, sequence_number, assignment_slot, commandId);
-            int number_servers = _serverState.get_bank_servers().Count();
+            int sequence_number;
+            List<Task<TentativeReply>> tentative_replies;
             int count = 0;
-           
+            int number_servers = _serverState.get_bank_servers().Count();
+
+            lock (_serverState.currentSlotLock) { 
+                lock (_serverState.lastTentativeLock) {
+                    sequence_number = _serverState.get_last_tentative();
+                    _serverState.set_last_tentative(sequence_number+1);
+                    int assignment_slot = _serverState.get_current_slot();
+            
+                    tentative_replies = tentative(id, sequence_number, assignment_slot, commandId);
+                }
+            }
+                                   
             while (tentative_replies.Any() && (count < (number_servers / 2) + 1))
             {
                 var task_reply = Task.WhenAny(tentative_replies).Result;
@@ -93,9 +99,14 @@ namespace Bank
             
             int number_servers = _serverState.get_bank_servers().Count();
             int count = 0;
+            List<Task<CleanupReply>> cleanup_replies;
 
-            var cleanup_replies = cleanup(_serverState.get_last_applied(), _serverState.get_current_slot());
-
+            lock (_serverState.currentSlotLock) { 
+                lock (_serverState.lastAppliedLock) { 
+                    cleanup_replies = cleanup(_serverState.get_last_applied(), _serverState.get_current_slot());
+                }
+            }
+            
             //TODO: create 'previous' list <commandId, sequenceNumber>
             HashSet<Tuple<int, int>> accepted = new();
 
@@ -104,8 +115,11 @@ namespace Bank
                 var task_reply = Task.WhenAny(cleanup_replies).Result;
                 var reply = task_reply.Result;
                 count++;
-                if (reply.HighestKnownSeqNumber > _serverState.get_last_tentative())
-                    _serverState.set_last_tentative(reply.HighestKnownSeqNumber);
+                lock (_serverState.lastTentativeLock) {
+                    if (reply.HighestKnownSeqNumber > _serverState.get_last_tentative())
+                        _serverState.set_last_tentative(reply.HighestKnownSeqNumber);
+                }
+                
                 //TODO: make sure it's not necessary given we use perfect channels
                 /*List<Tuple<int, int>> committed = new();
                 foreach(var commandId in reply.Committed) {
@@ -130,12 +144,15 @@ namespace Bank
 
             //TODO: locks
             int id = _serverState.get_id();
-            int assignment_slot = _serverState.get_current_slot();
-
-            var tentative_replies = tentative(id, sequence_number, assignment_slot, commandId);
             int number_servers = _serverState.get_bank_servers().Count();
             int count = 0;
+            List<Task<TentativeReply>> tentative_replies;
 
+            lock (_serverState.currentSlotLock) {
+                int assignment_slot = _serverState.get_current_slot();
+                tentative_replies = tentative(id, sequence_number, assignment_slot, commandId);
+            }
+            
             while (tentative_replies.Any() && (count < (number_servers / 2) + 1))
             {
                 var task_reply = Task.WhenAny(tentative_replies).Result;
