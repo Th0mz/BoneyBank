@@ -12,6 +12,11 @@ message CommandId {
 	int32 clientSequenceNumber = 2;
 }
 
+message CommandIdWithSeqNum {
+	CommandId requestId = 1;
+	int32 sequence_number = 2;
+}
+
 // tentative
 message TentativeRequest { //sends a command and its tentative sequence number
 	CommandId requestId = 1;
@@ -35,18 +40,21 @@ message CommitReply {
 
 // cleanup
 message CleanupRequest {
-	int32 lastCommitted = 1;
+	int32 lastApplied = 1;
 	int32 slot = 2;
 }
 
 message CleanupReply {
-	bool ack = 1;
+	int32 highestKnownSeqNumber = 1;
+
 	//1.List of commited commands because these should be applied on
 	//the server if they have not yet
+	//repeated CommandIdWithSeqNum committed = 2;
 
 	//2.List of accepted commands and respective slot in which they were received
 	//New leader should propose the commands founds in the most up to date log
 	//Most up to date means the last entry was proposed in a later slot or if they
 	//are equal then the longer log is more recent
+	repeated CommandIdWithSeqNum accepted = 3;
 
 }

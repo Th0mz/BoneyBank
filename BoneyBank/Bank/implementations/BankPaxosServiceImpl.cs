@@ -15,6 +15,13 @@ namespace Bank.implementations
             _serverState = serverState;
         }
 
+
+
+
+        //============================================================
+        //======================== TENTATIVE =========================
+        //============================================================
+
         //receive tentative ordered commands
         public override Task<TentativeReply> Tentative(TentativeRequest request, ServerCallContext context) {
             return Task.FromResult(do_tentative(request));
@@ -48,45 +55,74 @@ namespace Bank.implementations
             //TODO: completely correct???
             lock (_serverState.orderedLock) {
                 lock (_serverState.lastAppliedLock) {
-                    lock (_serverState.lastSequentialLock)
-                    {
-                        //already applied
-                        if (sequence_number <= _serverState.get_last_applied())
-                            return new TentativeReply { Ack = false };
-                        
-                        //update the last sequential
-                        for (int index = _serverState.getLastSequential() + 1; 
-                            index <= _serverState.get_last_tentative(); index++) {
-                            if (_serverState.get_ordered_command(index) != null) {
-                                _serverState.setLastSequential(index);
-                            } else { break; }
-                        } 
+                    lock(_serverState.lastTentativeLock) {
+                        lock (_serverState.lastSequentialLock) {
+                            //already applied
+                            if (sequence_number <= _serverState.get_last_applied())
+                                return new TentativeReply { Ack = false };
 
-                        //only responds with ack after all the previous commands were received
-                        while (_serverState.getLastSequential() < sequence_number - 1)
-                        {
-                            Monitor.Wait(_serverState.lastSequentialLock);
+                            //update the last sequential
+                            //have to check from last applied because previous accepted might have
+                            //traded positions
+                            for (int index = _serverState.get_last_applied() + 1;
+                                index <= _serverState.get_last_tentative(); index++)
+                            {
+                                if (_serverState.get_ordered_command(index) != null)
+                                {
+                                    _serverState.setLastSequential(index);
+                                }
+                                else { break; }
+                            }
+
+                            //only responds with ack after all the previous commands were received
+                            while (_serverState.getLastSequential() < sequence_number - 1)
+                            {
+                                Monitor.Wait(_serverState.lastSequentialLock);
+                            }
+
+                            var previous_command_id = _serverState.get_ordered_command(sequence_number);
+                            if (previous_command_id != null) {
+                                if (_serverState.get_command(previous_command_id).is_commited())
+                                    return new TentativeReply { Ack = false };
+                                if(_serverState.get_command(previous_command_id).get_assignment_slot() < assignment_slot) { 
+                                    //received a newer version of the log
+                                    _serverState.addUnorderedId(previous_command_id);
+                                    _serverState.removeUnordered(commandId);
+                                    _serverState.addOrdered(commandId, sequence_number);
+                                    _serverState.get_command(commandId).set_assignment_slot(assignment_slot);
+                                }
+                            } else {
+                                //log is still empty
+                                _serverState.removeUnordered(commandId);
+                                _serverState.addOrdered(commandId, sequence_number);
+                                _serverState.get_command(commandId).set_assignment_slot(assignment_slot);
+                            }
+
+                            if(sequence_number > _serverState.getLastSequential())
+                                _serverState.setLastSequential(sequence_number);  
+                            
+                            Monitor.PulseAll(_serverState.lastSequentialLock);
+
+                            Console.WriteLine("=======================");
+
+                            return new TentativeReply { Ack = true };
                         }
-
-                        _serverState.removeUnordered(commandId);
-                        _serverState.addOrdered(commandId, sequence_number);
-                        _serverState.setLastSequential(sequence_number);
-                        Monitor.PulseAll(_serverState.lastSequentialLock);
-
-                        Console.WriteLine("=======================");
-
-                        return new TentativeReply { Ack = true };
                     }
                 }
             }
         }
 
 
+
+
+        //============================================================
+        //========================== COMMIT ==========================
+        //============================================================
+
         //receive commit requests
         public override Task<CommitReply> Commit(CommitRequest request, ServerCallContext context) {
             return Task.FromResult(do_commit(request));
         }
-
 
         private CommitReply do_commit(CommitRequest request) {
 
@@ -99,15 +135,31 @@ namespace Bank.implementations
                 int seqNumberToCommit = request.SequenceNumber;
 
                 Tuple<int, int> commandId = new(request.RequestId.ClientId, request.RequestId.ClientSequenceNumber);
-                BankCommand commandToCommit = _serverState.get_command(seqNumberToCommit);
+                BankCommand commandToCommit = _serverState.get_command(commandId);
+                var commandIdInIndex = _serverState.get_ordered_command(seqNumberToCommit);
 
                 //case when a commit comes from a previous view. Has to be added and only then applied
-                if (commandToCommit == null) {
+                if (commandIdInIndex == null) {
                     _serverState.removeUnordered(commandId);
                     _serverState.addOrdered(commandId, seqNumberToCommit);
-                    commandToCommit = _serverState.get_command(seqNumberToCommit);
+
+                    if (seqNumberToCommit > _serverState.getLastSequential())
+                    _serverState.setLastSequential(seqNumberToCommit);
+
+                    Monitor.PulseAll(_serverState.lastSequentialLock);
+
+                } else { //there is a command in given log position
+
+                    if (!commandIdInIndex.Equals(commandId)) { //command in log isnt the supposed one
+                        if (_serverState.get_command(commandIdInIndex).is_commited())
+                            return new CommitReply { };
+                        _serverState.addUnorderedId(commandIdInIndex);
+                        _serverState.removeUnordered(commandId);
+                        _serverState.addOrdered(commandId, seqNumberToCommit);
+                    }
                 }
 
+                commandToCommit = _serverState.get_command(seqNumberToCommit);
                 //Already has been commited; nothing to do
                 //Possible if the new coordinator sends new commmit for command already applied
                 Console.WriteLine("Already has been applied");
@@ -121,7 +173,7 @@ namespace Bank.implementations
                 for (int index = lastApplied + 1; index <= lastTentative; index++) {
                     Console.WriteLine("Started command commit");
                     BankCommand command = _serverState.get_command(index);
-                    if (command == null) break; //list of commands isnt sequential
+                    if (command == null) break; //list of commands isnt sequential from this point on
 
                     lock (command) {
                         if (!command.is_commited()) break; //not all previous commands are committed. cant apply yet
@@ -138,6 +190,43 @@ namespace Bank.implementations
             }
             
         }
+
+
+
+        //============================================================
+        //========================= CLEANUP ==========================
+        //============================================================
+
+        public override Task<CleanupReply> Cleanup(CleanupRequest request, ServerCallContext context) {
+            return Task.FromResult(do_cleanup(request));
+        }
+
+        private CleanupReply do_cleanup(CleanupRequest request) {
+
+            CleanupReply reply = new CleanupReply { 
+                                            HighestKnownSeqNumber = _serverState.get_last_tentative() };
+
+            for (int index = request.LastApplied; index < _serverState.get_last_tentative(); index++) { 
+                var command_id = _serverState.get_ordered_command(index);
+                if (command_id != null)
+                {
+                    BankCommand command = _serverState.get_command(command_id);
+                    reply.Accepted.Add(new CommandIdWithSeqNum
+                    {
+                        RequestId = new CommandId
+                        {
+                            ClientId = command.getClientId(),
+                            ClientSequenceNumber = command.getSequenceNumber()
+                        },
+                        SequenceNumber = index
+                    });
+                }
+                    
+            }
+
+            return reply;
+        }
+
 
     }
 }

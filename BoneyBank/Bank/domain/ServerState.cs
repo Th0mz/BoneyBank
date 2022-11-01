@@ -304,6 +304,10 @@ namespace Bank
             unordered.Add(command.getCommandId());
         }
 
+        public void addUnorderedId(Tuple<int, int> commandId) {
+            unordered.Add(commandId);
+        }
+
         public void removeUnordered(Tuple<int, int> commandId) {
             unordered.Remove(commandId);
         }
@@ -344,6 +348,11 @@ namespace Bank
         public BankCommand get_command(int sequence_number) {
             var command_id = ordered[sequence_number];
             return allCommands[command_id];
+        }
+
+        public BankCommand get_command(Tuple<int, int> key)
+        {
+            return allCommands[key];
         }
 
         public Dictionary<Tuple<int, int>, BankCommand> get_all_commands()

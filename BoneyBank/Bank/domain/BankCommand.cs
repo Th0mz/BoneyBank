@@ -11,6 +11,7 @@ namespace Bank
         private Tuple<int, int> _id;
         protected bool _is_commited = false;
         protected bool _is_applied = false;
+        protected int _assignment_slot;
         protected BankState _state;
 
         public BankCommand(int clientId, int sequence_number, BankState state) {
@@ -20,12 +21,18 @@ namespace Bank
 
         public Tuple<int, int> getCommandId() { return _id; }
 
+        public int getClientId() { return _id.Item1; }
+        public int getSequenceNumber() { return _id.Item2; }
+
         public bool is_commited() { return _is_commited; }
 
         public bool is_applied() { return _is_applied; }
 
         public void set_commited() { _is_commited = true; }
         public void set_applied() { _is_applied = true; }
+
+        public int get_assignment_slot() { return _assignment_slot; }
+        public void set_assignment_slot(int newAssignmentSlot) { _assignment_slot = newAssignmentSlot; }
 
         public virtual void execute () {
             throw new NotImplementedException();
