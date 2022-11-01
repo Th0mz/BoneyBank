@@ -1,4 +1,6 @@
-﻿using Grpc.Net.Client;
+﻿using Grpc.Core;
+using Grpc.Core.Interceptors;
+using Grpc.Net.Client;
 using System.Diagnostics.Metrics;
 
 namespace Boney
@@ -21,7 +23,7 @@ namespace Boney
         public void setup_connections () {
             if (!initialized_connections) {
                 foreach (PaxosServerConnection serverConnection in _serverState.get_paxos_servers().Values) {
-                    serverConnection.setup_stub();
+                    serverConnection.setup_stub(_serverState);
                 }
 
                 initialized_connections = true;
@@ -222,14 +224,40 @@ namespace Boney
         private string _url;
         private GrpcChannel _channel;
         private PaxosService.PaxosServiceClient _client;
+        private ClientInterceptor _interceptor;
+        private bool frozen = false;
+        private bool setup = false;
 
         public PaxosServerConnection(string url) {
             this._url = url;
         }
 
-        public void setup_stub() {
-            _channel = GrpcChannel.ForAddress(_url);
-            _client = new PaxosService.PaxosServiceClient(_channel);
+        public void setup_stub(ServerState serverState) {
+            if (!setup) {
+                _interceptor = new ClientInterceptor(serverState);
+                _channel = GrpcChannel.ForAddress(_url);
+
+                CallInvoker interceptingInvoker = _channel.Intercept(_interceptor);
+                _client = new PaxosService.PaxosServiceClient(interceptingInvoker);
+
+                setup = true;
+            }
+        }
+
+        public void toggle_freeze () {
+
+            frozen = !frozen;
+            if (_interceptor == null) {
+                Console.WriteLine("Not init interceptor");
+                return;
+            }
+
+
+            if (frozen) {
+                _interceptor.freeze_channel();
+            } else {
+                _interceptor.unfreeze_channel();
+            }
         }
 
         public PaxosService.PaxosServiceClient get_client() {

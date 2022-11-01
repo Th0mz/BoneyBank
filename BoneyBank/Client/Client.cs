@@ -50,8 +50,8 @@ namespace Client
             ClientState state = new ClientState();
             ClientFrontend clientFrontend = new ClientFrontend(state);
 
-            //string config_path = @"..\..\..\..\..\configuration_sample.txt";
-            string config_path = @"C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\configuration_sample.txt";
+            string config_path = @"..\..\..\..\..\configuration_sample.txt";
+            //string config_path = @"C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\configuration_sample.txt";
             string script_path = @"C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\bank_client_script_sample.txt";
             
             if (!processInput(args, config_path, state)) {
@@ -82,7 +82,7 @@ namespace Client
                         }
 
                         if (!float.TryParse(parts[1], out amount)) {
-                            Console.WriteLine("Error : Argument must be of type int");
+                            Console.WriteLine("Error : Argument must be of type float");
                             continue; 
                         }
 
@@ -98,7 +98,7 @@ namespace Client
                         }
 
                         if (!float.TryParse(parts[1], out amount)) {
-                            Console.WriteLine("Error : Argument must be of type int"); 
+                            Console.WriteLine("Error : Argument must be of type float"); 
                             continue;
                         }
 

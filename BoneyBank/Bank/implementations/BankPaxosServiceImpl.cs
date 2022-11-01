@@ -48,10 +48,8 @@ namespace Bank.implementations
 
                 //check if the coordinator has changed since
                 Console.WriteLine("Check if the coordinator has changed since");
-                for (int slot = assignment_slot; slot < _serverState.get_current_slot(); slot++)
-                {
-                    if (_serverState.get_coordinator_id(slot) != sender_id)
-                    {
+                for (int slot = assignment_slot; slot < _serverState.get_current_slot(); slot++) {
+                    if (_serverState.get_coordinator_id(slot) != sender_id) {
                         return new TentativeReply { Ack = false };
                     }
                 }
@@ -61,32 +59,37 @@ namespace Bank.implementations
                         lock (_serverState.lastAppliedLock) {
                             lock (_serverState.lastTentativeLock) {
                                 lock (_serverState.lastSequentialLock) {
+                                    Console.WriteLine("Inside locks");
                                     //already applied
-                                    if (sequence_number <= _serverState.get_last_applied())
+                                    if (sequence_number <= _serverState.get_last_applied()) {
+                                        Console.WriteLine("already applied");
                                         return new TentativeReply { Ack = false };
+                                    }
+
 
                                     //update the last sequential
                                     //have to check from last applied because previous accepted might have
                                     //traded positions
+                                    Console.WriteLine("update the last sequential");
                                     for (int index = _serverState.get_last_applied() + 1;
-                                        index <= _serverState.get_last_tentative(); index++)
-                                    {
-                                        if (_serverState.get_ordered_command(index) != null)
-                                        {
+                                        index <= _serverState.get_last_tentative(); index++) {
+                                        
+                                        if (_serverState.get_ordered_command(index) != null) {
                                             _serverState.setLastSequential(index);
-                                        }
-                                        else { break; }
+                                        } else { break; }
                                     }
 
                                     //only responds with ack after all the previous commands were received
-                                    while (_serverState.getLastSequential() < sequence_number - 1)
-                                    {
+                                    Console.WriteLine("only responds with ack after all the previous commands were received");
+                                    while (_serverState.getLastSequential() < sequence_number - 1) {
                                         Monitor.Wait(_serverState.lastSequentialLock);
                                     }
 
+                                    Console.WriteLine("yoo");
                                     var previous_command_id = _serverState.get_ordered_command(sequence_number);
                                     if (previous_command_id != null)
                                     {
+                                        Console.WriteLine("previous command id = null");
                                         if (_serverState.get_command(previous_command_id).is_commited())
                                             return new TentativeReply { Ack = false };
                                         if (_serverState.get_command(previous_command_id).get_assignment_slot() < assignment_slot)
@@ -100,17 +103,19 @@ namespace Bank.implementations
                                     }
                                     else
                                     {
+                                        Console.WriteLine("previous command id != null");
                                         //log is still empty
                                         _serverState.removeUnordered(commandId);
                                         _serverState.addOrdered(commandId, sequence_number);
                                         _serverState.get_command(commandId).set_assignment_slot(assignment_slot);
                                     }
 
-                                    if (sequence_number > _serverState.getLastSequential())
+
+                                    if (sequence_number > _serverState.getLastSequential()) {
                                         _serverState.setLastSequential(sequence_number);
+                                    }
 
                                     Monitor.PulseAll(_serverState.lastSequentialLock);
-
                                     Console.WriteLine("=======================");
 
                                     return new TentativeReply { Ack = true };

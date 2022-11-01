@@ -1,4 +1,5 @@
-﻿using Grpc.Net.Client;
+﻿using Grpc.Core.Interceptors;
+using Grpc.Net.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -84,7 +85,7 @@ namespace Bank
         private int lastApplied = -1;
         public Object lastAppliedLock = new();
 
-        private int lastTentative = -1; //for the coordinator to know which number
+        private int lastTentative = 0; //for the coordinator to know which number
                                        //to assign to the next command
         public Object lastTentativeLock = new();
 
@@ -164,6 +165,7 @@ namespace Bank
 
             } else if (_class.Equals(_BONEY)) {
 
+                
                 GrpcChannel channel = GrpcChannel.ForAddress(url);
                 CompareAndSwapService.CompareAndSwapServiceClient client =
                     new CompareAndSwapService.CompareAndSwapServiceClient(channel);

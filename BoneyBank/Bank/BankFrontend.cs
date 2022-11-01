@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Grpc.Net.Client;
-using Grpc.Core;
-using System.ComponentModel.Design;
-using System.Threading;
-using System.Diagnostics.Metrics;
+﻿using Grpc.Net.Client;
 
 namespace Bank
 {
@@ -60,6 +51,7 @@ namespace Bank
 
             int id = _serverState.get_id();
             int sequence_number;
+            int assignment_slot;
             List<Task<TentativeReply>> tentative_replies;
             int count = 0;
             int number_servers = _serverState.get_bank_servers().Count();
@@ -67,12 +59,13 @@ namespace Bank
             lock (_serverState.currentSlotLock) { 
                 lock (_serverState.lastTentativeLock) {
                     sequence_number = _serverState.get_last_tentative();
-                    _serverState.set_last_tentative(sequence_number+1);
-                    int assignment_slot = _serverState.get_current_slot();
+                    _serverState.set_last_tentative(sequence_number + 1); 
+                    assignment_slot = _serverState.get_current_slot();
             
-                    tentative_replies = tentative(id, sequence_number, assignment_slot, commandId);
                 }
             }
+
+            tentative_replies = tentative(id, sequence_number, assignment_slot, commandId);
                                    
             while (tentative_replies.Any() && (count < (number_servers / 2) + 1))
             {
@@ -101,11 +94,16 @@ namespace Bank
             int count = 0;
             List<Task<CleanupReply>> cleanup_replies;
 
+            int last_commited;
+            int slot;
             lock (_serverState.currentSlotLock) { 
-                lock (_serverState.lastAppliedLock) { 
-                    cleanup_replies = cleanup(_serverState.get_last_applied(), _serverState.get_current_slot());
+                lock (_serverState.lastAppliedLock) {
+                    last_commited = _serverState.get_last_applied();
+                    slot = _serverState.get_current_slot();
                 }
             }
+            
+            cleanup_replies = cleanup(last_commited, slot);
             
             //TODO: create 'previous' list <commandId, sequenceNumber>
             HashSet<Tuple<int, int>> accepted = new();
@@ -145,13 +143,15 @@ namespace Bank
             //TODO: locks
             int id = _serverState.get_id();
             int number_servers = _serverState.get_bank_servers().Count();
+            int assignment_slot;
             int count = 0;
             List<Task<TentativeReply>> tentative_replies;
 
             lock (_serverState.currentSlotLock) {
-                int assignment_slot = _serverState.get_current_slot();
-                tentative_replies = tentative(id, sequence_number, assignment_slot, commandId);
+                assignment_slot = _serverState.get_current_slot();
             }
+            
+            tentative_replies = tentative(id, sequence_number, assignment_slot, commandId);
             
             while (tentative_replies.Any() && (count < (number_servers / 2) + 1))
             {

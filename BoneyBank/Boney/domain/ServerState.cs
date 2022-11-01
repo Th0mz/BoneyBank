@@ -1,4 +1,6 @@
-﻿using Grpc.Net.Client;
+﻿using Grpc.Core.Interceptors;
+using Grpc.Core;
+using Grpc.Net.Client;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,38 +9,10 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using static Grpc.Core.Interceptors.Interceptor;
 
 namespace Boney
 {
-    public class ServerInfo {
-        private int _id;
-        private bool _frozen;
-        private bool _suspected;
-        private string _type;
-
-        public ServerInfo(int id, bool frozen, bool suspected, string type) {
-            _id = id;
-            _frozen = frozen;
-            _suspected = suspected;
-            _type = type;
-        }
-        public bool is_boney() {
-            return _type.Equals("boney");
-        }
-
-        public int get_id() {
-            return _id;
-        }
-
-        public bool is_frozen() {
-            return _frozen;
-        }
-
-        public bool is_suspected() {
-            return _suspected;
-        }
-    }
-
     public class ServerState {
 
         // constants
@@ -221,7 +195,7 @@ namespace Boney
             _current_slot++;
 
             var current_slot = _timeslots_info[_current_slot];
-
+            bool was_frozen = _frozen;
             int coordinator = int.MaxValue;
             foreach (var server_info in current_slot)
             {
@@ -245,11 +219,81 @@ namespace Boney
             }
 
             _coordinator = coordinator;
+            if (was_frozen != _frozen) {
+                // change in freeze state
+                foreach (var server_connection in _bonies.Values) {
+                    server_connection.toggle_freeze();
+                }
+            }
             // DEBUG : 
             // Console.WriteLine("Setup TimeSlot\n======================");
             // Console.WriteLine("Current Slot = " + _current_slot);
             // Console.WriteLine("Frozen = " + _frozen);
             // Console.WriteLine("Coordinator = " + _coordinator);
+        }
+    }
+
+    public class ServerInfo
+    {
+        private int _id;
+        private bool _frozen;
+        private bool _suspected;
+        private string _type;
+
+        public ServerInfo(int id, bool frozen, bool suspected, string type) {
+            _id = id;
+            _frozen = frozen;
+            _suspected = suspected;
+            _type = type;
+        }
+
+        public bool is_boney() {
+            return _type.Equals("boney");
+        }
+
+        public int get_id() {
+            return _id;
+        }
+
+        public bool is_frozen() {
+            return _frozen;
+        }
+
+        public bool is_suspected() {
+            return _suspected;
+        }
+    }
+
+    public class ClientInterceptor : Interceptor
+    {
+        private ServerState _serverState;
+        private ManualResetEvent _event;
+
+        public ClientInterceptor (ServerState serverState) {
+            _serverState = serverState;
+            _event = new ManualResetEvent(!serverState.is_frozen());
+        }
+
+        public void freeze_channel() {
+            _event.Reset();
+        }
+
+        public void unfreeze_channel () {
+            _event.Set();
+        }
+
+        public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(TRequest request, ClientInterceptorContext<TRequest, TResponse> context, AsyncUnaryCallContinuation<TRequest, TResponse> continuation) {
+
+
+            //set para dar unfreeze, senao vai reset
+            //depois falta codigo para mudar o estado freeze e unfreeze
+            if (_serverState.is_frozen()) {
+                Console.WriteLine("Frozen waiting...");
+                _event.WaitOne();
+            }
+
+            AsyncUnaryCall<TResponse> response = base.AsyncUnaryCall(request, context, continuation);
+            return response;
         }
     }
 }
