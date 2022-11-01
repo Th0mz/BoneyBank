@@ -58,8 +58,8 @@ namespace Bank
 
             lock (_serverState.currentSlotLock) { 
                 lock (_serverState.lastTentativeLock) {
-                    sequence_number = _serverState.get_last_tentative();
-                    _serverState.set_last_tentative(sequence_number + 1); 
+                    sequence_number = _serverState.get_last_tentative() + 1;
+                    //_serverState.set_last_tentative(sequence_number + 1); 
                     assignment_slot = _serverState.get_current_slot();
             
                 }

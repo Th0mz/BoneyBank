@@ -89,7 +89,7 @@ namespace Bank.implementations
                                     var previous_command_id = _serverState.get_ordered_command(sequence_number);
                                     if (previous_command_id != null)
                                     {
-                                        Console.WriteLine("previous command id = null");
+                                        Console.WriteLine("previous command id != null");
                                         if (_serverState.get_command(previous_command_id).is_commited())
                                             return new TentativeReply { Ack = false };
                                         if (_serverState.get_command(previous_command_id).get_assignment_slot() < assignment_slot)
@@ -103,19 +103,19 @@ namespace Bank.implementations
                                     }
                                     else
                                     {
-                                        Console.WriteLine("previous command id != null");
+                                        Console.WriteLine("previous command id == null");
                                         //log is still empty
                                         _serverState.removeUnordered(commandId);
                                         _serverState.addOrdered(commandId, sequence_number);
                                         _serverState.get_command(commandId).set_assignment_slot(assignment_slot);
+                                        Monitor.PulseAll(_serverState.lastSequentialLock);
                                     }
-
 
                                     if (sequence_number > _serverState.getLastSequential()) {
                                         _serverState.setLastSequential(sequence_number);
                                     }
 
-                                    Monitor.PulseAll(_serverState.lastSequentialLock);
+                                    Console.WriteLine("Finished tentative with ack = true");
                                     Console.WriteLine("=======================");
 
                                     return new TentativeReply { Ack = true };
@@ -163,9 +163,19 @@ namespace Bank.implementations
                                     _serverState.removeUnordered(commandId);
                                     _serverState.addOrdered(commandId, seqNumberToCommit);
 
-                                    if (seqNumberToCommit > _serverState.getLastSequential())
-                                        _serverState.setLastSequential(seqNumberToCommit);
+                                    if (seqNumberToCommit > lastTentative)
+                                        _serverState.set_last_tentative(seqNumberToCommit);
 
+                                    //TODO: put in an auxiliary function
+                                    for (int index = _serverState.get_last_applied() + 1;
+                                        index <= _serverState.get_last_tentative(); index++) {
+
+                                        if (_serverState.get_ordered_command(index) != null)
+                                        {
+                                            _serverState.setLastSequential(index);
+                                        }
+                                        else { break; }
+                                    }
                                     Monitor.PulseAll(_serverState.lastSequentialLock);
 
                                 } else { //there is a command in given log position

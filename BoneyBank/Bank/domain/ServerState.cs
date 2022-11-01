@@ -47,6 +47,7 @@ namespace Bank
         private const string _SUSPECTED = "S";
         private const string _BONEY = "boney";
         private const string _BANK = "bank";
+        private const int _MAXLOGSIZE = 4096;
 
         // this process state
         private int _id;
@@ -79,13 +80,13 @@ namespace Bank
         private HashSet<Tuple<int, int>> unordered = new();
         public Object unorderedLock = new();
 
-        private List<Tuple<int, int>> ordered = new();
+        private Tuple<int, int>[] ordered = new Tuple<int, int>[_MAXLOGSIZE]; //initialize as null
         public Object orderedLock = new();
 
         private int lastApplied = -1;
         public Object lastAppliedLock = new();
 
-        private int lastTentative = 0; //for the coordinator to know which number
+        private int lastTentative = -1; //for the coordinator to know which number
                                        //to assign to the next command
         public Object lastTentativeLock = new();
 
@@ -341,12 +342,16 @@ namespace Bank
 
         public BankCommand get_command(int sequence_number) {
             var command_id = ordered[sequence_number];
-            return allCommands[command_id];
+            if (command_id != null) { 
+                return allCommands[command_id];
+            }
+            return null;
         }
 
-        public BankCommand get_command(Tuple<int, int> key)
-        {
-            return allCommands[key];
+        public BankCommand get_command(Tuple<int, int> key) {
+
+            if (allCommands.ContainsKey(key)) return allCommands[key];
+            else return null;
         }
 
         public Dictionary<Tuple<int, int>, BankCommand> get_all_commands()
