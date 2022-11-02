@@ -7,11 +7,11 @@ P 6 bank http://localhost:5006
 P 7 client
 P 8 client
 S 6
-T 16:05:10
-D 60000
-F 1 (1, N, NS) (2, F, S) (3, N, NS) (4, N, NS) (5, N, NS) (6, N, NS)
+T 15:11:00
+D 2000
+F 1 (1, N, NS) (2, N, S) (3, N, NS) (4, N, NS) (5, N, NS) (6, N, NS)
 F 2 (1, N, NS) (2, F, S) (3, N, NS) (4, F, NS) (5, N, NS) (6, N, NS)
-F 3 (1, N, NS) (2, N, S) (3, N, NS) (4, F, S) (5, N, NS) (6, N, NS)
-F 4 (1, N, NS) (2, N, S) (3, N, NS) (4, F, S) (5, N, NS) (6, N, NS)
-F 5 (1, N, NS) (2, N, S) (3, N, NS) (4, F, S) (5, N, NS) (6, N, NS)
-F 6 (1, N, NS) (2, N, S) (3, N, NS) (4, F, S) (5, N, NS) (6, N, NS)
+F 3 (1, N, NS) (2, F, S) (3, N, NS) (4, F, S) (5, N, NS) (6, N, NS)
+F 4 (1, N, NS) (2, F, S) (3, N, NS) (4, F, S) (5, N, NS) (6, N, NS)
+F 5 (1, N, NS) (2, F, S) (3, N, NS) (4, F, S) (5, N, NS) (6, N, NS)
+F 6 (1, N, NS) (2, F, S) (3, N, NS) (4, F, S) (5, N, NS) (6, N, NS)
