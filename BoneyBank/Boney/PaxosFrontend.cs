@@ -224,8 +224,7 @@ namespace Boney
         private string _url;
         private GrpcChannel _channel;
         private PaxosService.PaxosServiceClient _client;
-        private ClientInterceptor _interceptor;
-        private bool frozen = false;
+        private FrozenInterceptor _interceptor;
         private bool setup = false;
 
         public PaxosServerConnection(string url) {
@@ -234,7 +233,7 @@ namespace Boney
 
         public void setup_stub(ServerState serverState) {
             if (!setup) {
-                _interceptor = new ClientInterceptor(serverState);
+                _interceptor = new FrozenInterceptor(serverState);
                 _channel = GrpcChannel.ForAddress(_url);
 
                 CallInvoker interceptingInvoker = _channel.Intercept(_interceptor);
@@ -246,18 +245,12 @@ namespace Boney
 
         public void toggle_freeze () {
 
-            frozen = !frozen;
             if (_interceptor == null) {
                 Console.WriteLine("Not init interceptor");
                 return;
             }
 
-
-            if (frozen) {
-                _interceptor.freeze_channel();
-            } else {
-                _interceptor.unfreeze_channel();
-            }
+            _interceptor.toggle_freeze();
         }
 
         public PaxosService.PaxosServiceClient get_client() {

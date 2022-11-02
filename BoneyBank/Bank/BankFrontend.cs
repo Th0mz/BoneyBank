@@ -1,4 +1,6 @@
-﻿using Grpc.Net.Client;
+﻿using Grpc.Core.Interceptors;
+using Grpc.Core;
+using Grpc.Net.Client;
 
 namespace Bank
 {
@@ -15,7 +17,7 @@ namespace Bank
         public void setup_connections() {
             if (!initialized_connections) {
                 foreach (BankPaxosServerConnection serverConnection in _serverState.get_bank_servers().Values) {
-                    serverConnection.setup_stub();
+                    serverConnection.setup_stub(_serverState);
                 }
 
                 initialized_connections = true;
@@ -246,14 +248,33 @@ namespace Bank
         private string _url;
         private GrpcChannel _channel;
         private BankPaxos.BankPaxosClient _client;
+        private FrozenInterceptor _interceptor;
+        private bool setup = false;
 
         public BankPaxosServerConnection(string url) {
             this._url = url;
         }
 
-        public void setup_stub() {
-            _channel = GrpcChannel.ForAddress(_url);
-            _client = new BankPaxos.BankPaxosClient(_channel);
+        public void setup_stub(ServerState serverState) {
+            if (!setup) {
+                _interceptor = new FrozenInterceptor(serverState);
+                _channel = GrpcChannel.ForAddress(_url);
+
+                CallInvoker interceptingInvoker = _channel.Intercept(_interceptor);
+                _client = new BankPaxos.BankPaxosClient(interceptingInvoker);
+
+                setup = true;
+            }
+        }
+
+        public void toggle_freeze() {
+
+            if (_interceptor == null) {
+                Console.WriteLine("Not init interceptor");
+                return;
+            }
+
+            _interceptor.toggle_freeze();
         }
 
         public BankPaxos.BankPaxosClient get_client() {

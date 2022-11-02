@@ -90,6 +90,12 @@ namespace Bank
                 return;
             }
 
+            // create server side interceptors
+            FrozenInterceptor bankServiceServerInterceptor = new FrozenInterceptor(serverState);
+            serverState.add_server_interceptor(bankServiceServerInterceptor);
+            FrozenInterceptor bankPaxosServerInterceptor = new FrozenInterceptor(serverState);
+            serverState.add_server_interceptor(bankPaxosServerInterceptor);
+
             Server server = new Server {
                 Services = { BankService.BindService(new BankServiceImpl(bankState, serverState, bankFrontend)),
                              BankPaxos.BindService(new BankPaxosServiceImpl(serverState))},

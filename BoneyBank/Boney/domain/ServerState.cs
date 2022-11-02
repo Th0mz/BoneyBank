@@ -39,6 +39,7 @@ namespace Boney
         private int _current_slot = 0;
         private Dictionary<int, ServerInfo[]> _timeslots_info = new Dictionary<int, ServerInfo[]>();
 
+        private List<FrozenInterceptor> _server_interceptors = new List<FrozenInterceptor>();
 
         public ServerState() {  }
 
@@ -108,6 +109,10 @@ namespace Boney
 
             _delta = TimeSpan.FromMilliseconds(_delta_int);
             return true;
+        }
+
+        public void add_server_interceptor(FrozenInterceptor interceptor) {
+            _server_interceptors.Add(interceptor);
         }
 
         public bool add_timeslot(string slot, string[] timeslot_info) {
@@ -219,10 +224,16 @@ namespace Boney
             }
 
             _coordinator = coordinator;
+            // freeze/unfreeze channels
             if (was_frozen != _frozen) {
-                // change in freeze state
+                // freeze/unfreeze client channels
                 foreach (var server_connection in _bonies.Values) {
                     server_connection.toggle_freeze();
+                }
+
+                // freeze/unfreeze server channels
+                foreach (var interceptor in _server_interceptors) {
+                    interceptor.toggle_freeze();
                 }
             }
             // DEBUG : 

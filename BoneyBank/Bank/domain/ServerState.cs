@@ -93,6 +93,9 @@ namespace Bank
         private int lastSequential = -1; //index of the last sequential command acked by the replica
         public Object lastSequentialLock = new();
 
+        private List<FrozenInterceptor> _server_interceptors = new List<FrozenInterceptor>();
+
+
 
         public ServerState() {  }
 
@@ -143,6 +146,10 @@ namespace Bank
 
         public Dictionary<int, BankPaxosServerConnection> get_bank_servers() {
             return _banks;
+        }
+
+        public void add_server_interceptor  (FrozenInterceptor interceptor) {
+            _server_interceptors.Add(interceptor);
         }
 
         public bool add_server (string sid, string _class, string url) {
@@ -258,6 +265,7 @@ namespace Bank
             _current_slot++;
 
             var current_slot = _timeslots_info[_current_slot];
+            bool was_frozen = _frozen;
             int coordinator = int.MaxValue;
             foreach (var server_info in current_slot) {
                 int id = server_info.get_id();
@@ -281,6 +289,19 @@ namespace Bank
 
             _coordinator = coordinator;
             _coordinators_dict.Add(_current_slot, _coordinator);
+
+            // freeze/unfreeze channels
+            if (was_frozen != _frozen) {
+                // freeze/unfreeze client channels
+                foreach (var server_connection in _banks.Values) {
+                    server_connection.toggle_freeze();
+                }
+
+                // freeze/unfreeze server channels
+                foreach (var interceptor in _server_interceptors) {
+                    interceptor.toggle_freeze();
+                }
+            }
 
             // DEBUG : 
             // Console.WriteLine("Setup TimeSlot\n======================");

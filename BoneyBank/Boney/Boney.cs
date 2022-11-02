@@ -1,4 +1,5 @@
 ﻿using Grpc.Core;
+using Grpc.Core.Interceptors;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -93,10 +94,17 @@ namespace Boney
                 return;
             }
 
+            // create server side interceptors
+            FrozenInterceptor compareAndSwapServerInterceptor = new FrozenInterceptor(serverState);
+            serverState.add_server_interceptor(compareAndSwapServerInterceptor);
+            FrozenInterceptor paxosServerInterceptor = new FrozenInterceptor(serverState);
+            serverState.add_server_interceptor(paxosServerInterceptor);
+
             Server server = new Server
             {
-                Services = { CompareAndSwapService.BindService(new CompareAndSwapImpl(state, paxosFrontend, serverState)), 
-                             PaxosService.BindService(new PaxosImpl(state))},
+                Services = { CompareAndSwapService.BindService(new CompareAndSwapImpl(state, paxosFrontend, serverState)).Intercept(compareAndSwapServerInterceptor), 
+                             PaxosService.BindService(new PaxosImpl(state)).Intercept(paxosServerInterceptor),
+                },
 
                 Ports = { new ServerPort(host, port, ServerCredentials.Insecure) }
             };
