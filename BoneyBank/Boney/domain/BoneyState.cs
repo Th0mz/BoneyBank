@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace Boney
 {
     public class Slot {
@@ -23,6 +24,7 @@ namespace Boney
             _leader = leader;
         }
     }
+
     public class BoneyState {
 
         // TODO : remove static size => change this to a list 
@@ -30,16 +32,16 @@ namespace Boney
         private Slot[] timeslots;
 
         public BoneyState (int size) {
-            _size = size;
-            timeslots = new Slot[size];
+            _size = size + 1;
+            timeslots = new Slot[_size];
             
-            for (int i = 0; i < size; i++) {
+            for (int i = 0; i < _size; i++) {
                 timeslots[i] = new Slot();
             }
         }
 
         public Slot get_slot(int index) {
-            if (index < _size) {
+            if (index < timeslots.Length) {
                 return timeslots[index];
             }
 

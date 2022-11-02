@@ -39,25 +39,44 @@ namespace Client
 
                         clientState.add_server(parts[1], parts[3]);
                         break;
+
+                    case "T":
+                        clientState.set_starting_date(parts[1]);
+                        break;
                 }
             }
 
             return true;
         }
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             ClientState state = new ClientState();
             ClientFrontend clientFrontend = new ClientFrontend(state);
 
-            string config_path = @"..\..\..\..\..\configuration_sample.txt";
-            //string config_path = @"C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\configuration_sample.txt";
+            //string config_path = @"..\..\..\..\..\configuration_sample.txt";
+            string config_path = @"C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\configuration_sample.txt";
             string script_path = @"C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\bank_client_script_sample.txt";
             
             if (!processInput(args, config_path, state)) {
-                // error proceseing input
+                // error processing input
                 return;
             }
+
+            Console.WriteLine("Client configured...");
+
+            // wait until starting time
+            TimeSpan wait_time = state.get_starting_time() - DateTime.Now;
+            Task slotStart;
+            if (wait_time > TimeSpan.Zero) {
+                slotStart = Task.Delay((int)wait_time.TotalMilliseconds);
+                await slotStart;
+            }
+            else {
+                Console.WriteLine("Current process started ahead of starting time.");
+                return;
+            }
+
 
             // user input process
             foreach (string command_line in File.ReadLines(script_path))

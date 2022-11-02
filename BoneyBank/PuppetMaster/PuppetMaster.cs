@@ -33,6 +33,21 @@ public class Puppetmaster {
         processBank.Start();
     }
 
+    private static void startClient(string id)
+    {
+        var processClient = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = @"..\..\..\..\Client\bin\Debug\net6.0\Client.exe",
+                UseShellExecute = true,
+                CreateNoWindow = true,
+                Arguments = id
+            }
+        };
+        processClient.Start();
+    }
+
 
     public static void Main(string []args) {
         /*começar Bank e Boney instances e depois ler comandos*/
@@ -47,15 +62,19 @@ public class Puppetmaster {
             //TODO : do argument verifications ??
             switch (command) {
                 case "P":
-                    if (parts[2].Equals("client")) { continue; }
 
-                    else if (parts[2].Equals("boney")) {
+                    if (parts[2].Equals("boney")) {
                         startBoney(parts[1]);
                     }
 
                     else if (parts[2].Equals("bank")) {
                         startBank(parts[1]);
                     }
+
+                    else if (parts[2].Equals("client")) {
+                        startClient(parts[1]);
+                    }
+
                     break;
 
                 default:

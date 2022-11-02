@@ -103,25 +103,33 @@ namespace Boney
 
             server.Start();
 
-            Console.WriteLine("ChatServer server listening on port " + port);
+            Console.WriteLine("Boney server listening on port " + port);
 
             // wait until starting time
             TimeSpan wait_time = serverState.get_starting_time() - DateTime.Now;
-            Task slotStart = Task.Delay((int) wait_time.TotalMilliseconds);
-            await slotStart;
+            Task slotStart;
+            if (wait_time > TimeSpan.Zero) {
+                slotStart = Task.Delay((int)wait_time.TotalMilliseconds);
+                await slotStart;
+            } else {
+                Console.WriteLine("Current process started ahead of starting time.");
+                return;
+            }
 
             while (serverState.has_next_slot()) {
                 
                 // setup current time slot
                 serverState.setup_timeslot();
-                Console.WriteLine("Leader" + serverState.is_coordinator());
+                Console.WriteLine("[" + serverState.get_current_slot() + "] Leader : " + serverState.is_coordinator() + ", Frozen : " + serverState.is_frozen());
 
                 // wait for the next time slot
                 DateTime slot_beggining = serverState.get_starting_time() + (serverState.get_delta() * serverState.get_current_slot());
                 wait_time = slot_beggining - DateTime.Now;
 
-                slotStart = Task.Delay(wait_time);
-                await slotStart;
+                if (wait_time > TimeSpan.Zero) {
+                    slotStart = Task.Delay(wait_time);
+                    await slotStart;
+                }
             }
 
             Console.WriteLine("No more timeslots to execute");

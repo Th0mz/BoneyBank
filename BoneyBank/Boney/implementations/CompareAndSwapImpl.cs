@@ -31,6 +31,7 @@ namespace Boney
             // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "CompareAndSwap(" + leader + ", " + slot + ")");
             Slot slot_obj = _state.get_slot(slot);
 
+
             lock (slot_obj)
             {
                 if (slot_obj.has_leader())
@@ -45,11 +46,12 @@ namespace Boney
 
             // DEBUG
             // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "CompareAndSwap : Proposing leader");
-            
+
             // TODO : need to syncronize acess to server state
             if (_serverState.is_coordinator()) {
                 _paxosFrontend.propose(slot, leader);
             }
+            
 
             lock (slot_obj)
             {
