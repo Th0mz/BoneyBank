@@ -25,7 +25,7 @@ namespace Bank
         }
 
         // this method shouldn't be async
-        public void compareAndSwap (int slot, int leader) {
+        public int compareAndSwap (int slot, int leader) {
             CompareAndSwapRequest request = new CompareAndSwapRequest { Slot = slot, Leader = leader };
 
             List<Task<CompareAndSwapReply>> replies = new List<Task<CompareAndSwapReply>>(); 
@@ -34,16 +34,17 @@ namespace Bank
                 replies.Add(reply);
             }
 
-            while (replies.Any()) {
+            //while (replies.Any()) {
 
                 var task_reply = Task.WhenAny(replies).Result;
-                var reply = task_reply.Result;
+                var new_reply = task_reply.Result;
 
-                Console.WriteLine("received reply with leader " + reply.Leader);
+                Console.WriteLine("received reply with leader " + new_reply.Leader);
 
                 // remove recieved reply
                 replies.Remove(task_reply);
-            }
+            return new_reply.Leader;
+            //}
         }
 
        public void doCommand(CommandId commandId)

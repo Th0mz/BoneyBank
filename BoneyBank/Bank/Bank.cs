@@ -67,8 +67,8 @@ namespace Bank
 
             BankState bankState = new BankState();
             ServerState serverState = new ServerState();
-            //string config_path = @"..\..\..\..\..\configuration_sample.txt";
-            string config_path = @"C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\configuration_sample.txt";
+            string config_path = @"..\..\..\..\..\configuration_sample.txt";
+            //string config_path = @"C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\configuration_sample.txt";
 
             if (! processInput(args, config_path, serverState)) {
                 // error processing input occurred
@@ -118,17 +118,28 @@ namespace Bank
                 return;
             }
              
-
+            Console.WriteLine("WHAT IS CURRENT SLOT?= " + serverState.get_current_slot());
+            Console.WriteLine("WHAT IS CURRENT COORD?= " + serverState.get_coordinator_id());
 
             while (serverState.has_next_slot())
             {
-                serverState.setup_timeslot();
+                DateTime starting_time;
+                int current_slot;
+                lock (serverState.currentSlotLock) {
+                    lock (serverState.coordinatorLock) {
+                        serverState.setup_timeslot();
+                        Console.WriteLine("[" + serverState.get_current_slot() + "] Bank : DID SETUP TIMESLOT ");
+                        starting_time = serverState.get_starting_time();
+                        current_slot = serverState.get_current_slot();
 
-                Console.WriteLine("[" + serverState.get_current_slot() + "] Bank : sending comapare and swap for leader " + serverState.get_coordinator_id());
-                bankFrontend.compareAndSwap(serverState.get_current_slot(), serverState.get_coordinator_id());
-
+                        Console.WriteLine("[" + serverState.get_current_slot() + "] Bank : sending comapare and swap for leader " + serverState.get_coordinator_id());
+                        int new_coord = bankFrontend.compareAndSwap(current_slot, serverState.get_coordinator_id());
+                        serverState.set_coordinator_id(new_coord);
+                    }
+                }
+                  
                 // sleep until the next slot begins
-                DateTime slot_beggining = serverState.get_starting_time() + (serverState.get_delta() * serverState.get_current_slot());
+                DateTime slot_beggining = starting_time + (serverState.get_delta() * current_slot);
                 wait_time = slot_beggining - DateTime.Now;
 
                 

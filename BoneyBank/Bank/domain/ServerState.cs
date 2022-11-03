@@ -54,7 +54,7 @@ namespace Bank
         private string _url = "";
         private TimeSpan _delta;
         private bool _frozen;
-        private int _coordinator;
+        private int _coordinator = -1;
         public Object coordinatorLock = new();
         private DateTime _starting_time;
 
@@ -114,6 +114,10 @@ namespace Bank
 
         public int get_coordinator_id () {
             return _coordinator;
+        }
+
+        public void set_coordinator_id(int coordinator) {
+            _coordinator = coordinator;
         }
 
         public int get_coordinator_id(int slot) {
@@ -267,6 +271,8 @@ namespace Bank
             var current_slot = _timeslots_info[_current_slot];
             bool was_frozen = _frozen;
             int coordinator = int.MaxValue;
+            int previous_coordinator = _coordinator;
+            bool previous_coord_frozen = true;
             foreach (var server_info in current_slot) {
                 int id = server_info.get_id();
                 // check if the current process is frozen
@@ -277,7 +283,15 @@ namespace Bank
                         coordinator = id;
                     }
 
+                    if (id == previous_coordinator) {
+                        previous_coord_frozen = server_info.is_frozen();
+                    }
                     continue;
+                }
+
+
+                if (id == previous_coordinator) { 
+                    previous_coord_frozen = server_info.is_suspected();
                 }
 
                 // check if the bank processess is the coordinator or not
@@ -287,7 +301,16 @@ namespace Bank
                 }
             }
 
-            _coordinator = coordinator;
+            //send preferably the last server as coordinator if it is unsuspected
+            if (previous_coord_frozen){
+                _coordinator = coordinator;
+            } else {
+                _coordinator = previous_coordinator;
+            }
+            Console.WriteLine("previous_frozen= " + previous_coord_frozen);
+            Console.WriteLine("previous_coordinator= " + previous_coordinator);
+            Console.WriteLine("_coordinator= " + _coordinator);
+
             _coordinators_dict.Add(_current_slot, _coordinator);
 
             // freeze/unfreeze channels
