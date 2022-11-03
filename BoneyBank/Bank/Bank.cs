@@ -1,5 +1,6 @@
 ﻿using Bank.implementations;
 using Grpc.Core;
+using Grpc.Core.Interceptors;
 using System;
 using System.Collections.Generic;
 using System.Reflection.Metadata.Ecma335;
@@ -97,8 +98,8 @@ namespace Bank
             serverState.add_server_interceptor(bankPaxosServerInterceptor);
 
             Server server = new Server {
-                Services = { BankService.BindService(new BankServiceImpl(bankState, serverState, bankFrontend)),
-                             BankPaxos.BindService(new BankPaxosServiceImpl(serverState))},
+                Services = { BankService.BindService(new BankServiceImpl(bankState, serverState, bankFrontend)).Intercept(bankServiceServerInterceptor),
+                             BankPaxos.BindService(new BankPaxosServiceImpl(serverState)).Intercept(bankPaxosServerInterceptor)},
                 Ports = { new ServerPort(host, port, ServerCredentials.Insecure) }
             };
 
