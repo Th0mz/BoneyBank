@@ -235,7 +235,7 @@ namespace Bank.implementations
                     CleanupReply reply = new CleanupReply { 
                                             HighestKnownSeqNumber = _serverState.get_last_tentative() };
 
-                    for (int index = request.LastApplied; index < _serverState.get_last_tentative(); index++) { 
+                    for (int index = request.LastApplied + 1; index <= _serverState.get_last_tentative(); index++) { 
                         var command_id = _serverState.get_ordered_command(index);
                         if (command_id != null)
                         {

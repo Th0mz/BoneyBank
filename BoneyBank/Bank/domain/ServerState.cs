@@ -277,7 +277,11 @@ namespace Bank
         }
 
         public void setup_timeslot () {
-            _current_slot++;
+
+            lock (currentSlotLock) { 
+                _current_slot++;
+                Monitor.PulseAll(currentSlotLock);
+            }            
 
             var current_slot = _timeslots_info[_current_slot];
             bool was_frozen = _frozen;
@@ -336,13 +340,6 @@ namespace Bank
                     interceptor.toggle_freeze();
                 }
             }
-
-            // DEBUG : 
-            // Console.WriteLine("Setup TimeSlot\n======================");
-            // Console.WriteLine("Current Slot = " + _current_slot);
-            // Console.WriteLine("Frozen = " + _frozen);
-            // Console.WriteLine("Coordinator = " + _coordinator);
-
         }
 
 
