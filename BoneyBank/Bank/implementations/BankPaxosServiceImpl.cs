@@ -18,7 +18,7 @@ namespace Bank.implementations
 
 
         //============================================================
-        //======================== TENTATIVE =========================
+        //============             TENTATIVE              ============
         //============================================================
 
         //receive tentative ordered commands
@@ -85,14 +85,7 @@ namespace Bank.implementations
                                     //have to check from last applied because previous accepted might have
                                     //traded positions
                                     Console.WriteLine("{id=" + request.RequestId.ClientId + ";seq_number=" + request.SequenceNumber + "} " + "update the last sequential");
-                                    for (int index = _serverState.get_last_applied() + 1;
-                                        index <= _serverState.get_last_tentative(); index++) {
-                                        
-                                        if (_serverState.get_ordered_command(index) != null) {
-                                            _serverState.setLastSequential(index);
-                                            Monitor.PulseAll(_serverState.lastSequentialLock);
-                                        } else { break; }
-                                    }
+                                    updateLastSequential();
                                     
                                     Console.WriteLine("{id=" + request.RequestId.ClientId + ";seq_number=" + request.SequenceNumber + "} " + "yoo");
                                     var previous_command_id = _serverState.get_ordered_command(sequence_number);
@@ -136,7 +129,7 @@ namespace Bank.implementations
 
 
         //============================================================
-        //========================== COMMIT ==========================
+        //=============              COMMIT             ==============
         //============================================================
 
         //receive commit requests
@@ -179,16 +172,7 @@ namespace Bank.implementations
                                     if (seqNumberToCommit > lastTentative)
                                         _serverState.set_last_tentative(seqNumberToCommit);
 
-                                    //TODO: put in an auxiliary function
-                                    for (int index = _serverState.get_last_applied() + 1;
-                                        index <= _serverState.get_last_tentative(); index++) {
-                                        if (_serverState.get_ordered_command(index) != null) {
-                                            _serverState.setLastSequential(index);
-                                            Monitor.PulseAll(_serverState.lastSequentialLock);
-                                        }
-                                        else { break; }
-                                    }
-                                    
+                                    updateLastSequential();
 
                                 } else { //there is a command in given log position
                                     if (!commandIdInIndex.Equals(commandId)) { //command in log isnt the supposed one
@@ -227,13 +211,12 @@ namespace Bank.implementations
                     }
                 }               
             }
-            
         }
 
 
 
         //============================================================
-        //========================= CLEANUP ==========================
+        //===========               CLEANUP             ==============
         //============================================================
 
         public override Task<CleanupReply> Cleanup(CleanupRequest request, ServerCallContext context) {
@@ -241,6 +224,12 @@ namespace Bank.implementations
         }
 
         private CleanupReply do_cleanup(CleanupRequest request) {
+
+            lock(_serverState.currentSlotLock) {
+                while (request.Slot > _serverState.get_current_slot())
+                    Monitor.Wait(_serverState.currentSlotLock);
+            }
+
             lock (_serverState.orderedLock) {
                 lock (_serverState.lastTentativeLock) { 
                     CleanupReply reply = new CleanupReply { 
@@ -264,6 +253,23 @@ namespace Bank.implementations
                     }
                     return reply; 
                 }
+            }
+        }
+
+
+
+        //============================================================
+        //===============          AUXILIARY          ================
+        //============================================================
+
+        private void updateLastSequential() {
+            for (int index = _serverState.get_last_applied() + 1;
+                                        index <= _serverState.get_last_tentative(); index++) {
+                if (_serverState.get_ordered_command(index) != null) {
+                    _serverState.setLastSequential(index);
+                    Monitor.PulseAll(_serverState.lastSequentialLock);
+                }
+                else { break; }
             }
         }
 

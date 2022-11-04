@@ -1,4 +1,5 @@
-﻿using Grpc.Core.Interceptors;
+﻿using Google.Protobuf.WellKnownTypes;
+using Grpc.Core.Interceptors;
 using Grpc.Net.Client;
 using System;
 using System.Collections.Generic;
@@ -82,7 +83,7 @@ namespace Bank
         private HashSet<Tuple<int, int>> unordered = new();
         public Object unorderedLock = new();
 
-        private Tuple<int, int>[] ordered = new Tuple<int, int>[_MAXLOGSIZE]; //initialize as null
+        private Dictionary<int, Tuple<int, int>> ordered = new ();
         public Object orderedLock = new();
 
         private int lastApplied = -1;
@@ -369,7 +370,14 @@ namespace Bank
         }
 
         public void addAcceptedCommand(Tuple<int, int> commandId, int sequence_number) {
-            removeUnordered(commandId);
+            if (unordered.Contains(commandId)) {
+                removeUnordered(commandId);
+            } else {
+                if (ordered.ContainsValue(commandId)) {
+                    var item = ordered.First(kvp => kvp.Value.Equals(commandId));
+                    ordered.Remove(item.Key);
+                }
+            }
             addOrdered(commandId, sequence_number);
         }
 
@@ -412,17 +420,15 @@ namespace Bank
         }
 
         public BankCommand get_command(int sequence_number) {
-            var command_id = ordered[sequence_number];
-            if (command_id != null) { 
-                return allCommands[command_id];
-            }
+            if (ordered.ContainsKey(sequence_number))
+                return allCommands[ordered[sequence_number]];
             return null;
         }
 
         public BankCommand get_command(Tuple<int, int> key) {
-
-            if (allCommands.ContainsKey(key)) return allCommands[key];
-            else return null;
+            if (allCommands.ContainsKey(key)) 
+                return allCommands[key];
+            return null;
         }
 
         public Dictionary<Tuple<int, int>, BankCommand> get_all_commands()
@@ -434,13 +440,14 @@ namespace Bank
             return allCommands.ContainsKey(commandId);
         }
 
-        public Tuple<int, int> get_ordered_command(int index)
-        {
-            return ordered[index];
+        public Tuple<int, int> get_ordered_command(int index) {
+            if (ordered.ContainsKey(index))
+                return ordered[index];
+            return null;
         }
 
         public bool is_index_taken(int index) {
-            return ordered[index] != null;
+            return ordered.ContainsKey(index);
         }
 
     }
