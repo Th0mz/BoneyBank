@@ -46,17 +46,12 @@ namespace Client
                 replies.Add(reply);
             }
 
-            // TODO : wait for all to finish ??
-            int count = 0;
-            while (replies.Any() && count < 1) {
-                var task_reply = Task.WhenAny(replies).Result;
-                var _reply = task_reply.Result;
+            // wait just for one reply
+            var task_reply = Task.WhenAny(replies).Result;
+            var _reply = task_reply.Result;
 
-                Console.WriteLine("[" + _reply.Server + "]" + " Deposit succesful");
-                count++;
-
-                replies.Remove(task_reply);
-            }
+            Console.WriteLine("[" + _reply.Server + "]" + " Deposit succesful");
+            replies.Remove(task_reply);
         }
 
         public void withdrawal(float amount) {
@@ -74,16 +69,11 @@ namespace Client
                 replies.Add(reply);
             }
 
-            int count = 0;
-            // TODO : wait for all to finish ??
-            while (replies.Any() && count < 1) {
-                var task_reply = Task.WhenAny(replies).Result;
-                var _reply = task_reply.Result;
+            var task_reply = Task.WhenAny(replies).Result;
+            var _reply = task_reply.Result;
 
-                Console.WriteLine("[" + _reply.Server + "]" + " Withdrawal " + _reply.Status);
-                count++;
-                replies.Remove(task_reply);
-            }
+            Console.WriteLine("[" + _reply.Server + "]" + " Withdrawal " + _reply.Status);
+            replies.Remove(task_reply);
         }
 
         public void readBalance () {
@@ -100,17 +90,12 @@ namespace Client
                 replies.Add(reply);
             }
 
-            int count = 0;
-            // TODO : wait for all to finish ??
-            while (replies.Any() && count < 1)
-            {
-                var task_reply = Task.WhenAny(replies).Result;
-                var _reply = task_reply.Result;
+            // wait just for one reply
+            var task_reply = Task.WhenAny(replies).Result;
+            var _reply = task_reply.Result;
 
-                Console.WriteLine("[" + _reply.Server + "]" + "Balance : " + _reply.Balance);
-                count++;
-                replies.Remove(task_reply);
-            }
+            Console.WriteLine("[" + _reply.Server + "]" + "Balance : " + _reply.Balance);
+            replies.Remove(task_reply);
 
         }
     }
