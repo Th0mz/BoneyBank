@@ -36,9 +36,12 @@ namespace Bank
             // TODO : locks
             var bankCommand = new DepositCommand(requestId.ClientId, requestId.ClientSequenceNumber, request.Amount, _bankState);
             lock(_serverState.unorderedLock) { 
-                _serverState.addUnordered(bankCommand);
+                lock(_serverState.allCommandsLock) { 
+                    _serverState.addNewCommand(bankCommand);
+                    Monitor.PulseAll(_serverState.allCommandsLock);
+                }
             }
-
+            
             bool is_coordinator;
             lock (_serverState.coordinatorLock) {
                 is_coordinator = _serverState.is_coordinator();
@@ -82,8 +85,11 @@ namespace Bank
             var bankCommand = new WithdrawalCommand(requestId.ClientId, requestId.ClientSequenceNumber, request.Amount,_bankState);
             
             Console.WriteLine("Adding command to unordered list");
-            lock (_serverState.unorderedLock) { 
-                _serverState.addUnordered(bankCommand);
+            lock (_serverState.unorderedLock) {
+                lock (_serverState.allCommandsLock) {
+                    _serverState.addNewCommand(bankCommand);
+                    Monitor.PulseAll(_serverState.allCommandsLock);
+                }
             }
 
             bool is_coordinator;
@@ -139,8 +145,11 @@ namespace Bank
             };
 
             var bankCommand = new ReadBalanceCommand(requestId.ClientId, requestId.ClientSequenceNumber, _bankState);
-            lock (_serverState.unorderedLock) { 
-                _serverState.addUnordered(bankCommand);
+            lock (_serverState.unorderedLock) {
+                lock (_serverState.allCommandsLock) {
+                    _serverState.addNewCommand(bankCommand);
+                    Monitor.PulseAll(_serverState.allCommandsLock);
+                }
             }
 
             bool is_coordinator;

@@ -2,6 +2,7 @@
 using Grpc.Net.Client;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
@@ -70,13 +71,14 @@ namespace Bank
         private int _max_slots = 0;
         private int _current_slot = 0;
         public Object currentSlotLock = new();
-        private Dictionary<int, int> _coordinators_dict = new(); //<slot, coordinator for that slot>
+        public Dictionary<int, int> _coordinators_dict = new(); //<slot, coordinator for that slot>
 
         //-------------------------------------------
         //------ Bank Paxos specific variables ------
         //-------------------------------------------
-        private object paxos_lock = new object();
         private Dictionary<Tuple<int, int>, BankCommand> allCommands = new();
+        public Object allCommandsLock = new();
+
         private HashSet<Tuple<int, int>> unordered = new();
         public Object unorderedLock = new();
 
@@ -118,6 +120,10 @@ namespace Bank
 
         public void set_coordinator_id(int coordinator) {
             _coordinator = coordinator;
+        }
+
+        public void add_coordinator_id(int slot, int coord) {
+            _coordinators_dict[slot] = coord;
         }
 
         public int get_coordinator_id(int slot) {
@@ -339,7 +345,7 @@ namespace Bank
         //=============================================================
         //====================== COMMAND LOGS =========================
         //=============================================================
-        public void addUnordered(BankCommand command) {
+        public void addNewCommand(BankCommand command) {
             allCommands.Add(command.getCommandId(), command);
             unordered.Add(command.getCommandId());
         }
@@ -355,7 +361,12 @@ namespace Bank
         public void addOrdered(Tuple<int, int> commandId, int sequence_number) {
             if (sequence_number > lastTentative)
                 lastTentative = sequence_number;
-            ordered[sequence_number] = commandId;            
+            ordered[sequence_number] = commandId;
+        }
+
+        public void addAcceptedCommand(Tuple<int, int> commandId, int sequence_number) {
+            removeUnordered(commandId);
+            addOrdered(commandId, sequence_number);
         }
 
 
@@ -382,7 +393,6 @@ namespace Bank
         public void setLastSequential(int newLastSequential) {
             lastSequential = newLastSequential;
         }
-
 
         public BankCommand get_command(int sequence_number) {
             var command_id = ordered[sequence_number];

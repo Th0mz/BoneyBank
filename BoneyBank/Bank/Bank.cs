@@ -1,11 +1,9 @@
 ﻿using Bank.implementations;
 using Grpc.Core;
+using Grpc.Core.Interceptors;
 using System;
 using System.Collections.Generic;
 using System.Reflection.Metadata.Ecma335;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
 
 namespace Bank 
 {   
@@ -97,8 +95,8 @@ namespace Bank
             serverState.add_server_interceptor(bankPaxosServerInterceptor);
 
             Server server = new Server {
-                Services = { BankService.BindService(new BankServiceImpl(bankState, serverState, bankFrontend)),
-                             BankPaxos.BindService(new BankPaxosServiceImpl(serverState))},
+                Services = { BankService.BindService(new BankServiceImpl(bankState, serverState, bankFrontend)).Intercept(bankServiceServerInterceptor),
+                             BankPaxos.BindService(new BankPaxosServiceImpl(serverState)).Intercept(bankPaxosServerInterceptor)},
                 Ports = { new ServerPort(host, port, ServerCredentials.Insecure) }
             };
 
@@ -135,6 +133,13 @@ namespace Bank
                         Console.WriteLine("[" + serverState.get_current_slot() + "] Bank : sending comapare and swap for leader " + serverState.get_coordinator_id());
                         int new_coord = bankFrontend.compareAndSwap(current_slot, serverState.get_coordinator_id());
                         serverState.set_coordinator_id(new_coord);
+                        serverState.add_coordinator_id(current_slot, new_coord);
+                        Console.WriteLine("SLOT: " + current_slot + "   COORD: " + serverState.get_coordinator_id());
+                        //for(int i = 1; i <= current_slot; i++) {
+                        //   if (serverState._coordinators_dict.ContainsKey(i))
+                        //        Console.WriteLine(serverState._coordinators_dict[i]);
+                        //}
+                        Console.WriteLine("========FINISHED SETUP========");
                     }
                 }
                   
