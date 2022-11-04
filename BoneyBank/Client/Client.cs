@@ -156,7 +156,7 @@ namespace Client
 
                         // execute local functionality
                         Console.WriteLine("Sleep time started...");
-                        Thread.Sleep(milliseconds);
+                        await Task.Delay(milliseconds);
                         Console.WriteLine("Sleep time ended...");
                         break;
 

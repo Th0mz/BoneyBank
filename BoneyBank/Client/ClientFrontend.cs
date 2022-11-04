@@ -50,8 +50,23 @@ namespace Client
             var task_reply = Task.WhenAny(replies).Result;
             var _reply = task_reply.Result;
 
-            Console.WriteLine("[" + _reply.Server + "]" + " Deposit succesful");
+            Console.WriteLine("<" + id.ClientId + ", " + id.ClientSequenceNumber + ">" + " Deposit succesful form a " + _reply.Server + " server");
             replies.Remove(task_reply);
+
+            Thread thread = new Thread(() => wait_for_deposit(replies, id));
+            thread.Start();
+        }
+
+        public void wait_for_deposit(List<Task<DepositReply>> replies, requestId id)
+        {
+            while(replies.Any())
+            {
+                var task_reply = Task.WhenAny(replies).Result;
+                var _reply = task_reply.Result;
+
+                Console.WriteLine("<" + id.ClientId + ", " + id.ClientSequenceNumber + ">" + " Deposit succesful form a " + _reply.Server + " server");
+                replies.Remove(task_reply);
+            }
         }
 
         public void withdrawal(float amount) {
@@ -72,8 +87,23 @@ namespace Client
             var task_reply = Task.WhenAny(replies).Result;
             var _reply = task_reply.Result;
 
-            Console.WriteLine("[" + _reply.Server + "]" + " Withdrawal " + _reply.Status);
+            Console.WriteLine("<" + id.ClientId + ", " + id.ClientSequenceNumber + ">" + " Withdrawal " + _reply.Status);
             replies.Remove(task_reply);
+
+            Thread thread = new Thread(() => wait_for_withdrawal(replies, id));
+            thread.Start();
+        }
+
+        public void wait_for_withdrawal(List<Task<WithdrawalReply>> replies, requestId id)
+        {
+            while (replies.Any())
+            {
+                var task_reply = Task.WhenAny(replies).Result;
+                var _reply = task_reply.Result;
+
+                Console.WriteLine("<" + id.ClientId + ", " + id.ClientSequenceNumber + ">" + " Withdrawal " + _reply.Status);
+                replies.Remove(task_reply);
+            }
         }
 
         public void readBalance () {
@@ -94,9 +124,24 @@ namespace Client
             var task_reply = Task.WhenAny(replies).Result;
             var _reply = task_reply.Result;
 
-            Console.WriteLine("[" + _reply.Server + "]" + "Balance : " + _reply.Balance);
+            Console.WriteLine("<" + id.ClientId + ", " + id.ClientSequenceNumber + ">" + "Balance : " + _reply.Balance);
             replies.Remove(task_reply);
 
+            Thread thread = new Thread(() => wait_for_read(replies, id));
+            thread.Start();
+
+        }
+
+        public void wait_for_read(List<Task<ReadBalanceReply>> replies, requestId id)
+        {
+            while (replies.Any())
+            {
+                var task_reply = Task.WhenAny(replies).Result;
+                var _reply = task_reply.Result;
+
+                Console.WriteLine("<" + id.ClientId + ", " + id.ClientSequenceNumber + ">" + "Balance : " + _reply.Balance);
+                replies.Remove(task_reply);
+            }
         }
     }
 
