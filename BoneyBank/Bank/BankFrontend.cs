@@ -1,6 +1,7 @@
 ﻿using Grpc.Core.Interceptors;
 using Grpc.Core;
 using Grpc.Net.Client;
+using System.ComponentModel.Design;
 
 namespace Bank
 {
@@ -92,19 +93,21 @@ namespace Bank
             int count = 0;
             List<Task<CleanupReply>> cleanup_replies;
 
-            int last_commited;
+            int last_applied;
             int slot;
             lock (_serverState.currentSlotLock) { 
                 lock (_serverState.lastAppliedLock) {
-                    last_commited = _serverState.get_last_applied();
+                    last_applied = _serverState.get_last_applied();
                     slot = _serverState.get_current_slot();
                 }
             }
             
-            cleanup_replies = cleanup(last_commited, slot);
+            cleanup_replies = cleanup(last_applied, slot);
             
             //TODO: create 'previous' list <commandId, sequenceNumber>
-            HashSet<Tuple<int, int>> accepted = new();
+            //HashSet<Tuple<int, int>> accepted = new();
+            Dictionary<int, CommandIdWithSeqNum> accepted = new();
+            int highestSeqNumReplies = -1;
 
             while (cleanup_replies.Any() && (count < (number_servers / 2) + 1))
             {
@@ -116,7 +119,9 @@ namespace Bank
                         _serverState.set_last_tentative(reply.HighestKnownSeqNumber);
                 }
 
-                lock (_serverState.nextSequenceNumberLock) { 
+                lock (_serverState.nextSequenceNumberLock) {
+                    if (reply.HighestKnownSeqNumber > highestSeqNumReplies)
+                        highestSeqNumReplies = reply.HighestKnownSeqNumber;
                     if (reply.HighestKnownSeqNumber > _serverState.getNextSequenceNumber())
                         _serverState.setNextSequenceNumber(reply.HighestKnownSeqNumber);
                 }
@@ -129,11 +134,24 @@ namespace Bank
 
                 foreach (var commandId in reply.Accepted) {
                     //accepted.Add(new Tuple<int, int>(commandId.ClientId, commandId.ClientSequenceNumber));
-                    doPreviousCommand(commandId.RequestId,commandId.SequenceNumber);
+                    if (accepted.ContainsKey(commandId.SequenceNumber)) {
+                        if (commandId.AssignmentSlot > accepted[commandId.SequenceNumber].AssignmentSlot)
+                            accepted[commandId.SequenceNumber] = commandId;
+                    }
+                    _serverState.removeUnordered(new Tuple<int, int>(commandId.RequestId.ClientId, commandId.RequestId.ClientSequenceNumber));
                 }
                 
                 // remove received reply
                 cleanup_replies.Remove(task_reply);
+            }
+
+            for(int index = last_applied + 1; index < highestSeqNumReplies; index++) {
+                if (accepted.ContainsKey(index))
+                    doPreviousCommand(accepted[index].RequestId, accepted[index].SequenceNumber);
+            }
+
+            foreach(var commandId in _serverState.getUnorderedCommands()) {
+                doCommand(new CommandId { ClientId = commandId.Item1, ClientSequenceNumber = commandId.Item2 });
             }
             //TODO: can only set the server as coordinator when it has finished cleanup
         }

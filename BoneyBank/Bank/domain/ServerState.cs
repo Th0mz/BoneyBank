@@ -375,6 +375,10 @@ namespace Bank
             addOrdered(commandId, sequence_number);
         }
 
+        public List<Tuple<int, int>> getUnorderedCommands() {
+            return unordered.ToList();
+        }
+
 
         public int get_last_applied() {
             return lastApplied;

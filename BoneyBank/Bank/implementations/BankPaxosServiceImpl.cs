@@ -229,7 +229,8 @@ namespace Bank.implementations
                                     ClientId = command.getClientId(),
                                     ClientSequenceNumber = command.getSequenceNumber()
                                 },
-                                SequenceNumber = index
+                                SequenceNumber = index,
+                                AssignmentSlot = command.get_assignment_slot()
                             });
                         }   
                     }
