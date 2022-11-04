@@ -31,11 +31,9 @@ namespace Bank
 
         public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(TRequest request, ClientInterceptorContext<TRequest, TResponse> context, AsyncUnaryCallContinuation<TRequest, TResponse> continuation) {
 
-            Console.WriteLine("[client] Intercepted message");
 
             // freeze channel
             if (_serverState.is_frozen()) {
-                Console.WriteLine("Frozen waiting...");
                 _event.WaitOne();
             }
 
@@ -45,10 +43,8 @@ namespace Bank
 
         public override Task<TResponse> UnaryServerHandler<TRequest, TResponse>(TRequest request, ServerCallContext context, UnaryServerMethod<TRequest, TResponse> continuation) {
 
-            Console.WriteLine("[server] Intercepted message");
             // freeze channel
             if (_serverState.is_frozen()) {
-                Console.WriteLine("Frozen waiting...");
                 _event.WaitOne();
             }
 

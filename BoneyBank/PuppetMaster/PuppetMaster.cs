@@ -33,7 +33,7 @@ public class Puppetmaster {
         processBank.Start();
     }
 
-    private static void startClient(string id)
+    private static void startClient(string id, string script_path)
     {
         var processClient = new Process
         {
@@ -42,7 +42,7 @@ public class Puppetmaster {
                 FileName = @"..\..\..\..\Client\bin\Debug\net6.0\Client.exe",
                 UseShellExecute = true,
                 CreateNoWindow = true,
-                Arguments = id
+                Arguments = id + " " + script_path
             }
         };
         processClient.Start();
@@ -72,7 +72,7 @@ public class Puppetmaster {
                     }
 
                     else if (parts[2].Equals("client")) {
-                        startClient(parts[1]);
+                        startClient(parts[1], parts[3]);
                     }
 
                     break;

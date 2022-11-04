@@ -54,6 +54,7 @@ namespace Client
 
                 Console.WriteLine("[" + _reply.Server + "]" + " Deposit succesful");
                 count++;
+
                 replies.Remove(task_reply);
             }
         }
@@ -63,7 +64,6 @@ namespace Client
 
 
             var id = get_request_id();
-            Console.WriteLine("ID: " + id);
             var request = new WithdrawalRequest { Amount = amount, Id = id };
             List<Task<WithdrawalReply>> replies = new List<Task<WithdrawalReply>>();
             foreach (var bankConnection in _clientState.get_bank_servers().Values) {

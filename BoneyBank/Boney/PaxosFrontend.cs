@@ -47,7 +47,6 @@ namespace Boney
             Random random = new Random();
 
 
-            // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : starting propose of " + slot + ", " + leader);
             while (!consensus_reached) {
 
                 // Phase 1 : send prepares
@@ -67,7 +66,6 @@ namespace Boney
                     timeout_exp++;
 
                     var proposal_replies = prepare(proposal_number, slot);
-                    // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : sent prepare request with number " + proposal_number);
 
                     int count = 0;
                     // wait for replies or a quorum of acks
@@ -77,12 +75,8 @@ namespace Boney
                         var reply = task_reply.Result;
 
                         if (reply.CurrentInstance != true) {
-                            // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : not current instance");
                             return;
                         }
-
-                        // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : recived -  accepted_sn : "  + reply.LastAcceptedSeqnum 
-                        //    + " promised_sn  " + reply.LastPromisedSeqnum + "  accepted_v " + reply.LastAcceptedValue);
 
                         // check if the propose was promissed by the acceptor
                         if (reply.LastPromisedSeqnum == proposal_number) {
@@ -108,7 +102,6 @@ namespace Boney
                     // quorum not reached (must do another prepare)
                     if (!(count >= (number_servers / 2 ) + 1)) {
                         // random timeout
-                        // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : quorum not reached");
                         int timeout = random.Next(0, (int)Math.Pow(2, timeout_exp + 1));
                         Thread.Sleep(timeout);
                         continue;
@@ -118,16 +111,12 @@ namespace Boney
                         highest_value = leader;
                     }
 
-                    // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : after all replies " + highest_sequence_number + ", " + highest_value);
-                    // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : quorum reached");
                     quorum_reached = true;
                 }
 
 
                 // Phase 2 : send accepts
                 quorum_reached = false;
-                // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : sent accept request with number " + proposal_number 
-                //    + " and leader " + highest_value);
 
                 var accept_replies = accept(proposal_number, highest_value, slot);
                 int accept_count = 0;
@@ -138,11 +127,9 @@ namespace Boney
                     var reply = task_reply.Result;
 
                     if (reply.CurrentInstance != true) {
-                        // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : not current instance");
                         return;
                     }
 
-                    // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : recived accept status " + reply.Status);
                     if (reply.Status == ResponseCode.Ok) {
                         accept_count++;
                     }
@@ -153,19 +140,15 @@ namespace Boney
 
                 // check if a majority replied
                 if (!(accept_count >= (number_servers / 2) + 1)) {
-                    // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : quorum not reached");
                     // random timeout
                     int timeout = random.Next(0, (int) Math.Pow(2, timeout_exp + 1));
                     Thread.Sleep(timeout);
                     continue;
                 }
 
-                // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "Proposer : quorum reached");
-
                 // Propagate consensus value
                 learn(highest_value, slot);
                 consensus_reached = true;
-                // Console.WriteLine("Proposed : learn " + highest_value);
                 
             }
 
@@ -246,7 +229,6 @@ namespace Boney
         public void toggle_freeze () {
 
             if (_interceptor == null) {
-                Console.WriteLine("Not init interceptor");
                 return;
             }
 

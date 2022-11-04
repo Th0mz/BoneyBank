@@ -30,21 +30,20 @@ namespace Bank
 
             List<Task<CompareAndSwapReply>> replies = new List<Task<CompareAndSwapReply>>(); 
             foreach (var client in _serverState.get_boney_servers().Values){
-                var reply = client.CompareAndSwapAsync(request).ResponseAsync;
-                replies.Add(reply);
+                var reply_async = client.CompareAndSwapAsync(request).ResponseAsync;
+                replies.Add(reply_async);
             }
 
-            //while (replies.Any()) {
 
-                var task_reply = Task.WhenAny(replies).Result;
-                var new_reply = task_reply.Result;
+            var task_reply = Task.WhenAny(replies).Result;
+            var reply = task_reply.Result;
 
-                Console.WriteLine("received reply with leader " + new_reply.Leader);
+            Console.WriteLine("compareAndSwap reach consensus on leader " + reply.Leader);
 
-                // remove recieved reply
-                replies.Remove(task_reply);
-            return new_reply.Leader;
-            //}
+            // remove recieved reply
+            replies.Remove(task_reply);
+
+            return reply.Leader;
         }
 
        public void doCommand(CommandId commandId)
@@ -63,22 +62,18 @@ namespace Bank
                 lock (_serverState.lastTentativeLock) {
                     lock (_serverState.nextSequenceNumberLock) { 
                         sequence_number = _serverState.getAndIncNextSequenceNumber();
-                        //_serverState.set_last_tentative(sequence_number + 1); 
                         assignment_slot = _serverState.get_current_slot();
                     }
-                    
-            
                 }
             }
 
             tentative_replies = tentative(id, sequence_number, assignment_slot, commandId);
-                                   
+
             while (tentative_replies.Any() && (count < (number_servers / 2) + 1))
             {
                 var task_reply = Task.WhenAny(tentative_replies).Result;
                 var reply = task_reply.Result;
 
-                Console.WriteLine("Recieved an response : " + reply.Ack);
                 // check if the command was acked by the other banks
                 if (reply.Ack) { count++; }
 
@@ -86,12 +81,9 @@ namespace Bank
                 tentative_replies.Remove(task_reply);
             }
 
-            Console.WriteLine("Going to commit, count = " + count);
             if(count >= (number_servers / 2) + 1) {
                 commit(commandId, sequence_number);
-            } else {
-                //TODO: faz alguma coisa???
-            }
+            } 
         }
 
         public void doCleanup () {
@@ -169,7 +161,6 @@ namespace Bank
                 var task_reply = Task.WhenAny(tentative_replies).Result;
                 var reply = task_reply.Result;
 
-                Console.WriteLine("Recieved an response : " + reply.Ack);
                 // check if the command was acked by the other banks
                 if (reply.Ack) { count++; }
 
@@ -177,21 +168,14 @@ namespace Bank
                 tentative_replies.Remove(task_reply);
             }
 
-            Console.WriteLine("Going to commit, count = " + count);
-            if (count >= (number_servers / 2) + 1)
-            {
+            if (count >= (number_servers / 2) + 1) {
                 commit(commandId, sequence_number);
-            }
-            else
-            {
-                //TODO: faz alguma coisa???
             }
         }
 
 
         public List<Task<TentativeReply>> tentative(int id, int sequence_number, int assignment_slot, CommandId commandId)
         {
-            Console.WriteLine("Started tentative for id: " + commandId.ClientId + " with seq_number: " + sequence_number);
             TentativeRequest request = new TentativeRequest
             {
                 RequestId = commandId,
@@ -210,12 +194,10 @@ namespace Bank
                 replies.Add(reply);
             }
 
-            Console.WriteLine("Ended tentative");
             return replies;
         }
 
         public void commit(CommandId commandId, int sequence_number) {
-            Console.WriteLine("Started commit");
 
             CommitRequest request = new CommitRequest {
                 RequestId = commandId,
@@ -228,7 +210,6 @@ namespace Bank
                 client.CommitAsync(request);
             }
 
-            Console.WriteLine("Ended commit");
         }
 
         public List<Task<CleanupReply>> cleanup (int last_commited, int slot) {
@@ -279,7 +260,6 @@ namespace Bank
         public void toggle_freeze() {
 
             if (_interceptor == null) {
-                Console.WriteLine("Not init interceptor");
                 return;
             }
 

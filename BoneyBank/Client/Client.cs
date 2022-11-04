@@ -9,13 +9,19 @@ namespace Client
     {
         private static bool processInput(string[] args, string path, ClientState clientState)
         {
-            if (args.Length != 1) {
+            if (args.Length != 2) {
                 Console.WriteLine("Error : invalid number of arguments");
                 return false;
             }
 
+
             if (!File.Exists(path)) {
-                Console.WriteLine("Error : invalid path");
+                Console.WriteLine("Error : invalid configuration file path");
+                return false;
+            }
+
+            if (!File.Exists(args[1])) {
+                Console.WriteLine("Error : invalid script file path");
                 return false;
             }
 
@@ -54,9 +60,8 @@ namespace Client
             ClientState state = new ClientState();
             ClientFrontend clientFrontend = new ClientFrontend(state);
 
-            //string config_path = @"..\..\..\..\..\configuration_sample.txt";
-            string config_path = @"C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\configuration_sample.txt";
-            string script_path = @"C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\bank_client_script_sample.txt";
+            string config_path = @"..\..\..\..\..\configuration_sample.txt";
+            string script_path = args[1];
             
             if (!processInput(args, config_path, state)) {
                 // error processing input

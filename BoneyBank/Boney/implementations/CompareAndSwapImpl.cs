@@ -28,15 +28,12 @@ namespace Boney
             int slot = request.Slot;
 
             // DEBUG
-            // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "CompareAndSwap(" + leader + ", " + slot + ")");
             Slot slot_obj = _state.get_slot(slot);
 
 
             lock (slot_obj)
             {
-                if (slot_obj.has_leader())
-                {
-                    // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "CompareAndSwap : Leader already exists");
+                if (slot_obj.has_leader()) {
                     return new CompareAndSwapReply
                     {
                         Leader = slot_obj.get_leader()
@@ -44,10 +41,6 @@ namespace Boney
                 }
             }
 
-            // DEBUG
-            // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "CompareAndSwap : Proposing leader");
-
-            // TODO : need to syncronize acess to server state
             if (_serverState.is_coordinator()) {
                 _paxosFrontend.propose(slot, leader);
             }
@@ -62,7 +55,6 @@ namespace Boney
             }
 
 
-            // Console.WriteLine("[" + DateTime.Now.ToString("s.ffff") + "] " + "CompareAndSwap : chosen value " + slot_obj.get_leader());
             return new CompareAndSwapReply {
                 Leader = leader
             };

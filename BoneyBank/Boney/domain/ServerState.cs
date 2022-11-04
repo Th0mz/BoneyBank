@@ -236,11 +236,6 @@ namespace Boney
                     interceptor.toggle_freeze();
                 }
             }
-            // DEBUG : 
-            // Console.WriteLine("Setup TimeSlot\n======================");
-            // Console.WriteLine("Current Slot = " + _current_slot);
-            // Console.WriteLine("Frozen = " + _frozen);
-            // Console.WriteLine("Coordinator = " + _coordinator);
         }
     }
 

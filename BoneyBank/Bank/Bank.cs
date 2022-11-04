@@ -17,7 +17,7 @@ namespace Bank
             }
 
             if (!File.Exists(path)) {
-                Console.WriteLine("Error : invalid path");
+                Console.WriteLine("Error : invalid configuration file path");
                 return false;
             }
 
@@ -66,7 +66,6 @@ namespace Bank
             BankState bankState = new BankState();
             ServerState serverState = new ServerState();
             string config_path = @"..\..\..\..\..\configuration_sample.txt";
-            //string config_path = @"C:\Users\tomas\OneDrive\Ambiente de Trabalho\Uni\4Ano\P1\PADI\projeto\configuration_sample.txt";
 
             if (! processInput(args, config_path, serverState)) {
                 // error processing input occurred
@@ -102,7 +101,7 @@ namespace Bank
 
             server.Start();
 
-            Console.WriteLine("Boney server listening on port " + port);
+            Console.WriteLine("Bank server listening on port " + port);
 
             // wait until starting time
             TimeSpan wait_time = serverState.get_starting_time() - DateTime.Now;
@@ -116,30 +115,20 @@ namespace Bank
                 return;
             }
              
-            Console.WriteLine("WHAT IS CURRENT SLOT?= " + serverState.get_current_slot());
-            Console.WriteLine("WHAT IS CURRENT COORD?= " + serverState.get_coordinator_id());
-
+            DateTime starting_time = serverState.get_starting_time();
             while (serverState.has_next_slot())
             {
-                DateTime starting_time;
                 int current_slot;
                 lock (serverState.currentSlotLock) {
                     lock (serverState.coordinatorLock) {
                         serverState.setup_timeslot();
-                        Console.WriteLine("[" + serverState.get_current_slot() + "] Bank : DID SETUP TIMESLOT ");
-                        starting_time = serverState.get_starting_time();
+                        Console.WriteLine("[" + serverState.get_current_slot() + "] Leader : " + serverState.is_coordinator() + ", Frozen : " + serverState.is_frozen());
                         current_slot = serverState.get_current_slot();
 
-                        Console.WriteLine("[" + serverState.get_current_slot() + "] Bank : sending comapare and swap for leader " + serverState.get_coordinator_id());
+                        Console.WriteLine("> Sending comapare and swap for leader " + serverState.get_coordinator_id());
                         int new_coord = bankFrontend.compareAndSwap(current_slot, serverState.get_coordinator_id());
                         serverState.set_coordinator_id(new_coord);
                         serverState.add_coordinator_id(current_slot, new_coord);
-                        Console.WriteLine("SLOT: " + current_slot + "   COORD: " + serverState.get_coordinator_id());
-                        //for(int i = 1; i <= current_slot; i++) {
-                        //   if (serverState._coordinators_dict.ContainsKey(i))
-                        //        Console.WriteLine(serverState._coordinators_dict[i]);
-                        //}
-                        Console.WriteLine("========FINISHED SETUP========");
                     }
                 }
                   

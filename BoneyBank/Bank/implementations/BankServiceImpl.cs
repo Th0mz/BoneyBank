@@ -72,7 +72,6 @@ namespace Bank
         }
 
         private WithdrawalReply do_withdrawal(WithdrawalRequest request) {
-            Console.WriteLine("Starting do_withdrawal");
             // TODO : final vertion uses 2 phase commit to order commands
             var requestId = new CommandId 
             {
@@ -81,10 +80,8 @@ namespace Bank
             };
 
             // TODO : locks
-            Console.WriteLine("Created command");
             var bankCommand = new WithdrawalCommand(requestId.ClientId, requestId.ClientSequenceNumber, request.Amount,_bankState);
             
-            Console.WriteLine("Adding command to unordered list");
             lock (_serverState.unorderedLock) {
                 lock (_serverState.allCommandsLock) {
                     _serverState.addNewCommand(bankCommand);
@@ -100,30 +97,23 @@ namespace Bank
             }
 
             ServerStatus server = ServerStatus.Backup;
-            Console.WriteLine("coordinator : " + coordinator_id);
             if (is_coordinator) {
-                Console.WriteLine("Executing doCommand as primary");
                 server = ServerStatus.Primary;
                 _bankFrontend.doCommand(requestId);
             }
-            Console.WriteLine("do_command completed");
 
             lock (bankCommand) {
                 while (!bankCommand.is_applied()) {
-                    Console.WriteLine("waiting");
                     Monitor.Wait(bankCommand);
                 }
             }
 
-            Console.WriteLine("outside");
 
             bool succeeded = bankCommand.get_result();
             ResponseStatus status = ResponseStatus.Ok;
             if (!succeeded) {
                 status = ResponseStatus.NoFunds;
             }
-
-            Console.WriteLine("return");
 
             return new WithdrawalReply { Status = status, Server = server };
         }

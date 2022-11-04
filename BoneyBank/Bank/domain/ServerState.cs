@@ -322,10 +322,7 @@ namespace Bank
             } else {
                 _coordinator = previous_coordinator;
             }
-            Console.WriteLine("previous_frozen= " + previous_coord_frozen);
-            Console.WriteLine("previous_coordinator= " + previous_coordinator);
-            Console.WriteLine("_coordinator= " + _coordinator);
-
+            
             _coordinators_dict.Add(_current_slot, _coordinator);
 
             // freeze/unfreeze channels
