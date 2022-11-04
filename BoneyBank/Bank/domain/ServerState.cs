@@ -95,6 +95,10 @@ namespace Bank
         private int lastSequential = -1; //index of the last sequential command acked by the replica
         public Object lastSequentialLock = new();
 
+        private int nextSequenceNumber = 0;
+        public Object nextSequenceNumberLock = new();
+
+
         private List<FrozenInterceptor> _server_interceptors = new List<FrozenInterceptor>();
 
 
@@ -392,6 +396,19 @@ namespace Bank
         }
         public void setLastSequential(int newLastSequential) {
             lastSequential = newLastSequential;
+        }
+
+        public int getAndIncNextSequenceNumber() {
+            nextSequenceNumber++;
+            return nextSequenceNumber - 1;
+        }
+
+        public int getNextSequenceNumber() {
+            return nextSequenceNumber;
+        }
+
+        public void setNextSequenceNumber(int n) {
+            nextSequenceNumber = n;
         }
 
         public BankCommand get_command(int sequence_number) {

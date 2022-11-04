@@ -61,9 +61,12 @@ namespace Bank
 
             lock (_serverState.currentSlotLock) { 
                 lock (_serverState.lastTentativeLock) {
-                    sequence_number = _serverState.get_last_tentative() + 1;
-                    //_serverState.set_last_tentative(sequence_number + 1); 
-                    assignment_slot = _serverState.get_current_slot();
+                    lock (_serverState.nextSequenceNumberLock) { 
+                        sequence_number = _serverState.getAndIncNextSequenceNumber();
+                        //_serverState.set_last_tentative(sequence_number + 1); 
+                        assignment_slot = _serverState.get_current_slot();
+                    }
+                    
             
                 }
             }
@@ -119,6 +122,11 @@ namespace Bank
                 lock (_serverState.lastTentativeLock) {
                     if (reply.HighestKnownSeqNumber > _serverState.get_last_tentative())
                         _serverState.set_last_tentative(reply.HighestKnownSeqNumber);
+                }
+
+                lock (_serverState.nextSequenceNumberLock) { 
+                    if (reply.HighestKnownSeqNumber > _serverState.getNextSequenceNumber())
+                        _serverState.setNextSequenceNumber(reply.HighestKnownSeqNumber);
                 }
                 
                 //TODO: make sure it's not necessary given we use perfect channels
@@ -183,7 +191,7 @@ namespace Bank
 
         public List<Task<TentativeReply>> tentative(int id, int sequence_number, int assignment_slot, CommandId commandId)
         {
-            Console.WriteLine("Started tentative");
+            Console.WriteLine("Started tentative for id: " + commandId.ClientId + " with seq_number: " + sequence_number);
             TentativeRequest request = new TentativeRequest
             {
                 RequestId = commandId,

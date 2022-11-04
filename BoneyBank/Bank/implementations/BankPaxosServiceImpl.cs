@@ -27,8 +27,7 @@ namespace Bank.implementations
         }
 
         private TentativeReply do_tentative(TentativeRequest request) {
-            Console.WriteLine("Processing tentative");
-            Console.WriteLine("=======================");
+            Console.WriteLine("{id="+request.RequestId.ClientId+";seq_number="+request.SequenceNumber+"} " + "Processing tentative");
             Tuple<int, int> commandId = new(request.RequestId.ClientId, request.RequestId.ClientSequenceNumber);
             int assignment_slot = request.AssignmentSlot;
             int sender_id = request.SenderId;
@@ -41,11 +40,20 @@ namespace Bank.implementations
                 }
             }
 
+            //only responds with ack after all the previous commands were received
+            lock (_serverState.lastSequentialLock) {
+                Console.WriteLine("{id=" + request.RequestId.ClientId + ";seq_number=" + request.SequenceNumber + "} " + "only responds with ack after all the previous commands were received");
+                while (_serverState.getLastSequential() < sequence_number - 1) {
+                    Console.WriteLine("{id=" + request.RequestId.ClientId + ";seq_number=" + request.SequenceNumber + "} " + "waiting for previous commands");
+                    Monitor.Wait(_serverState.lastSequentialLock);
+                }
+            }
+
             //TODO: completely correct???
             lock (_serverState.currentSlotLock) {
 
                 //check if sender was the primary for the slot of the assignment
-                Console.WriteLine("Check slot leader");
+                Console.WriteLine("{id=" + request.RequestId.ClientId + ";seq_number=" + request.SequenceNumber + "} " + "Check slot leader");
                 int coordinator_assignment_slot = _serverState.get_coordinator_id(assignment_slot);
                 if (coordinator_assignment_slot != sender_id)
                 {
@@ -53,22 +61,22 @@ namespace Bank.implementations
                 }
 
                 //check if the coordinator has changed since
-                Console.WriteLine("Check if the coordinator has changed since");
+                Console.WriteLine("{id=" + request.RequestId.ClientId + ";seq_number=" + request.SequenceNumber + "} " + "Check if the coordinator has changed since");
                 for (int slot = assignment_slot; slot < _serverState.get_current_slot(); slot++) {
                     if (_serverState.get_coordinator_id(slot) != sender_id) {
                         return new TentativeReply { Ack = false };
                     }
-                }
+                }                            
 
                 lock (_serverState.unorderedLock) {
                     lock (_serverState.orderedLock) {
                         lock (_serverState.lastAppliedLock) {
                             lock (_serverState.lastTentativeLock) {
                                 lock (_serverState.lastSequentialLock) {
-                                    Console.WriteLine("Inside locks");
+                                    Console.WriteLine("{id=" + request.RequestId.ClientId + ";seq_number=" + request.SequenceNumber + "} " + "Inside locks");
                                     //already applied
                                     if (sequence_number <= _serverState.get_last_applied()) {
-                                        Console.WriteLine("already applied");
+                                        Console.WriteLine("{id=" + request.RequestId.ClientId + ";seq_number=" + request.SequenceNumber + "} " + "already applied");
                                         return new TentativeReply { Ack = false };
                                     }
 
@@ -76,7 +84,7 @@ namespace Bank.implementations
                                     //update the last sequential
                                     //have to check from last applied because previous accepted might have
                                     //traded positions
-                                    Console.WriteLine("update the last sequential");
+                                    Console.WriteLine("{id=" + request.RequestId.ClientId + ";seq_number=" + request.SequenceNumber + "} " + "update the last sequential");
                                     for (int index = _serverState.get_last_applied() + 1;
                                         index <= _serverState.get_last_tentative(); index++) {
                                         
@@ -85,17 +93,11 @@ namespace Bank.implementations
                                             Monitor.PulseAll(_serverState.lastSequentialLock);
                                         } else { break; }
                                     }
-
-                                    //only responds with ack after all the previous commands were received
-                                    Console.WriteLine("only responds with ack after all the previous commands were received");
-                                    while (_serverState.getLastSequential() < sequence_number - 1) {
-                                        Monitor.Wait(_serverState.lastSequentialLock);
-                                    }
-
-                                    Console.WriteLine("yoo");
+                                    
+                                    Console.WriteLine("{id=" + request.RequestId.ClientId + ";seq_number=" + request.SequenceNumber + "} " + "yoo");
                                     var previous_command_id = _serverState.get_ordered_command(sequence_number);
                                     if (previous_command_id != null) {
-                                        Console.WriteLine("previous command id != null");
+                                        Console.WriteLine("{id=" + request.RequestId.ClientId + ";seq_number=" + request.SequenceNumber + "} " + "previous command id != null");
                                         if (_serverState.get_command(previous_command_id).is_commited() ||
                                                 _serverState.get_command(previous_command_id).get_assignment_slot() >= assignment_slot)
                                             return new TentativeReply { Ack = false };
@@ -107,7 +109,7 @@ namespace Bank.implementations
                                         _serverState.get_command(commandId).set_assignment_slot(assignment_slot);
 
                                     } else { //log is still empty
-                                        Console.WriteLine("previous command id == null");
+                                        Console.WriteLine("{id=" + request.RequestId.ClientId + ";seq_number=" + request.SequenceNumber + "} " + "previous command id == null");
                                         _serverState.addAcceptedCommand(commandId, sequence_number);
                                         _serverState.get_command(commandId).set_assignment_slot(assignment_slot);
                                     }
@@ -119,8 +121,7 @@ namespace Bank.implementations
                                         Monitor.PulseAll(_serverState.lastSequentialLock);
                                     }
 
-                                    Console.WriteLine("Finished tentative with ack = true");
-                                    Console.WriteLine("=======================");
+                                    Console.WriteLine("{id=" + request.RequestId.ClientId + ";seq_number=" + request.SequenceNumber + "} " + "Finished tentative with ack = true");
 
                                     return new TentativeReply { Ack = true };
                                 }
@@ -145,8 +146,7 @@ namespace Bank.implementations
 
         private CommitReply do_commit(CommitRequest request) {
 
-            Console.WriteLine("Processing commit");
-            Console.WriteLine("=======================");
+            Console.WriteLine("{id=" + request.RequestId.ClientId + ";seq_number=" + request.SequenceNumber + "} " + "Processing commit");
             Tuple<int, int> commandId = new(request.RequestId.ClientId, request.RequestId.ClientSequenceNumber);
             int seqNumberToCommit = request.SequenceNumber;
 
@@ -168,7 +168,7 @@ namespace Bank.implementations
 
                                 //Already has been commited; nothing to do
                                 //Possible if the new coordinator sends new commmit for command already applied
-                                Console.WriteLine("Already has been applied");
+                                Console.WriteLine("{id=" + request.RequestId.ClientId + ";seq_number=" + request.SequenceNumber + "} " + "Already has been applied");
                                 if (seqNumberToCommit < lastApplied)
                                     return new CommitReply { };
 
@@ -204,9 +204,9 @@ namespace Bank.implementations
                                 commandToCommit.set_commited();
 
                                 //apply all the commands possible
-                                Console.WriteLine("Loop throught the uncommited commands and execute them");
+                                Console.WriteLine("{id=" + request.RequestId.ClientId + ";seq_number=" + request.SequenceNumber + "} " + "Loop throught the uncommited commands and execute them");
                                 for (int index = lastApplied + 1; index <= lastTentative; index++) {
-                                    Console.WriteLine("Started command commit");
+                                    Console.WriteLine("{id=" + request.RequestId.ClientId + ";seq_number=" + request.SequenceNumber + "} " + "Started command commit");
                                     BankCommand command = _serverState.get_command(index);
                                     if (command == null) break; //list of commands isnt sequential from this point on
 
@@ -218,7 +218,7 @@ namespace Bank.implementations
                                         Monitor.PulseAll(command);
                                     }
 
-                                    Console.WriteLine("Ended command commit");
+                                    Console.WriteLine("{id=" + request.RequestId.ClientId + ";seq_number=" + request.SequenceNumber + "} " + "Ended command commit");
                                 }
 
                                 return new CommitReply { };

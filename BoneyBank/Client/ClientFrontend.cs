@@ -47,13 +47,13 @@ namespace Client
             }
 
             // TODO : wait for all to finish ??
-            while (replies.Any())
-            {
+            int count = 0;
+            while (replies.Any() && count < 1) {
                 var task_reply = Task.WhenAny(replies).Result;
                 var _reply = task_reply.Result;
 
                 Console.WriteLine("[" + _reply.Server + "]" + " Deposit succesful");
-
+                count++;
                 replies.Remove(task_reply);
             }
         }
@@ -63,6 +63,7 @@ namespace Client
 
 
             var id = get_request_id();
+            Console.WriteLine("ID: " + id);
             var request = new WithdrawalRequest { Amount = amount, Id = id };
             List<Task<WithdrawalReply>> replies = new List<Task<WithdrawalReply>>();
             foreach (var bankConnection in _clientState.get_bank_servers().Values) {
@@ -73,14 +74,14 @@ namespace Client
                 replies.Add(reply);
             }
 
+            int count = 0;
             // TODO : wait for all to finish ??
-            while (replies.Any())
-            {
+            while (replies.Any() && count < 1) {
                 var task_reply = Task.WhenAny(replies).Result;
                 var _reply = task_reply.Result;
 
                 Console.WriteLine("[" + _reply.Server + "]" + " Withdrawal " + _reply.Status);
-
+                count++;
                 replies.Remove(task_reply);
             }
         }
@@ -99,14 +100,15 @@ namespace Client
                 replies.Add(reply);
             }
 
+            int count = 0;
             // TODO : wait for all to finish ??
-            while (replies.Any())
+            while (replies.Any() && count < 1)
             {
                 var task_reply = Task.WhenAny(replies).Result;
                 var _reply = task_reply.Result;
 
                 Console.WriteLine("[" + _reply.Server + "]" + "Balance : " + _reply.Balance);
-
+                count++;
                 replies.Remove(task_reply);
             }
 
