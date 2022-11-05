@@ -118,17 +118,30 @@ namespace Bank
             DateTime starting_time = serverState.get_starting_time();
             while (serverState.has_next_slot())
             {
-                int current_slot;
+                int new_coord, current_slot;
+                int coord, id;
                 lock (serverState.currentSlotLock) {
                     lock (serverState.coordinatorLock) {
-                        serverState.setup_timeslot();
-                        Console.WriteLine("[" + serverState.get_current_slot() + "] Leader : " + serverState.is_coordinator() + ", Frozen : " + serverState.is_frozen());
+                        int tentative_coordinator = serverState.setup_timeslot();
                         current_slot = serverState.get_current_slot();
 
-                        Console.WriteLine("> Sending comapare and swap for leader " + serverState.get_coordinator_id());
-                        int new_coord = bankFrontend.compareAndSwap(current_slot, serverState.get_coordinator_id());
+                        Console.WriteLine("> Sending comapare and swap for leader " + tentative_coordinator);
+                        new_coord = bankFrontend.compareAndSwap(current_slot, tentative_coordinator);
+                        
+                        coord = serverState.get_coordinator_id();
+                        id = serverState.get_id();
+
                         serverState.set_coordinator_id(new_coord);
                         serverState.add_coordinator_id(current_slot, new_coord);
+                        Monitor.PulseAll(serverState.coordinatorLock);
+
+                    }
+                }
+
+                // check if the coordinator changed and it is the new coordinator
+                if (coord != -1 && new_coord != coord && new_coord == id) {
+                    lock (serverState.cleanupLock) {
+                        bankFrontend.doCleanup();
                     }
                 }
                   
@@ -143,8 +156,6 @@ namespace Bank
                 } 
             }
 
-            Console.WriteLine("No more timeslots to execute");
-            Console.WriteLine("Press any key to stop the server...");
 
             Console.ReadKey();
 

@@ -1,14 +1,4 @@
-﻿using Google.Protobuf.WellKnownTypes;
-using Grpc.Core.Interceptors;
-using Grpc.Net.Client;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Grpc.Net.Client;
 
 namespace Bank
 {
@@ -99,6 +89,8 @@ namespace Bank
         private int nextSequenceNumber = 0;
         public Object nextSequenceNumberLock = new();
 
+        public Object cleanupLock = new();
+
 
         private List<FrozenInterceptor> _server_interceptors = new List<FrozenInterceptor>();
 
@@ -132,7 +124,11 @@ namespace Bank
         }
 
         public int get_coordinator_id(int slot) {
-            return _coordinators_dict[slot];
+            if (_coordinators_dict.ContainsKey(slot)) {    
+                return _coordinators_dict[slot];
+            }
+
+            return -1;
         }
 
         public int get_id() {
@@ -276,7 +272,7 @@ namespace Bank
             return true;
         }
 
-        public void setup_timeslot () {
+        public int setup_timeslot () {
 
             lock (currentSlotLock) { 
                 _current_slot++;
@@ -316,15 +312,14 @@ namespace Bank
                 }
             }
 
+            int tentative_coordinator;
             //send preferably the last server as coordinator if it is unsuspected
             if (previous_coord_frozen){
-                _coordinator = coordinator;
+                tentative_coordinator = coordinator;
             } else {
-                _coordinator = previous_coordinator;
+                tentative_coordinator = previous_coordinator;
             }
             
-            _coordinators_dict.Add(_current_slot, _coordinator);
-
             // freeze/unfreeze channels
             if (was_frozen != _frozen) {
                 // freeze/unfreeze client channels
@@ -337,6 +332,8 @@ namespace Bank
                     interceptor.toggle_freeze();
                 }
             }
+
+            return tentative_coordinator;
         }
 
 
@@ -377,6 +374,10 @@ namespace Bank
 
         public List<Tuple<int, int>> getUnorderedCommands() {
             return unordered.ToList();
+        }
+
+        public Dictionary<int, Tuple<int, int>> getOrderedCommands() {
+            return ordered;
         }
 
 
@@ -439,8 +440,10 @@ namespace Bank
         }
 
         public Tuple<int, int> get_ordered_command(int index) {
-            if (ordered.ContainsKey(index))
+            if (ordered.ContainsKey(index)) {
                 return ordered[index];
+            }
+
             return null;
         }
 

@@ -50,7 +50,9 @@ namespace Bank
             ServerStatus server = ServerStatus.Backup;
             if (is_coordinator) {
                 server = ServerStatus.Primary;
-                _bankFrontend.doCommand(requestId);
+                lock (_serverState.cleanupLock) {
+                    _bankFrontend.doCommand(requestId);
+                }
             }
 
             lock (bankCommand) {
@@ -99,7 +101,9 @@ namespace Bank
             ServerStatus server = ServerStatus.Backup;
             if (is_coordinator) {
                 server = ServerStatus.Primary;
-                _bankFrontend.doCommand(requestId);
+                lock (_serverState.cleanupLock) {
+                    _bankFrontend.doCommand(requestId);
+                }
             }
 
             lock (bankCommand) {
@@ -149,7 +153,9 @@ namespace Bank
             ServerStatus server = ServerStatus.Backup;
             if (is_coordinator) {
                 server = ServerStatus.Primary;
-                _bankFrontend.doCommand(requestId);
+                lock (_serverState.cleanupLock) {
+                    _bankFrontend.doCommand(requestId);
+                }
             }
 
             lock (bankCommand) {

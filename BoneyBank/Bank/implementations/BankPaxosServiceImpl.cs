@@ -33,7 +33,7 @@ namespace Bank.implementations
             int sequence_number = request.SequenceNumber;
 
             //server might still not have received the command from the client
-            lock(_serverState.allCommandsLock) {
+            lock (_serverState.allCommandsLock) {
                 while (!_serverState.command_exists(commandId)) {
                     Monitor.Wait(_serverState.allCommandsLock);
                 }
@@ -46,13 +46,18 @@ namespace Bank.implementations
                 }
             }
 
+            lock (_serverState.coordinatorLock) {
+                while (_serverState.get_coordinator_id(assignment_slot) == -1) {
+                    Monitor.Wait(_serverState.coordinatorLock);
+                }
+            }
+
             //TODO: completely correct???
             lock (_serverState.currentSlotLock) {
-
                 //check if sender was the primary for the slot of the assignment
                 int coordinator_assignment_slot = _serverState.get_coordinator_id(assignment_slot);
-                if (coordinator_assignment_slot != sender_id)
-                {
+
+                if (coordinator_assignment_slot != sender_id) {
                     return new TentativeReply { Ack = false };
                 }
 
@@ -61,24 +66,24 @@ namespace Bank.implementations
                     if (_serverState.get_coordinator_id(slot) != sender_id) {
                         return new TentativeReply { Ack = false };
                     }
-                }                            
+                }
 
                 lock (_serverState.unorderedLock) {
                     lock (_serverState.orderedLock) {
                         lock (_serverState.lastAppliedLock) {
                             lock (_serverState.lastTentativeLock) {
                                 lock (_serverState.lastSequentialLock) {
+
                                     //already applied
                                     if (sequence_number <= _serverState.get_last_applied()) {
                                         return new TentativeReply { Ack = false };
                                     }
 
-
                                     //update the last sequential
                                     //have to check from last applied because previous accepted might have
                                     //traded positions
                                     updateLastSequential();
-                                    
+
                                     var previous_command_id = _serverState.get_ordered_command(sequence_number);
                                     if (previous_command_id != null) {
                                         if (_serverState.get_command(previous_command_id).is_commited() ||
@@ -102,7 +107,6 @@ namespace Bank.implementations
                                         _serverState.setLastSequential(sequence_number);
                                         Monitor.PulseAll(_serverState.lastSequentialLock);
                                     }
-
                                     return new TentativeReply { Ack = true };
                                 }
                             }
@@ -212,13 +216,15 @@ namespace Bank.implementations
                     Monitor.Wait(_serverState.currentSlotLock);
             }
 
+
             lock (_serverState.orderedLock) {
                 lock (_serverState.lastTentativeLock) { 
                     CleanupReply reply = new CleanupReply { 
                                             HighestKnownSeqNumber = _serverState.get_last_tentative() };
-
+                    
                     for (int index = request.LastApplied + 1; index <= _serverState.get_last_tentative(); index++) { 
                         var command_id = _serverState.get_ordered_command(index);
+
                         if (command_id != null)
                         {
                             BankCommand command = _serverState.get_command(command_id);
@@ -232,7 +238,7 @@ namespace Bank.implementations
                                 SequenceNumber = index,
                                 AssignmentSlot = command.get_assignment_slot()
                             });
-                        }   
+                        } 
                     }
                     return reply; 
                 }

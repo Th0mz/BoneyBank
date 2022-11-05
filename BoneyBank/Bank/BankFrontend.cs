@@ -39,8 +39,6 @@ namespace Bank
             var task_reply = Task.WhenAny(replies).Result;
             var reply = task_reply.Result;
 
-            Console.WriteLine("compareAndSwap reach consensus on leader " + reply.Leader);
-
             // remove recieved reply
             replies.Remove(task_reply);
 
@@ -88,7 +86,9 @@ namespace Bank
         }
 
         public void doCleanup () {
-            
+
+            setup_connections();
+
             int number_servers = _serverState.get_bank_servers().Count();
             int count = 0;
             List<Task<CleanupReply>> cleanup_replies;
@@ -101,7 +101,7 @@ namespace Bank
                     slot = _serverState.get_current_slot();
                 }
             }
-            
+
             cleanup_replies = cleanup(last_applied, slot);
             
             //TODO: create 'previous' list <commandId, sequenceNumber>
@@ -114,6 +114,7 @@ namespace Bank
                 var task_reply = Task.WhenAny(cleanup_replies).Result;
                 var reply = task_reply.Result;
                 count++;
+
                 lock (_serverState.lastTentativeLock) {
                     if (reply.HighestKnownSeqNumber > _serverState.get_last_tentative())
                         _serverState.set_last_tentative(reply.HighestKnownSeqNumber);
@@ -123,9 +124,9 @@ namespace Bank
                     if (reply.HighestKnownSeqNumber > highestSeqNumReplies)
                         highestSeqNumReplies = reply.HighestKnownSeqNumber;
                     if (reply.HighestKnownSeqNumber > _serverState.getNextSequenceNumber())
-                        _serverState.setNextSequenceNumber(reply.HighestKnownSeqNumber);
+                        _serverState.setNextSequenceNumber(reply.HighestKnownSeqNumber + 1);
                 }
-                
+
                 //TODO: make sure it's not necessary given we use perfect channels
                 /*List<Tuple<int, int>> committed = new();
                 foreach(var commandId in reply.Committed) {
@@ -137,7 +138,10 @@ namespace Bank
                     if (accepted.ContainsKey(commandId.SequenceNumber)) {
                         if (commandId.AssignmentSlot > accepted[commandId.SequenceNumber].AssignmentSlot)
                             accepted[commandId.SequenceNumber] = commandId;
+                    } else {
+                        accepted[commandId.SequenceNumber] = commandId;
                     }
+                    
                     _serverState.removeUnordered(new Tuple<int, int>(commandId.RequestId.ClientId, commandId.RequestId.ClientSequenceNumber));
                 }
                 
@@ -146,14 +150,29 @@ namespace Bank
             }
 
             for(int index = last_applied + 1; index < highestSeqNumReplies; index++) {
-                if (accepted.ContainsKey(index))
+                if (accepted.ContainsKey(index)) {
+                        
                     doPreviousCommand(accepted[index].RequestId, accepted[index].SequenceNumber);
+                }
             }
 
-            foreach(var commandId in _serverState.getUnorderedCommands()) {
+            
+            for (int index = 0; index < highestSeqNumReplies; index++) {
+                var ordered_commands = _serverState.getOrderedCommands();
+                if (ordered_commands.ContainsKey(index)) {
+                    if (!accepted.ContainsKey(index)) {
+                        var id = ordered_commands[index];
+                        doCommand(new CommandId { ClientId = id.Item1, ClientSequenceNumber = id.Item2});
+                    }
+                }
+            }
+
+
+            foreach (var commandId in _serverState.getUnorderedCommands()) {
                 doCommand(new CommandId { ClientId = commandId.Item1, ClientSequenceNumber = commandId.Item2 });
             }
             //TODO: can only set the server as coordinator when it has finished cleanup
+
         }
 
 
@@ -194,6 +213,7 @@ namespace Bank
 
         public List<Task<TentativeReply>> tentative(int id, int sequence_number, int assignment_slot, CommandId commandId)
         {
+            setup_connections();
             TentativeRequest request = new TentativeRequest
             {
                 RequestId = commandId,
@@ -217,6 +237,7 @@ namespace Bank
 
         public void commit(CommandId commandId, int sequence_number) {
 
+            setup_connections();
             CommitRequest request = new CommitRequest {
                 RequestId = commandId,
                 SequenceNumber = sequence_number
@@ -232,6 +253,7 @@ namespace Bank
 
         public List<Task<CleanupReply>> cleanup (int last_commited, int slot) {
 
+            setup_connections();
             CleanupRequest request = new CleanupRequest
             {
                 LastApplied = last_commited,
