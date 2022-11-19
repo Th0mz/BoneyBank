@@ -140,8 +140,11 @@ namespace Bank
 
                 // check if the coordinator changed and it is the new coordinator
                 if (coord != -1 && new_coord != coord && new_coord == id) {
-                    lock (serverState.cleanupLock) {
+                    serverState.cleanupLock.EnterWriteLock();
+                    try {
                         bankFrontend.doCleanup();
+                    } finally {
+                        serverState.cleanupLock.ExitWriteLock();
                     }
                 }
                   

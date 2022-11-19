@@ -89,7 +89,8 @@ namespace Bank
         private int nextSequenceNumber = 0;
         public Object nextSequenceNumberLock = new();
 
-        public Object cleanupLock = new();
+        public bool duringCleanup = false;
+        public ReaderWriterLockSlim cleanupLock = new ReaderWriterLockSlim();
 
 
         private List<FrozenInterceptor> _server_interceptors = new List<FrozenInterceptor>();
