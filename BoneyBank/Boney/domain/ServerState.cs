@@ -15,9 +15,9 @@ using System.Drawing;
 namespace Boney
 {
     public class PaxosSlot {
-        private int lastAcceptedValue;
-        private int lastAcceptedSeqnum;
-        private int lastPromisedSeqnum;
+        private int lastAcceptedValue = 0;
+        private int lastAcceptedSeqnum = 0;
+        private int lastPromisedSeqnum = 0;
 
         public int LastAcceptedValue {
             get { return lastAcceptedValue; }
@@ -49,7 +49,7 @@ namespace Boney
         private TimeSpan _delta;
         private bool _frozen;
         private int _coordinator;
-        public Object _coordinatorLock;
+        public Object _coordinatorLock = new();
         private DateTime _starting_time;
 
         // F list

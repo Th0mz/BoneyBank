@@ -6,9 +6,6 @@ namespace Boney
         // TODO : use read/write locks??? locks that permit
         // multiple reads if there is no one writting
 
-        // lock this values 
-        private object mutex = new object();
-
         private const int _OK = 1;
         private const int _NOK = -1;
 
@@ -32,12 +29,17 @@ namespace Boney
         private PrepareReply do_prepare(PrepareRequest request) {
             int slot = request.Slot;
 
+            //Console.WriteLine("IMPL: PREPARE RECEIVED");
             lock (serverState.getPaxosSlot(slot)) {
+                //Console.WriteLine("IMPL: GOT PAXOS SLOT LOCK");
                 if (request.ProposalNumber > serverState.getLastPromisedSeqnum(slot)) {
                     //request.ProposalNumber
                     serverState.setLastPromisedSeqnum(slot, request.ProposalNumber);
                 }
+                
 
+                //Console.WriteLine("IMPL: SENT PREPARE REPLY {VALUE="+ serverState.getLastAcceptedValue(slot) + " SEQNUM="+
+                    //serverState.getLastAcceptedSeqnum(slot) + " PROMISE="+ serverState.getLastPromisedSeqnum(slot));
                 return new PrepareReply
                 {
                     LastAcceptedValue = serverState.getLastAcceptedValue(slot),
@@ -86,22 +88,18 @@ namespace Boney
         private LearnReply do_learn(LearnRequest request) {
             // accept code
             int leader = request.Leader;
-            int slot = request.Slot;
+            int slot = request.Slot;           
 
-            lock (serverState.getPaxosSlot(slot)) {               
-                Slot slot_obj = state.get_slot(slot);
-                lock (slot_obj)
-                {
-                    if (slot_obj.has_leader()) {
-                        return new LearnReply { };
-                    }
-
-                    slot_obj.set_leader(leader);
-                    Monitor.PulseAll(slot_obj);
+            Slot slot_obj = state.get_slot(slot);
+            lock (slot_obj) {
+                if (slot_obj.has_leader()) {
+                    return new LearnReply { };
                 }
-
-                return new LearnReply { };
+                slot_obj.set_leader(leader);
+                Monitor.PulseAll(slot_obj);
             }
+
+            return new LearnReply { };
         }
 
 

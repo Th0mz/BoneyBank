@@ -78,7 +78,7 @@ namespace Boney
                         timeout_exp++;
 
                         var proposal_replies = prepare(proposal_number, slot);
-
+                        //Console.WriteLine("PREPARE: SENT PREPARE WITH PN="+proposal_number+" SLOT="+slot);
                         int count = 0;
                         // wait for replies or a quorum of acks
                         while (proposal_replies.Any() && count < (number_servers / 2) + 1)
@@ -96,9 +96,9 @@ namespace Boney
                                 }
                                 count++;
 
-                            }
-                            else {
-                                int seqNum = reply.LastPromisedSeqnum / number_servers;
+                            } else {
+                                //Server sent promise higher than ours
+                                int seqNum = (reply.LastPromisedSeqnum / number_servers) + 1;
                                 if (seqNum > last_round)
                                     last_round = seqNum;
                             }
@@ -106,16 +106,19 @@ namespace Boney
                             // remove recieved reply
                             proposal_replies.Remove(task_reply);
                         }
-
+                        //Console.WriteLine("PREPARE: READ ALL PROMISES");
 
                         // quorum not reached (must do another prepare)
                         if (!(count >= (number_servers / 2) + 1))
                         {
+                            //Console.WriteLine("PREPARE: DIDNT REACH QUORUM");
                             // random timeout
                             int timeout = random.Next(0, (int)Math.Pow(2, timeout_exp + 1));
                             Thread.Sleep(timeout);
                             continue;
                         }
+
+                        //Console.WriteLine("PREPARE: REACHED QUORUM");
 
                         if (highest_sequence_number == 0)
                         {
@@ -145,16 +148,19 @@ namespace Boney
                         // remove recieved reply
                         accept_replies.Remove(task_reply);
                     }
+                    //Console.WriteLine("ACCEPT: READ ALL PROMISES");
 
                     // check if a majority replied
                     if (!(accept_count >= (number_servers / 2) + 1))
                     {
+                        //Console.WriteLine("ÃCCEPT: DIDNT REACH QUORUM");
                         // random timeout
                         int timeout = random.Next(0, (int)Math.Pow(2, timeout_exp + 1));
                         Thread.Sleep(timeout);
                         continue;
                     }
 
+                    //Console.WriteLine("LEARN: SEND NEW VALUE");
                     // Propagate consensus value
                     learn(highest_value, slot);
                     consensus_reached = true;

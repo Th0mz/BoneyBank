@@ -28,13 +28,14 @@ namespace Boney
             int slot = request.Slot;
             bool is_coordinator;
             bool has_proposed;
+            bool shouldPropose;
 
+            Console.WriteLine("Received compareAndSwap slot=" + slot + " leader=" + leader);
             // DEBUG
             Slot slot_obj = _state.get_slot(slot);
 
 
-            lock (slot_obj)
-            {
+            lock (slot_obj) {
                 if (slot_obj.has_leader()) {
                     return new CompareAndSwapReply
                     {
@@ -42,20 +43,30 @@ namespace Boney
                     };
                 }
                 is_coordinator = _serverState.is_coordinator();
+                Console.WriteLine("Is it coordinator:" + is_coordinator);
+
                 has_proposed = slot_obj.has_proposed();
-                slot_obj.set_proposed();
+                Console.WriteLine("Has it proposed:" + has_proposed);
+
+                shouldPropose = (is_coordinator && !has_proposed);
+                Console.WriteLine("Should it propose:" + shouldPropose);
+
+                if (shouldPropose)
+                    slot_obj.set_proposed();
             }
 
+            Console.WriteLine("Leaves first lock. Should propose:"+shouldPropose);
             //Only propose if believes to be coordinator and hasnt proposed a value yet
-            if (is_coordinator && !has_proposed) {
+            if (shouldPropose) {
                 _paxosFrontend.propose(slot, leader);
             }
-            
+            Console.WriteLine("Ended propose");
             lock (slot_obj) {
                 while (!slot_obj.has_leader()) {
                     Monitor.Wait(slot_obj);
                 }
                 leader = slot_obj.get_leader();
+                Console.WriteLine("SLOT="+slot+" LEADER="+leader);
             }
 
             return new CompareAndSwapReply {
