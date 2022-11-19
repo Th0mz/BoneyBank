@@ -12,12 +12,19 @@ namespace Boney
         ServerState _serverState;
         private bool initialized_connections = false;
 
-        private int last_round = 0;
-        private object mutex = new Object();
+        class PaxosInstance{
+            private int lastRound = 0;
+            public PaxosInstance() {}
+
+            public int LastRound { get { return lastRound; } set { lastRound = value; } }
+        }
+
+        private Dictionary<int, PaxosInstance> paxosSlots = new Dictionary<int, PaxosInstance>();
+        public Object paxosSlotsLock = new();
 
         public PaxosFrontend(ServerState serverState) {
             AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
-            _serverState = serverState; 
+            _serverState = serverState;
         }
 
         public void setup_connections () {
@@ -34,124 +41,128 @@ namespace Boney
             
             setup_connections();
             // full paxos propose algoritm
+            lock (paxosSlotsLock){
+                if (!paxosSlots.ContainsKey(slot))
+                    paxosSlots.Add(slot, new PaxosInstance());
+            }
 
-            int timeout_exp = 0;
-            int id = _serverState.get_id();
-            int number_servers = _serverState.get_paxos_servers().Count();
+            lock (paxosSlots[slot])
+            {
+                int timeout_exp = 0;
+                int id = _serverState.get_id();
+                int number_servers = _serverState.get_paxos_servers().Count();
 
-            int proposal_number = id;
+                int proposal_number = id;
+                int last_round = paxosSlots[slot].LastRound;
 
-            bool consensus_reached = false;
-            bool quorum_reached = false;
+                bool consensus_reached = false;
+                bool quorum_reached = false;
 
-            Random random = new Random();
+                Random random = new Random();
 
 
-            while (!consensus_reached) {
-
-                // Phase 1 : send prepares
-                int highest_value = 0;
-                int highest_sequence_number = 0;
-
-                while (!quorum_reached)
+                while (!consensus_reached)
                 {
-                    highest_value = 0;
-                    highest_sequence_number = 0;
 
-                    lock (mutex)
+                    // Phase 1 : send prepares
+                    int highest_value = 0;
+                    int highest_sequence_number = 0;
+
+                    while (!quorum_reached)
                     {
+                        highest_value = 0;
+                        highest_sequence_number = 0;
+
                         proposal_number = last_round * number_servers + id;
                         last_round++;
-                    }
-                    timeout_exp++;
+                        timeout_exp++;
 
-                    var proposal_replies = prepare(proposal_number, slot);
+                        var proposal_replies = prepare(proposal_number, slot);
 
-                    int count = 0;
-                    // wait for replies or a quorum of acks
-                    while (proposal_replies.Any() && count < (number_servers / 2) + 1)
-                    {
-                        var task_reply = Task.WhenAny(proposal_replies).Result;
-                        var reply = task_reply.Result;
+                        int count = 0;
+                        // wait for replies or a quorum of acks
+                        while (proposal_replies.Any() && count < (number_servers / 2) + 1)
+                        {
+                            var task_reply = Task.WhenAny(proposal_replies).Result;
+                            var reply = task_reply.Result;
 
-                        if (reply.CurrentInstance != true) {
-                            return;
+                            // check if the propose was promissed by the acceptor
+                            if (reply.LastPromisedSeqnum == proposal_number)
+                            {
+                                if (reply.LastAcceptedSeqnum > highest_sequence_number)
+                                {
+                                    highest_sequence_number = reply.LastAcceptedSeqnum;
+                                    highest_value = reply.LastAcceptedValue;
+                                }
+                                count++;
+
+                            }
+                            else {
+                                int seqNum = reply.LastPromisedSeqnum / number_servers;
+                                if (seqNum > last_round)
+                                    last_round = seqNum;
+                            }
+
+                            // remove recieved reply
+                            proposal_replies.Remove(task_reply);
                         }
 
-                        // check if the propose was promissed by the acceptor
-                        if (reply.LastPromisedSeqnum == proposal_number) {
-                            if (reply.LastAcceptedSeqnum > highest_sequence_number) {
-                                highest_sequence_number = reply.LastAcceptedSeqnum;
-                                highest_value = reply.LastAcceptedValue;
-                                
-                            }
-                            count++;
 
-                        } else {
-                            lock (mutex)
-                            {
-                                last_round = reply.LastPromisedSeqnum / number_servers;
-                            }
+                        // quorum not reached (must do another prepare)
+                        if (!(count >= (number_servers / 2) + 1))
+                        {
+                            // random timeout
+                            int timeout = random.Next(0, (int)Math.Pow(2, timeout_exp + 1));
+                            Thread.Sleep(timeout);
+                            continue;
+                        }
+
+                        if (highest_sequence_number == 0)
+                        {
+                            highest_value = leader;
+                        }
+
+                        quorum_reached = true;
+                    }
+
+
+                    // Phase 2 : send accepts
+                    quorum_reached = false;
+
+                    var accept_replies = accept(proposal_number, highest_value, slot);
+                    int accept_count = 0;
+                    // wait for replies or a quorum of acks
+                    while (accept_replies.Any() && accept_count < (number_servers / 2) + 1)
+                    {
+                        var task_reply = Task.WhenAny(accept_replies).Result;
+                        var reply = task_reply.Result;
+
+                        if (reply.Status == ResponseCode.Ok)
+                        {
+                            accept_count++;
                         }
 
                         // remove recieved reply
-                        proposal_replies.Remove(task_reply);
+                        accept_replies.Remove(task_reply);
                     }
 
-
-                    // quorum not reached (must do another prepare)
-                    if (!(count >= (number_servers / 2 ) + 1)) {
+                    // check if a majority replied
+                    if (!(accept_count >= (number_servers / 2) + 1))
+                    {
                         // random timeout
                         int timeout = random.Next(0, (int)Math.Pow(2, timeout_exp + 1));
                         Thread.Sleep(timeout);
                         continue;
                     }
 
-                    if (highest_sequence_number == 0) {
-                        highest_value = leader;
-                    }
+                    // Propagate consensus value
+                    learn(highest_value, slot);
+                    consensus_reached = true;
 
-                    quorum_reached = true;
                 }
 
-
-                // Phase 2 : send accepts
-                quorum_reached = false;
-
-                var accept_replies = accept(proposal_number, highest_value, slot);
-                int accept_count = 0;
-                // wait for replies or a quorum of acks
-                while (accept_replies.Any() && accept_count < (number_servers / 2) + 1)
-                {
-                    var task_reply = Task.WhenAny(accept_replies).Result;
-                    var reply = task_reply.Result;
-
-                    if (reply.CurrentInstance != true) {
-                        return;
-                    }
-
-                    if (reply.Status == ResponseCode.Ok) {
-                        accept_count++;
-                    }
-
-                    // remove recieved reply
-                    accept_replies.Remove(task_reply);
-                }
-
-                // check if a majority replied
-                if (!(accept_count >= (number_servers / 2) + 1)) {
-                    // random timeout
-                    int timeout = random.Next(0, (int) Math.Pow(2, timeout_exp + 1));
-                    Thread.Sleep(timeout);
-                    continue;
-                }
-
-                // Propagate consensus value
-                learn(highest_value, slot);
-                consensus_reached = true;
-                
+                paxosSlots[slot].LastRound = last_round;
             }
-
             return;
         }
 

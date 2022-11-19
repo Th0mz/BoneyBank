@@ -10,9 +10,31 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using static Grpc.Core.Interceptors.Interceptor;
+using System.Drawing;
 
 namespace Boney
 {
+    public class PaxosSlot {
+        private int lastAcceptedValue;
+        private int lastAcceptedSeqnum;
+        private int lastPromisedSeqnum;
+
+        public int LastAcceptedValue {
+            get { return lastAcceptedValue; }
+            set { lastAcceptedValue = value; }
+        }
+
+        public int LastAcceptedSeqnum {
+            get { return lastAcceptedSeqnum; }
+            set { lastAcceptedSeqnum = value; }
+        }
+        public int LastPromisedSeqnum {
+            get { return lastPromisedSeqnum; }
+            set { lastPromisedSeqnum = value; }
+        }
+
+    }
+
     public class ServerState {
 
         // constants
@@ -27,6 +49,7 @@ namespace Boney
         private TimeSpan _delta;
         private bool _frozen;
         private int _coordinator;
+        public Object _coordinatorLock;
         private DateTime _starting_time;
 
         // F list
@@ -41,20 +64,46 @@ namespace Boney
 
         private List<FrozenInterceptor> _server_interceptors = new List<FrozenInterceptor>();
 
-        public ServerState() {  }
+        private int _size;
+        private PaxosSlot[] slotValues;
+
+        public ServerState() {}
+
+        public void initialize() {
+            _size = _max_slots + 1;
+            slotValues = new PaxosSlot[_size];
+
+            for (int i = 0; i < _size; i++)
+            {
+                slotValues[i] = new PaxosSlot();
+            }
+        }
 
 
         // getters
+        public PaxosSlot getPaxosSlot(int slot) { return slotValues[slot]; }
+        public int getLastAcceptedValue (int slot) { return slotValues[slot].LastAcceptedValue; }
+        public int getLastAcceptedSeqnum(int slot) { return slotValues[slot].LastAcceptedSeqnum; }
+        public int getLastPromisedSeqnum(int slot) { return slotValues[slot].LastPromisedSeqnum; }
+
+        public void setLastAcceptedValue (int slot, int newvalue) { slotValues[slot].LastAcceptedValue = newvalue; }
+        public void setLastAcceptedSeqnum(int slot, int newvalue) { slotValues[slot].LastAcceptedSeqnum = newvalue; }
+        public void setLastPromisedSeqnum(int slot, int newvalue) { slotValues[slot].LastPromisedSeqnum = newvalue; }
+
         public bool is_frozen () {
             return _frozen;
         }
 
         public bool is_coordinator() {
-            return _coordinator == _id;
+            lock(_coordinatorLock) {
+                return _coordinator == _id;
+            }
         }
 
         public int get_coordinator_id() {
-            return _coordinator;
+            lock (_coordinatorLock) {
+                return _coordinator;
+            }
         }
 
         public string get_url() {
@@ -223,7 +272,9 @@ namespace Boney
                 }
             }
 
-            _coordinator = coordinator;
+            lock (_coordinatorLock) {
+                _coordinator = coordinator;
+            }
             // freeze/unfreeze channels
             if (was_frozen != _frozen) {
                 // freeze/unfreeze client channels

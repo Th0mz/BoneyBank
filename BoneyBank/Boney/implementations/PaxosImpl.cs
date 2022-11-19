@@ -9,18 +9,15 @@ namespace Boney
         // lock this values 
         private object mutex = new object();
 
-        private int last_accepted_value = 0;
-        private int last_promised_seqnum = 0;
-        private int last_accepted_seqnum = 0;
-        private int currentInstance = 1;
-
         private const int _OK = 1;
         private const int _NOK = -1;
 
         private BoneyState state;
+        private ServerState serverState;
 
-        public PaxosImpl (BoneyState _state) {
+        public PaxosImpl (BoneyState _state, ServerState _serverState) {
             state = _state;
+            serverState = _serverState; 
             AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
         }
 
@@ -33,24 +30,21 @@ namespace Boney
         }
 
         private PrepareReply do_prepare(PrepareRequest request) {
-            // accept code
-            lock (mutex)
-            {
-                if (request.ProposalNumber > last_promised_seqnum) {
+            int slot = request.Slot;
+
+            lock (serverState.getPaxosSlot(slot)) {
+                if (request.ProposalNumber > serverState.getLastPromisedSeqnum(slot)) {
                     //request.ProposalNumber
-                    last_promised_seqnum = request.ProposalNumber;
+                    serverState.setLastPromisedSeqnum(slot, request.ProposalNumber);
                 }
 
                 return new PrepareReply
                 {
-                    CurrentInstance = true,
-                    LastAcceptedValue = last_accepted_value,
-                    LastAcceptedSeqnum = last_accepted_seqnum,
-                    LastPromisedSeqnum = last_promised_seqnum
+                    LastAcceptedValue = serverState.getLastAcceptedValue(slot),
+                    LastAcceptedSeqnum = serverState.getLastAcceptedSeqnum(slot),
+                    LastPromisedSeqnum = serverState.getLastPromisedSeqnum(slot)
                 };   
             }
-            
-
         }
 
 
@@ -62,28 +56,19 @@ namespace Boney
         }
 
         private AcceptReply do_accept(AcceptRequest request) {
-            lock (mutex)
-            {
-
-
-                if (request.Slot != currentInstance) {
-                    return new AcceptReply { CurrentInstance = false };
-                }
-
-                if (request.ProposalNumber == last_promised_seqnum)
+            lock (serverState.getPaxosSlot(request.Slot)) {
+                if (request.ProposalNumber == serverState.getLastPromisedSeqnum(request.Slot))
                 {
-                    last_accepted_seqnum = last_promised_seqnum;
-                    last_accepted_value = request.Leader;
+                    serverState.setLastAcceptedSeqnum(request.Slot, request.ProposalNumber);
+                    serverState.setLastAcceptedValue(request.Slot, request.Leader);
 
                     return new AcceptReply {
-                        Status = ResponseCode.Ok,
-                        CurrentInstance = true
+                        Status = ResponseCode.Ok
                     };
                 }
 
                 return new AcceptReply {
-                    Status = ResponseCode.Nok,
-                    CurrentInstance = true
+                    Status = ResponseCode.Nok
                 };
             }
 
@@ -103,18 +88,7 @@ namespace Boney
             int leader = request.Leader;
             int slot = request.Slot;
 
-            lock (mutex)
-            {
-                if (slot != currentInstance) {
-                    return new LearnReply { };
-                }
-
-                //erase last paxos instance's variables
-                last_accepted_value = 0;
-                last_promised_seqnum = 0;
-                last_accepted_seqnum = 0;
-                currentInstance++;
-                
+            lock (serverState.getPaxosSlot(slot)) {               
                 Slot slot_obj = state.get_slot(slot);
                 lock (slot_obj)
                 {

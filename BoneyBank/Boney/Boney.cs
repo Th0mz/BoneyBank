@@ -68,15 +68,14 @@ namespace Boney
             DateTime start = DateTime.Now;
 
             ServerState serverState = new ServerState();
-            PaxosFrontend paxosFrontend = new PaxosFrontend(serverState);
             string config_path = @"..\..\..\..\..\configuration_sample.txt";
-
 
             if (!processInput(args, config_path, serverState)) {
                 // error processing input occurred
                 return;
             }
 
+            PaxosFrontend paxosFrontend = new PaxosFrontend(serverState);
             BoneyState state = new BoneyState(serverState.get_max_slot());
 
 
@@ -102,7 +101,7 @@ namespace Boney
             Server server = new Server
             {
                 Services = { CompareAndSwapService.BindService(new CompareAndSwapImpl(state, paxosFrontend, serverState)).Intercept(compareAndSwapServerInterceptor), 
-                             PaxosService.BindService(new PaxosImpl(state)).Intercept(paxosServerInterceptor),
+                             PaxosService.BindService(new PaxosImpl(state, serverState)).Intercept(paxosServerInterceptor),
                 },
 
                 Ports = { new ServerPort(host, port, ServerCredentials.Insecure) }

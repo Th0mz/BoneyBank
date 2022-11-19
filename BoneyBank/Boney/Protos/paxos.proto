@@ -16,7 +16,6 @@ message PrepareReply {
 	int32 last_accepted_value = 1;
 	int32 last_accepted_seqnum = 2;
 	int32 last_promised_seqnum = 3;
-	bool current_instance = 4;
 }
 
 // accept 
@@ -28,7 +27,6 @@ message AcceptRequest {
 
 message AcceptReply {
 	ResponseCode status = 1;
-	bool current_instance = 2;
 }
 
 // learn 

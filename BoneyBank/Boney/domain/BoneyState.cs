@@ -11,9 +11,18 @@ namespace Boney
     public class Slot {
         private static int no_leader = -1;
         private int _leader = no_leader;
+        private bool _proposed = false;
 
         public bool has_leader() {
             return _leader != no_leader;
+        }
+
+        public bool has_proposed () {
+            return _proposed;
+        }
+
+        public void set_proposed () {
+            _proposed = true;
         }
 
         public int get_leader() {
